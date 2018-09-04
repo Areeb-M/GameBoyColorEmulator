@@ -1,4 +1,4 @@
 @echo off
-cd "C:\Users\mohamare000\Documents\C# coding\projects\GameBoyColorEmulator\build"
+cd %cd%\build
 build.exe
 pause
