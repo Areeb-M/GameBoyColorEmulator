@@ -1,4 +1,5 @@
 @echo off
-cd %cd%\build
+cd /D "%~dp0"
+cd build
 build.exe
 pause
