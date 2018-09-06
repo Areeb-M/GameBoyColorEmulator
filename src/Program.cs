@@ -5,7 +5,7 @@ namespace Emulator{
 	class Program{
 	
 		static void Main(String[] arguments){
-			Console.WriteLine("Hello");
+			Memory m = new Memory(arguments[0]);
 		}
 	
 	}
