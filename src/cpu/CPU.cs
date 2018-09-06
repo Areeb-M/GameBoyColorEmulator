@@ -3,7 +3,7 @@ using System;
 
 namespace Emulator{
 
-	class CPU}{
+	class CPU{
 	
 		#region Registers
 		byte[] reg = new byte[8];
@@ -18,11 +18,11 @@ namespace Emulator{
 		const int F = 5;
 		const int H = 6;
 		const int L = 7;
-		#end
+		#endregion
 	
 		#region Memory
 		
-		#end
+		#endregion
 	
 		CPU(){
 			
