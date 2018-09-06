@@ -34,10 +34,14 @@ namespace Emulator{
 							Hudson_HuC3 =               0xFE,
 							Hudson_HuC1 =               0xFF							
 							};
+		enum DestinationCode {Japanese, Non_Japanese};
 		
-		string ROM_TITLE;
-		GameType gameType;
-		CartridgeType cartridgeType;
+		int[][] ROMBanks = {};
+		
+		public string ROM_TITLE;
+		public GameType gameType;
+		public CartridgeType cartridgeType;
+		public DestinationCode destinationCode;
 		
 		
 		public Memory(string romPath){
@@ -60,7 +64,7 @@ namespace Emulator{
 			
 			cartridgeType = (CartridgeType)rom[0x0147];
 			
-			
+			destinationCode = (DestinationCode)rom[0x014A];
 			
 			
 			
