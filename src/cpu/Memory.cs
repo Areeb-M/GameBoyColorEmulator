@@ -20,6 +20,13 @@ namespace Emulator{
 				else
 					tempName += '_';
 			}
+			
+			ROM_TITLE = tempName;
+			
+			
+			
+			
+			
 			Console.WriteLine(tempName);
 		}
 	
