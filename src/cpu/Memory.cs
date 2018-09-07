@@ -38,10 +38,10 @@ namespace Emulator{
 		
 		int[][] ROMBanks = {};
 		
-		public string ROM_TITLE;
-		public GameType gameType;
-		public CartridgeType cartridgeType;
-		public DestinationCode destinationCode;
+		string ROM_TITLE;
+		GameType gameType;
+		CartridgeType cartridgeType;
+		DestinationCode destinationCode;
 		
 		
 		public Memory(string romPath){
