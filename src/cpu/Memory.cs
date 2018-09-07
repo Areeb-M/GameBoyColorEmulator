@@ -76,11 +76,24 @@ namespace Emulator{
 					romBanks = 96;
 					break;
 				default:
-					romBanks = Math.Pow(2, rom[0x0148]+1);
+					romBanks = (int)Math.Pow(2, rom[0x0148]+1);
+					break;
 			}
 			
 			switch(rom[0x0149]){
-				
+				case 0:
+					ramBanks = 0;
+					break;
+				case 1: // 2kB 
+				case 2: // 8kB These are different sizes, but use the same number of ram banks
+					ramBanks = 1;
+					break;
+				case 3:
+					ramBanks = 4;
+					break;
+				case 4:
+					ramBanks = 16;
+					break;
 			}
 			
 			destinationCode = (DestinationCode)rom[0x014A];			
@@ -88,6 +101,9 @@ namespace Emulator{
 			Console.WriteLine(tempName);
 			Console.WriteLine(gameType);
 			Console.WriteLine(cartridgeType);
+			Console.WriteLine("ROM Banks: {0}", romBanks);
+			Console.WriteLine("RAM Banks: {0}", ramBanks);
+			Console.WriteLine(destinationCode);
 		}
 	
 	}
