@@ -35,10 +35,11 @@ namespace Emulator{
 							Hudson_HuC1 =               0xFF							
 							};
 		enum DestinationCode {Japanese, Non_Japanese};
-		
-		int[][] ROMBanks = {};
+
 		
 		string ROM_TITLE;
+		int romBanks;
+		int ramBanks;
 		GameType gameType;
 		CartridgeType cartridgeType;
 		DestinationCode destinationCode;
@@ -63,11 +64,26 @@ namespace Emulator{
 				gameType = GameType.Mono;
 			
 			cartridgeType = (CartridgeType)rom[0x0147];
+						
+			switch(rom[0x0148]){
+				case 0x52:
+					romBanks = 72;
+					break;
+				case 0x53:
+					romBanks = 80;
+					break;
+				case 0x54:
+					romBanks = 96;
+					break;
+				default:
+					romBanks = Math.Pow(2, rom[0x0148]+1);
+			}
 			
-			destinationCode = (DestinationCode)rom[0x014A];
+			switch(rom[0x0149]){
+				
+			}
 			
-			
-			
+			destinationCode = (DestinationCode)rom[0x014A];			
 			
 			Console.WriteLine(tempName);
 			Console.WriteLine(gameType);
