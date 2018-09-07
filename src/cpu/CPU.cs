@@ -20,12 +20,10 @@ namespace Emulator{
 		const int L = 7;
 		#endregion
 	
-		#region Memory
-		
-		#endregion
+		Memory memory;
 	
-		CPU(){
-			
+		public CPU(string romPath){
+			memory = new Memory(romPath);
 		}
 		
 		public void tick(){
