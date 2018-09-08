@@ -6,6 +6,12 @@ namespace Emulator{
 	class Memory{
 		
 		byte[] rom;
+		byte[] ram;
+		byte[] vram;  // Video RAM
+		byte[] io;    // Input/Output Memory
+		byte[] oam;   // Object Attribute Memory: Stores information about sprites
+		int romBankOffset;
+		int ramBankOffset;
 		enum GameType {Color, Mono}; // Color = Gameboy Color; Mono = Gameboy (Mono being short for Monochrome)
 		enum CartridgeType {ROM =                       0x0,
 							ROM_MBC1 =                  0x1, 
@@ -98,6 +104,14 @@ namespace Emulator{
 			
 			destinationCode = (DestinationCode)rom[0x014A];			
 			
+			ram = new byte[0x2000 * (ramBanks + 1) + 0x007F]; // Plus 1 accounts for the internal RAM; Plus 0x007F accounts for the internal ram at the end of the memory range
+			vram = new byte[0x2000];
+			io = new byte[0x4C];
+			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
+			
+			romBankOffset = 0;
+			ramBankOffset = 0x2000;
+			
 			Console.WriteLine(tempName);
 			Console.WriteLine(gameType);
 			Console.WriteLine(cartridgeType);
@@ -105,6 +119,72 @@ namespace Emulator{
 			Console.WriteLine("RAM Banks: {0}", ramBanks);
 			Console.WriteLine(destinationCode);
 		}
+	
+		public byte this[int index]{
+			get{
+				switch((index & 0xF000) >> 6){ // Use bitwise AND to get topmost nibble, bitshift right 6 to move down
+					case 0x0:
+					case 0x1:
+					case 0x2:
+					case 0x3:
+						return rom[index];
+					case 0x4:
+					case 0x5:
+					case 0x6:
+					case 0x7:
+						return rom[index + romBankOffset];
+					case 0x8:
+					case 0x9:
+						return vram[index - 0x8000];
+					case 0xA:
+					case 0xB:
+						return ram[index + ramBankOffset - 0x8000]; // Offset by 0x8000 to set at the start of ram banks. 
+					case 0xC:
+					case 0xD:
+						return ram[index - 0xA000];
+					case 0xE:
+						return ram[index - 0xE0000];
+					case 0xF:
+						switch((index & 0x0F00) >> 4){ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
+							case 0xE:
+								switch((index & 0x00F0) >> 2){
+									case 0xA:
+									case 0xB:
+									case 0xC:
+									case 0xD:
+									case 0xE:
+									case 0xF:
+										return (byte)0; 
+									default:
+										return oam[index - 0xFE00];
+								}
+							case 0xF:
+								switch((index & 0x00F0) >> 2){
+									case 0x0:
+									case 0x1:
+									case 0x2:
+									case 0x3:
+										return io[index - 0xFF00];
+									case 0x4:
+									case 0x5:
+									case 0x6:
+									case 0x7:
+										return (byte)0;
+									default:
+										return ram[index - 0xFF00 + 0x2000 * (ramBanks + 1)];					
+								}
+							default:                                // 0x0 - 0xD are echoes of internal ram 0xC000 - 0xDFFF
+								return ram[index - 0xE000];		
+						}
+					default:
+						return (byte)0;
+				}
+			}
+			
+			set{
+				
+			}
+		}	
 	
 	}
 
