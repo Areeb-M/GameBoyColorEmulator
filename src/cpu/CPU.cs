@@ -33,11 +33,15 @@ namespace Emulator{
 			OpcodeFunction jump = JUMP;
 			OpcodeFunction restart38 = RESTART38;
 			OpcodeFunction compare = COMPARE;
+			OpcodeFunction jumpForward = JUMP_FORWARD;
+			OpcodeFunction jumpForwardIf = JUMP_FORWARD_IF;
 			opcodeTable = new Dictionary<int, OpcodeFunction>(){
-				{0x00, nop},
-				{0xC3, jump},
-				{0xFF, restart38},
-				{0xFE, compare},
+					{0x00, nop},
+					{0x18, jumpForward},
+					{0x28, jumpForwardIf},
+					{0xC3, jump},
+					{0xFE, compare},
+					{0xFF, restart38},
 			};
 		}
 		
@@ -81,7 +85,7 @@ namespace Emulator{
 					b = memory[++PC];
 					break;
 				default:
-					Console.WriteLine("[Error]Unimplemented compary opcode detected!");
+					Console.WriteLine("\n[Error]Unimplemented compare opcode detected!");
 					return;
 			}
 			int result = a - b;
@@ -91,8 +95,29 @@ namespace Emulator{
 			f += ((a&0xF) + ((-b)&0xF))&0x10; // H Flag
 			f += ((result < 0) ? 1 : 0); f <<= 4;
 			reg[F] = (byte)f;
+			Console.Write(": Compare results reg[F] = {0}", Convert.ToString(reg[F], 2).PadLeft(8, '0'));
 			PC += 1;
 		}	
+		
+		private void JUMP_FORWARD_IF(){
+			switch(memory[PC]){
+				case 0x28:
+					if((reg[F] & 0x80) == 0x80){
+						JUMP_FORWARD();
+					} else {
+						PC += 2;
+					}
+					break;
+				default:
+					Console.WriteLine("\n[Error]Unimplemented jumpForwardIf opcode detected!");
+					break;
+			}			
+		}
+		
+		private void JUMP_FORWARD(){
+			PC += memory[PC+1];
+			Console.Write(": Jump forward to {0:X4}", PC);
+		}
 	}
 
 }
