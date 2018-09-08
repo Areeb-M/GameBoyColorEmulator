@@ -143,7 +143,7 @@ namespace Emulator{
 					case 0xD:
 						return ram[index - 0xA000];
 					case 0xE:
-						return ram[index - 0xE0000];
+						return ram[index - 0xE000];
 					case 0xF:
 						switch((index & 0x0F00) >> 4){ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
 							case 0xE:
@@ -181,11 +181,19 @@ namespace Emulator{
 				}
 			}
 			
-			set{
-				
+			set{/*
+				switch(cartridgeType){
+					case CartridgeType.ROM_MBC5_RAM_BATT:
+						writeMBC5(index, value);
+						break;
+				}*/
 			}
 		}	
-	
+		
+		private void writeMBC5(int index, byte val){
+			
+		}
+		
 	}
 
 }

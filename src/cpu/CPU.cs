@@ -42,7 +42,9 @@ namespace Emulator{
 		public bool tick(){
 			int opcode = memory[PC];
 			if(opcodeTable.ContainsKey(opcode)){
+				Console.Write("[{0:X2}]{1:X2}", PC, opcode);
 				opcodeTable[opcode]();
+				Console.ReadLine();
 				return true;
 			} else {
 				Console.WriteLine("Encountered unknown opcode {0:X2} while executing.", opcode);
@@ -56,15 +58,20 @@ namespace Emulator{
 			PC += 1; // OPCODE length
 		}
 	
-		private void JUMP(){
-			PC = memory[PC+1]<<8 + memory[PC+2];
+		private void JUMP(){ 
+			// JUMP: Jumps to a location in memory
+			PC = memory[PC+1] + (memory[PC+2] << 8);
+			Console.Write(": Jump to {0:X4}", PC);
 		}
 		
 		private void RESTART38(){
+			// Restart38: Restarts Gameboy from memoru location 0x38
 			memory[--SP] = (byte)(PC & 0x0000FFFF);
-			memory[--SP] = (byte)(PC & 0xFFFF0000) >> 8;
-			PC = 0x0038;
+			memory[--SP] = (byte)((PC & 0xFFFF0000) >> 8);
+			PC = 0x0038 + 1;
 		}
+		
+		private void COMPARE
 	
 	
 	}
