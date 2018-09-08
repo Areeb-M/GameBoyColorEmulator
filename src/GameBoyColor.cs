@@ -4,8 +4,10 @@ namespace Emulator{
 
 	class GameBoyColor{
 	
-		GameBoyColor(){
-		
+		public GameBoyColor(string romPath){
+			CPU cpu = new CPU(romPath);		
+			
+			while(cpu.tick()){};
 		}	
 		
 		
