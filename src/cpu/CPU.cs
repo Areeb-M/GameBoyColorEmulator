@@ -31,9 +31,11 @@ namespace Emulator{
 			memory = new Memory(romPath);
 			OpcodeFunction nop = NOP;
 			OpcodeFunction jump = JUMP;
+			OpcodeFunction restart38 = RESTART38;
 			opcodeTable = new Dictionary<int, OpcodeFunction>(){
 				{0x00, nop},
-				{0xC3, jump}
+				{0xC3, jump},
+				{0xFF, restart38}
 			};
 		}
 		
@@ -56,6 +58,12 @@ namespace Emulator{
 	
 		private void JUMP(){
 			PC = memory[PC+1]<<8 + memory[PC+2];
+		}
+		
+		private void RESTART38(){
+			memory[--SP] = (byte)(PC & 0x0000FFFF);
+			memory[--SP] = (byte)(PC & 0xFFFF0000) >> 8;
+			PC = 0x0038;
 		}
 	
 	
