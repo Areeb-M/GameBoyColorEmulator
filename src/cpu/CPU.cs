@@ -35,11 +35,21 @@ namespace Emulator{
 			OpcodeFunction compare = COMPARE;
 			OpcodeFunction jumpForward = JUMP_FORWARD;
 			OpcodeFunction jumpForwardIf = JUMP_FORWARD_IF;
+			OpcodeFunction xor = XOR;
 			opcodeTable = new Dictionary<int, OpcodeFunction>(){
 					{0x00, nop},
 					{0x18, jumpForward},
 					{0x28, jumpForwardIf},
+					{0xA8, xor},
+					{0xA9, xor},
+					{0xAA, xor},
+					{0xAB, xor},
+					{0xAC, xor},
+					{0xAD, xor},
+					{0xAE, xor},
+					{0xAF, xor},
 					{0xC3, jump},
+					{0xEE, xor},
 					{0xFE, compare},
 					{0xFF, restart38},
 			};
@@ -106,6 +116,7 @@ namespace Emulator{
 						JUMP_FORWARD();
 					} else {
 						PC += 2;
+						Console.Write(": Jump forward failed since Z flag was not set");
 					}
 					break;
 				default:
@@ -117,6 +128,23 @@ namespace Emulator{
 		private void JUMP_FORWARD(){
 			PC += memory[PC+1];
 			Console.Write(": Jump forward to {0:X4}", PC);
+		}
+		
+		private void XOR(){
+			int a = reg[A];
+			int b;
+			switch(memory[PC]){
+				case 0xAF:
+					b = reg[A];
+					PC += 1;
+					break;
+				default:
+					Console.WriteLine("\n[Error]Unimplemented XOR opcode detected!");
+					return;
+			}
+			reg[A] = (byte)(a ^ b);
+			reg[F] = (reg[A] == 0) ? (byte)0x80 : (byte)0;
+			Console.Write(": XOR reg[A]={0} with b={1} to get {2}. Store in reg[A].", a, b, reg[A]);
 		}
 	}
 
