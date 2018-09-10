@@ -58,12 +58,12 @@ namespace Emulator{
 		public bool tick(){
 			int opcode = memory[PC];
 			if(opcodeTable.ContainsKey(opcode)){
-				Console.Write("[{0:X2}]{1:X2}", PC, opcode);
+				Debug.Opcode(PC, opcode);			// DEBUG
 				opcodeTable[opcode]();
 				Console.ReadLine();
 				return true;
 			} else {
-				Console.WriteLine("Encountered unknown opcode {0:X2} while executing.", opcode);
+				Debug.UnknownOpcode(PC, opcode);
 				return false;
 			}
 		}
