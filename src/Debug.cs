@@ -15,8 +15,8 @@ namespace Emulator{
 			Console.WriteLine("Encountered unknown opcode {0:X2} at [{1:X2}] while executing.", opcode, PC);
 		}
 		
-		public static void JUMP(){
-			
+		public static void JUMP(int PC){
+			Console.Write(": Jump to [{0:X4}]", PC);
 		}
 		
 		public static void XOR(){
