@@ -36,10 +36,23 @@ namespace Emulator{
 			OpcodeFunction jumpForward = JUMP_FORWARD;
 			OpcodeFunction jumpForwardIf = JUMP_FORWARD_IF;
 			OpcodeFunction xor = XOR;
+			OpcodeFunction loadNIntoA = LOAD_N_INTO_A;
+			OpcodeFunction loadAIntoN = LOAD_A_INTO_N;
 			opcodeTable = new Dictionary<int, OpcodeFunction>(){
 					{0x00, nop},
+					{0x0A, loadNIntoA},
 					{0x18, jumpForward},
+					{0x1A, loadNIntoA},
 					{0x28, jumpForwardIf},
+					{0x3E, loadNIntoA},
+					{0x78, loadNIntoA},
+					{0x79, loadNIntoA},
+					{0x7A, loadNIntoA},
+					{0x7B, loadNIntoA},
+					{0x7C, loadNIntoA},
+					{0x7D, loadNIntoA},
+					{0x7E, loadNIntoA},
+					{0x7F, loadNIntoA},
 					{0xA8, xor},
 					{0xA9, xor},
 					{0xAA, xor},
@@ -49,7 +62,9 @@ namespace Emulator{
 					{0xAE, xor},
 					{0xAF, xor},
 					{0xC3, jump},
+					{0xE0, loadAIntoN},
 					{0xEE, xor},
+					{0xFA, loadNIntoA},
 					{0xFE, compare},
 					{0xFF, restart38},
 			};
@@ -148,7 +163,28 @@ namespace Emulator{
 		}
 		
 		private void LOAD_N_INTO_A(){
+			int opcode = memory[PC];
+			byte val;
+			switch(opcode){
+				case 0x3E:
+					val = memory[++PC];
+					break;
+				default:
+					Console.WriteLine("\n[Error]Unimplemented load(N)IntoA opcode detected!");
+					return;
+			}
+			reg[A] = val;
+			Debug.LOAD("reg[A]", val);
 			
+			PC += 1;
+		}
+		
+		private void LOAD_A_INTO_N(){
+			int address = 0xFF00 + memory[++PC];
+			memory[address] = reg[A];
+			Debug.LOADH(address, reg[A]);
+			
+			PC += 1;
 		}
 	}
 
