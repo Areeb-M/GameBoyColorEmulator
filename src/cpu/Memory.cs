@@ -55,23 +55,23 @@ namespace Emulator{
 			rom = File.ReadAllBytes(romPath);
 			
 			string tempName = "";
-			for(int i = 0x0134; i < 0x0143; i++){
+			for (int i = 0x0134; i < 0x0143; i++){
 				char letter = (char)rom[i];
-				if(letter != (char)0x00 && letter != ' ')
+				if (letter != (char)0x00 && letter != ' ')
 					tempName += (char)rom[i];
 				else
 					tempName += '_';
 			}			
 			ROM_TITLE = tempName;
 			
-			if(rom[0x0143] == 0x80)
+			if (rom[0x0143] == 0x80)
 				gameType = GameType.Color;
 			else
 				gameType = GameType.Mono;
 			
 			cartridgeType = (CartridgeType)rom[0x0147];
 						
-			switch(rom[0x0148]){
+			switch (rom[0x0148]){
 				case 0x52:
 					romBanks = 72;
 					break;
@@ -86,7 +86,7 @@ namespace Emulator{
 					break;
 			}
 			
-			switch(rom[0x0149]){
+			switch (rom[0x0149]){
 				case 0:
 					ramBanks = 0;
 					break;
@@ -122,7 +122,7 @@ namespace Emulator{
 	
 		public byte this[int index]{
 			get{
-				switch((index & 0xF000) >> 6*4){ // Use bitwise AND to get topmost nibble, bitshift right 6 to move down
+				switch ((index & 0xF000) >> 6*4){ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
 					case 0x0:
 					case 0x1:
 					case 0x2:
@@ -145,9 +145,9 @@ namespace Emulator{
 					case 0xE:
 						return ram[index - 0xE000];
 					case 0xF:
-						switch((index & 0x0F00) >> 4){ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
+						switch ((index & 0x0F00) >> 4*4){ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
 							case 0xE:
-								switch((index & 0x00F0) >> 2){
+								switch ((index & 0x00F0) >> 2*4){
 									case 0xA:
 									case 0xB:
 									case 0xC:
@@ -159,7 +159,7 @@ namespace Emulator{
 										return oam[index - 0xFE00];
 								}
 							case 0xF:
-								switch((index & 0x00F0) >> 2){
+								switch ((index & 0x00F0) >> 2*4){
 									case 0x0:
 									case 0x1:
 									case 0x2:
