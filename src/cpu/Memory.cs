@@ -122,7 +122,7 @@ namespace Emulator{
 	
 		public byte this[int index]{
 			get{
-				switch((index & 0xF000) >> 6){ // Use bitwise AND to get topmost nibble, bitshift right 6 to move down
+				switch((index & 0xF000) >> 6*4){ // Use bitwise AND to get topmost nibble, bitshift right 6 to move down
 					case 0x0:
 					case 0x1:
 					case 0x2:
