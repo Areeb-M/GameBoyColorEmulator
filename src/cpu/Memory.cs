@@ -41,6 +41,7 @@ namespace Emulator{
 							Hudson_HuC1 =               0xFF							
 							};
 		enum DestinationCode {Japanese, Non_Japanese};
+		enum MemoryModel {MM16x8, MM4x32}
 
 		
 		string ROM_TITLE;
@@ -49,6 +50,7 @@ namespace Emulator{
 		GameType gameType;
 		CartridgeType cartridgeType;
 		DestinationCode destinationCode;
+		MemoryModel memoryModel;
 		
 		
 		public Memory(string romPath){
@@ -102,7 +104,8 @@ namespace Emulator{
 					break;
 			}
 			
-			destinationCode = (DestinationCode)rom[0x014A];			
+			destinationCode = (DestinationCode)rom[0x014A];	
+			memoryModel = MemoryModel.MM16x8;
 			
 			ram = new byte[0x2000 * (ramBanks + 1) + 0x007F]; // Plus 1 accounts for the internal RAM; Plus 0x007F accounts for the internal ram at the end of the memory range
 			vram = new byte[0x2000];
@@ -181,17 +184,28 @@ namespace Emulator{
 				}
 			}
 			
-			set{/*
+			set{
 				switch(cartridgeType){
 					case CartridgeType.ROM_MBC5_RAM_BATT:
 						writeMBC5(index, value);
 						break;
-				}*/
+				}
 			}
 		}	
 		
 		private void writeMBC5(int index, byte val){
 			
+		}
+		
+		private void writeMBC1(int index, byte val){
+			switch((index & 0xF000) >> 6*4){
+				case 0x2:
+				case 0x3:
+					romBankOffset = 0x2000*
+					break;
+				default:
+					break;
+			}
 		}
 		
 	}
