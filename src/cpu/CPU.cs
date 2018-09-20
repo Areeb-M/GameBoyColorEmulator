@@ -171,7 +171,7 @@ namespace Emulator{
 			}
 			reg[A] = (byte)(a ^ b);
 			reg[F] = (reg[A] == 0) ? (byte)0x80 : (byte)0;
-			Console.Write(": XOR reg[A]={0} with b={1} to get {2}. Store in reg[A].", a, b, reg[A]);
+			Debug.XOR(a, b, reg[A]);
 		}
 		
 		private void LOAD_N_INTO_A(){

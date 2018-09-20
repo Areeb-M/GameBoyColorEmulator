@@ -10,6 +10,8 @@ namespace Emulator{
 		byte[] vram;  // Video RAM
 		byte[] io;    // Input/Output Memory
 		byte[] oam;   // Object Attribute Memory: Stores information about sprites
+		byte romBank;
+		byte ramBank;
 		int romBankOffset;
 		int ramBankOffset;
 		enum GameType {Color, Mono}; // Color = Gameboy Color; Mono = Gameboy (Mono being short for Monochrome)
@@ -45,6 +47,8 @@ namespace Emulator{
 
 		
 		string ROM_TITLE;
+		romBank = 0;
+		ramBank = 0;
 		int romBanks;
 		int ramBanks;
 		GameType gameType;
@@ -112,6 +116,7 @@ namespace Emulator{
 			io = new byte[0x4C];
 			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
 			
+			romBank = 0;
 			romBankOffset = 0;
 			ramBankOffset = 0x2000;
 			
@@ -201,7 +206,12 @@ namespace Emulator{
 			switch((index & 0xF000) >> 6*4){
 				case 0x2:
 				case 0x3:
-					romBankOffset = 0x2000*
+					romBank = (byte)(val & 0x1F);
+					romBankOffset = 0x2000 * romBank;
+					break;
+				case 0x6:
+				case 0x7:
+					ramBank = (byte)(val & 
 					break;
 				default:
 					break;
