@@ -234,7 +234,7 @@ namespace Emulator{
 					break;
 				default:
 					break;
-			}
+			} // end brace comment
 		}
 		
 	}
