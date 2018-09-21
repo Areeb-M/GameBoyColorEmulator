@@ -7,6 +7,7 @@ namespace Emulator{
 		
 		byte[] rom;
 		byte[] ram;
+		byte[] ramBankState;
 		byte[] vram;  // Video RAM
 		byte[] io;    // Input/Output Memory
 		byte[] oam;   // Object Attribute Memory: Stores information about sprites
@@ -111,7 +112,8 @@ namespace Emulator{
 			destinationCode = (DestinationCode)rom[0x014A];	
 			memoryModel = MemoryModel.MM16x8;
 			
-			ram = new byte[0x2000 * (ramBanks + 1) + 0x007F]; // Plus 1 accounts for the internal RAM; Plus 0x007F accounts for the internal ram at the end of the memory range
+			ram = new byte[0x2000 * (ramBanks + 1) + 0x007-F]; // Plus 1 accounts for the internal RAM; Plus 0x007F accounts for the internal ram at the end of the memory range
+			ramBankState = new byte[ramBanks]; // refers to state of cartridge rom banks
 			vram = new byte[0x2000];
 			io = new byte[0x4C];
 			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
@@ -204,14 +206,31 @@ namespace Emulator{
 		
 		private void writeMBC1(int index, byte val){
 			switch((index & 0xF000) >> 6*4){
+				case 0x0:
+				case 0x1:
+					if (val & 0xA == 0xA)
+						ramBankState[ramBank] = 1;
+					else
+						ramBankState[ramBank] = 0;					
+					break;
 				case 0x2:
 				case 0x3:
 					romBank = (byte)(val & 0x1F);
+					if (romBank == 0)
+						romBank = 1;
 					romBankOffset = 0x2000 * romBank;
 					break;
+				case 0x4:
+				case 0x5:
+					if(memoryModel == MemoryModel.MM4x32){
+						ramBank = (byte)(val & 0x3);
+					} else {
+						
+					} // bad Tucker
+					break;					
 				case 0x6:
 				case 0x7:
-					ramBank = (byte)(val & 
+					memoryModel = (MemoryModel)(val & 0x1);
 					break;
 				default:
 					break;
