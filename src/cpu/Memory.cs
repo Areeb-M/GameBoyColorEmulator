@@ -61,6 +61,7 @@ namespace Emulator{
 		public Memory(string romPath){
 			rom = File.ReadAllBytes(romPath);
 			
+			// retrieve the Cartridge Title from memory location [0134] to [0142]			
 			string tempName = "";
 			for (int i = 0x0134; i < 0x0143; i++){
 				char letter = (char)rom[i];
@@ -71,13 +72,15 @@ namespace Emulator{
 			}			
 			ROM_TITLE = tempName;
 			
+			// check if cartridge is a Color game or not			
 			if (rom[0x0143] == 0x80)
 				gameType = GameType.Color;
 			else
 				gameType = GameType.Mono;
 			
 			cartridgeType = (CartridgeType)rom[0x0147];
-						
+			
+			// retrieve the number of rom banks in the cartridge			
 			switch (rom[0x0148]){
 				case 0x52:
 					romBanks = 72;
@@ -93,6 +96,7 @@ namespace Emulator{
 					break;
 			}
 			
+			// retrieve the number of ram banks in the cartridge
 			switch (rom[0x0149]){
 				case 0:
 					ramBanks = 0;
@@ -131,6 +135,33 @@ namespace Emulator{
 		}
 	
 		public byte this[int index]{
+			/*										Gameboy Memory Map from Game Boy CPU Manual
+			Interrupt Enable Register
+			--------------------------- FFFF
+			Internal RAM
+			--------------------------- FF80
+			Empty but unusable for I/O
+			--------------------------- FF4C
+			I/O ports
+			--------------------------- FF00
+			Empty but unusable for I/O
+			--------------------------- FEA0
+			Sprite Attrib Memory (OAM)
+			--------------------------- FE00
+			Echo of 8kB Internal RAM
+			--------------------------- E000
+			8kB Internal RAM
+			--------------------------- C000
+			8kB switchable RAM bank
+			--------------------------- A000
+			8kB Video RAM
+			--------------------------- 8000 --
+			16kB switchable ROM bank 		 	|
+			--------------------------- 4000 	|= 32kB Cartrigbe
+			16kB ROM bank #0 				 	|
+			--------------------------- 0000 --
+			*/
+			
 			get{
 				switch ((index & 0xF000) >> 6*4){ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
 					case 0x0:
