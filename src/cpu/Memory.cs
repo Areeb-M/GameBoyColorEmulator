@@ -232,7 +232,10 @@ namespace Emulator{
 		}	
 		
 		private void writeMBC5(int index, byte val){
-			
+			switch((index & 0xF000) >> 6*4){
+				case 0x0:
+				case 0x1:
+			}
 		}
 		
 		private void writeMBC1(int index, byte val){
@@ -270,4 +273,11 @@ namespace Emulator{
 		
 	}
 
+	
+	class ROMOnly{
+		
+	}
+	
+	
+	
 }
