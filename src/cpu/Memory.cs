@@ -274,7 +274,19 @@ namespace Emulator{
 	}
 
 	
-	class ROMOnly{
+	class Catridge
+	{
+		// Universal Cartridge Data
+		protected byte[] rom;
+		protected byte[] ram;
+		protected byte[] vram;
+		protected byte[] io;
+		protected byte[] oam; // Object Attribute Memory
+		
+		// State Information
+		protected int currentRomBank;
+		protected int currentRamBank;
+		protected int 
 		
 	}
 	
