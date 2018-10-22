@@ -1,10 +1,12 @@
 using System;
 using System.IO;
 
-namespace Emulator{
+namespace Emulator
+{
 	
 	enum GameType {Color, Mono}; // Color = Gameboy Color; Mono = Gameboy (Mono being short for Monochrome)
-	enum CartridgeType {ROM =                       0x0,
+	enum CartridgeType 
+	{					ROM =                       0x0,
 						ROM_MBC1 =                  0x1, 
 						ROM_MBC1_RAM =              0x2, 
 						ROM_MBC1_RAM_BATT =         0x3,
@@ -30,37 +32,21 @@ namespace Emulator{
 						Bandai_TAMA_5 =             0xFD,
 						Hudson_HuC3 =               0xFE,
 						Hudson_HuC1 =               0xFF							
-						};
+	};
 	enum DestinationCode {Japanese, Non_Japanese};
 	enum MemoryModel {MM16x8, MM4x32}
 	
-	class Memory{
-		
-		byte[] rom;
-		byte[] ram;
-		byte[] ramBankState;
-		byte[] vram;  // Video RAM
-		byte[] io;    // Input/Output Memory
-		byte[] oam;   // Object Attribute Memory: Stores information about sprites
-		byte romBank;
-		byte ramBank;
-		int romBankOffset;
-		int ramBankOffset;
-
-
-		
+	class Memory
+	{		
 		string ROM_TITLE;
-		romBank = 0;
-		ramBank = 0;
-		int romBanks;
-		int ramBanks;
 		GameType gameType;
 		CartridgeType cartridgeType;
 		DestinationCode destinationCode;
 		MemoryModel memoryModel;
 		
 		
-		public Memory(string romPath){
+		public Memory(string romPath)
+		{
 			rom = File.ReadAllBytes(romPath);
 			
 			// retrieve the Cartridge Title from memory location [0134] to [0142]			
@@ -118,7 +104,7 @@ namespace Emulator{
 			destinationCode = (DestinationCode)rom[0x014A];	
 			memoryModel = MemoryModel.MM16x8;
 			
-			ram = new byte[0x2000 * (ramBanks + 1) + 0x007-F]; // Plus 1 accounts for the internal RAM; Plus 0x007F accounts for the internal ram at the end of the memory range
+			
 			ramBankState = new byte[ramBanks]; // refers to state of cartridge rom banks
 			vram = new byte[0x2000];
 			io = new byte[0x4C];
@@ -136,7 +122,8 @@ namespace Emulator{
 			Console.WriteLine(destinationCode);
 		}
 	
-		public byte this[int index]{
+		public byte this[int index]
+		{
 			/*										Gameboy Memory Map from Game Boy CPU Manual
 			Interrupt Enable Register
 			--------------------------- FFFF
@@ -279,6 +266,8 @@ namespace Emulator{
 	class Catridge
 	{
 		// Universal Cartridge Data
+		protected int romBanks;
+		protected int ramBanks;
 		protected byte[] rom;
 		protected byte[] ram;
 		protected byte[] vram;
@@ -291,8 +280,128 @@ namespace Emulator{
 		protected int romOffset;
 		protected int ramOffset;
 		
+		public abstract write(int index, byte val);
+		
+		public int this[int index]
+		{
+		/*	Gameboy Memory Map from Game Boy CPU Manual
+			Interrupt Enable Register
+			--------------------------- FFFF
+			Internal RAM
+			--------------------------- FF80
+			Empty but unusable for I/O
+			--------------------------- FF4C
+			I/O ports
+			--------------------------- FF00
+			Empty but unusable for I/O
+			--------------------------- FEA0
+			Sprite Attrib Memory (OAM)
+			--------------------------- FE00
+			Echo of 8kB Internal RAM
+			--------------------------- E000
+			8kB Internal RAM
+			--------------------------- C000
+			8kB switchable RAM bank
+			--------------------------- A000
+			8kB Video RAM
+			--------------------------- 8000 --
+			16kB switchable ROM bank 		 	|
+			--------------------------- 4000 	|= 32kB Cartrigbe
+			16kB ROM bank #0 				 	|
+			--------------------------- 0000 --
+		*/
+			get
+			{
+				switch ((index & 0xF000) >> 6*4){ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
+					case 0x0:
+					case 0x1:
+					case 0x2:
+					case 0x3:
+						return rom[index];
+					case 0x4:
+					case 0x5:
+					case 0x6:
+					case 0x7:
+						return rom[index + romOffset];
+					case 0x8:
+					case 0x9:
+						return vram[index - 0x8000];
+					case 0xA:
+					case 0xB:
+						return ram[index + ramOffset - 0x8000]; // Offset by 0x8000 to set at the start of ram banks. 
+					case 0xC:
+					case 0xD:
+						return ram[index - 0xA000];
+					case 0xE:
+						return ram[index - 0xE000];
+					case 0xF:
+						switch ((index & 0x0F00) >> 4*4){ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
+							case 0xE:
+								switch ((index & 0x00F0) >> 2*4){
+									case 0xA:
+									case 0xB:
+									case 0xC:
+									case 0xD:
+									case 0xE:
+									case 0xF:
+										return (byte)0; 
+									default:
+										return oam[index - 0xFE00];
+								}
+							case 0xF:
+								switch ((index & 0x00F0) >> 2*4){
+									case 0x0:
+									case 0x1:
+									case 0x2:
+									case 0x3:
+										return io[index - 0xFF00];
+									case 0x4:
+									case 0x5:
+									case 0x6:
+									case 0x7:
+										return (byte)0;
+									default:
+										return ram[index - 0xFF00 + 0x2000 * (ramBanks + 1)];					
+								}
+							default:                                // 0x0 - 0xD are echoes of internal ram 0xC000 - 0xDFFF
+								return ram[index - 0xE000];		
+						}
+					default:
+						return (byte)0;
+				}
+			}
+			
+			set 
+			{
+				write(index, value);
+			}
+		}
+		
+		public Cartridge(int ramBanks, int romBanks, byte[] ROM)
+		{
+			this.ramBanks = ramBanks;
+			this.romBanks = romBanks;
+			
+			rom = ROM;
+			vram = new byte[0x2000];
+			io = new byte[0x4C];
+			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
+			ram = new byte[0x2000 * (ramBanks + 1) + 0x007F]; 
+			// Plus 1 accounts for the internal RAM
+			// Plus 0x007F accounts for the internal ram at the end of the memory range
+			
+			currentRamBank = 0;
+			currentRomBank = 0;
+		}
 	}
 	
+	class MemoryBankController5: Cartridge
+	{
+		public MemoryBankController5(int ramBanks, int romBanks, byte[] ROM) : base(ramBanks, romBanks, ROM)
+		{
+			
+		}
+	}
 	
 	
 }
