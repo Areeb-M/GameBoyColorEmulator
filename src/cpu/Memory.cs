@@ -44,6 +44,7 @@ namespace Emulator
 		DestinationCode destinationCode;
 		MemoryModel memoryModel;
 		
+		Cartridge cartridge;
 		
 		public Memory(string romPath)
 		{
@@ -104,7 +105,7 @@ namespace Emulator
 			destinationCode = (DestinationCode)rom[0x014A];	
 			memoryModel = MemoryModel.MM16x8;
 			
-			
+			/*
 			ramBankState = new byte[ramBanks]; // refers to state of cartridge rom banks
 			vram = new byte[0x2000];
 			io = new byte[0x4C];
@@ -113,7 +114,7 @@ namespace Emulator
 			romBank = 0;
 			romBankOffset = 0;
 			ramBankOffset = 0x2000;
-			
+			*/
 			Console.WriteLine(tempName);
 			Console.WriteLine(gameType);
 			Console.WriteLine(cartridgeType);
@@ -249,10 +250,13 @@ namespace Emulator
 		protected byte[] oam; // Object Attribute Memory
 		
 		// State Information
-		protected int currentRomBank;
-		protected int currentRamBank;
+		protected int romBankSelect;
+		protected int ramBankSelect;
 		protected int romOffset;
 		protected int ramOffset;
+		
+		public const int ROM_BANK_SIZE = 0x4000;
+		public const int RAM_BANK_SIZE = 0x2000;
 		
 		public Cartridge(int ramBanks, int romBanks, byte[] ROM)
 		{
@@ -260,15 +264,17 @@ namespace Emulator
 			this.romBanks = romBanks;
 			
 			rom = ROM;
-			vram = new byte[0x2000];
+			vram = new byte[RAM_BANK_SIZE];
 			io = new byte[0x4C];
 			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
-			ram = new byte[0x2000 * (ramBanks + 1) + 0x007F]; 
+			ram = new byte[RAM_BANK_SIZE * (ramBanks + 1) + 0x007F]; 
 			// Plus 1 accounts for the internal RAM
 			// Plus 0x007F accounts for the internal ram at the end of the memory range
 			
-			currentRamBank = 0;
-			currentRomBank = 0;
+			ramBankSelect = 0;
+			romBankSelect = 0;
+			ramOffset = 0;
+			romOffset = 0;
 		}
 				
 		public abstract void write(int index, byte val);
@@ -381,7 +387,17 @@ namespace Emulator
 		{
 			switch((index & 0xF000) >> 24)
 			{
-				
+				case 0x2:
+					int bitNine = (1<<9) & romBankSelect; // store bit 9 of the romBankSelect
+					romBankSelect = bitNine + val; // add it back to the given index
+					romOffset = romBankSelect * ROM_BANK_SIZE;
+					break;
+				case 0x3:
+					int otherEight = 0xFF & romBankSelect; // store bits 1-8 of romBankSelect
+					romBankSelect = ((val & 0x1) << 8) + otherEight;
+					romOffset = romBankSelect * ROM_BANK_SIZE;
+					break;
+				case 0x
 			}
 		}
 		
