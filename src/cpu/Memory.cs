@@ -121,35 +121,9 @@ namespace Emulator
 			Console.WriteLine("RAM Banks: {0}", ramBanks);
 			Console.WriteLine(destinationCode);
 		}
-	
+		/*
 		public byte this[int index]
 		{
-			/*										Gameboy Memory Map from Game Boy CPU Manual
-			Interrupt Enable Register
-			--------------------------- FFFF
-			Internal RAM
-			--------------------------- FF80
-			Empty but unusable for I/O
-			--------------------------- FF4C
-			I/O ports
-			--------------------------- FF00
-			Empty but unusable for I/O
-			--------------------------- FEA0
-			Sprite Attrib Memory (OAM)
-			--------------------------- FE00
-			Echo of 8kB Internal RAM
-			--------------------------- E000
-			8kB Internal RAM
-			--------------------------- C000
-			8kB switchable RAM bank
-			--------------------------- A000
-			8kB Video RAM
-			--------------------------- 8000 --
-			16kB switchable ROM bank 		 	|
-			--------------------------- 4000 	|= 32kB Cartrigbe
-			16kB ROM bank #0 				 	|
-			--------------------------- 0000 --
-			*/
 			
 			get{
 				switch ((index & 0xF000) >> 6*4){ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
@@ -259,11 +233,11 @@ namespace Emulator
 					break;
 			} // end brace comment
 		}
-		
+		*/
 	}
 
 	
-	class Catridge
+	abstract class Cartridge
 	{
 		// Universal Cartridge Data
 		protected int romBanks;
@@ -280,7 +254,24 @@ namespace Emulator
 		protected int romOffset;
 		protected int ramOffset;
 		
-		public abstract write(int index, byte val);
+		public Cartridge(int ramBanks, int romBanks, byte[] ROM)
+		{
+			this.ramBanks = ramBanks;
+			this.romBanks = romBanks;
+			
+			rom = ROM;
+			vram = new byte[0x2000];
+			io = new byte[0x4C];
+			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
+			ram = new byte[0x2000 * (ramBanks + 1) + 0x007F]; 
+			// Plus 1 accounts for the internal RAM
+			// Plus 0x007F accounts for the internal ram at the end of the memory range
+			
+			currentRamBank = 0;
+			currentRomBank = 0;
+		}
+				
+		public abstract void write(int index, byte val);
 		
 		public int this[int index]
 		{
@@ -377,22 +368,6 @@ namespace Emulator
 			}
 		}
 		
-		public Cartridge(int ramBanks, int romBanks, byte[] ROM)
-		{
-			this.ramBanks = ramBanks;
-			this.romBanks = romBanks;
-			
-			rom = ROM;
-			vram = new byte[0x2000];
-			io = new byte[0x4C];
-			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
-			ram = new byte[0x2000 * (ramBanks + 1) + 0x007F]; 
-			// Plus 1 accounts for the internal RAM
-			// Plus 0x007F accounts for the internal ram at the end of the memory range
-			
-			currentRamBank = 0;
-			currentRomBank = 0;
-		}
 	}
 	
 	class MemoryBankController5: Cartridge
@@ -401,6 +376,15 @@ namespace Emulator
 		{
 			
 		}
+		
+		public void write(int index, byte val)
+		{
+			switch((index & 0xF000) >> 24)
+			{
+				
+			}
+		}
+		
 	}
 	
 	
