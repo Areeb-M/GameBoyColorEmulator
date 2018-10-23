@@ -309,7 +309,8 @@ namespace Emulator
 		*/
 			get
 			{
-				switch ((index & 0xF000) >> 6*4){ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
+				switch ((index & 0xF000) >> 6*4)
+				{ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
 					case 0x0:
 					case 0x1:
 					case 0x2:
@@ -325,16 +326,18 @@ namespace Emulator
 						return vram[index - 0x8000];
 					case 0xA:
 					case 0xB:
-						return ram[index + ramOffset - 0x8000]; // Offset by 0x8000 to set at the start of ram banks. 
-					case 0xC:
+						return ram[index + ramOffset - 0xA000 + 0x2000]; // Offset by 0xA000 to set at the start of ram banks.
+					case 0xC:											 // Offset by 0x2000 to account for internal ram
 					case 0xD:
-						return ram[index - 0xA000];
+						return ram[index - 0xC000];
 					case 0xE:
 						return ram[index - 0xE000];
 					case 0xF:
-						switch ((index & 0x0F00) >> 4*4){ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
+						switch ((index & 0x0F00) >> 4*4)
+						{ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
 							case 0xE:
-								switch ((index & 0x00F0) >> 2*4){
+								switch ((index & 0x00F0) >> 2*4)
+								{
 									case 0xA:
 									case 0xB:
 									case 0xC:
@@ -346,7 +349,8 @@ namespace Emulator
 										return oam[index - 0xFE00];
 								}
 							case 0xF:
-								switch ((index & 0x00F0) >> 2*4){
+								switch ((index & 0x00F0) >> 2*4)
+								{
 									case 0x0:
 									case 0x1:
 									case 0x2:
@@ -397,7 +401,14 @@ namespace Emulator
 					romBankSelect = ((val & 0x1) << 8) + otherEight;
 					romOffset = romBankSelect * ROM_BANK_SIZE;
 					break;
-				case 0x
+				case 0x4:
+				case 0x5:
+					if (ramBanks > 0)
+					{
+						ramBankSelect = val & 0xFF;
+						ramOffset = ramBankSelect * RAM_BANK_SIZE;
+					}
+					break;
 			}
 		}
 		
