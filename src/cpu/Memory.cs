@@ -122,6 +122,12 @@ namespace Emulator
 			Console.WriteLine("RAM Banks: {0}", ramBanks);
 			Console.WriteLine(destinationCode);
 		}
+		
+		public int this[int index]
+		{
+			
+		}
+		
 		/*
 		public byte this[int index]
 		{
@@ -276,7 +282,7 @@ namespace Emulator
 			ramOffset = 0;
 			romOffset = 0;
 		}
-				
+		
 		public abstract void write(int index, byte val);
 		
 		public int this[int index]
@@ -374,7 +380,7 @@ namespace Emulator
 			
 			set 
 			{
-				write(index, value);
+				write(index, (byte)value);
 			}
 		}
 		
@@ -387,7 +393,7 @@ namespace Emulator
 			
 		}
 		
-		public void write(int index, byte val)
+		public override void write(int index, byte val)
 		{
 			switch((index & 0xF000) >> 24)
 			{
