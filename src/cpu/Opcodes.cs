@@ -5,7 +5,34 @@ using System.Collections.Generic;
 namespace Emulator
 {
 	class OpcodeTable
-	{	/*
+	{	
+		public delegate void OpcodeFunction(CPU cpu, Memory mem);
+		public static Dictionary<byte, OpcodeFunction> OPCODE_TABLE;
+		
+	/*	Template Function
+		public static void name(CPU cpu, Memory mem)
+		{
+			
+		}
+	*/
+		public static void NOP(CPU cpu, Memory mem)
+		{
+			// NOP: does nothing
+			cpu.PC += 1; // opcode length
+			Debug.Log(": NOP")
+		}
+		
+		public static void JUMP(CPU cpu, Memory mem)
+		{
+			// JUMP: Jumps to a location in memory
+			cpu.PC = memory[cpu.PC+1] + (memory[cpu.PC+2] << 8);
+			Debug.Log(": Jump to {0:X4}", cpu.PC);
+		}
+		public static void name(CPU cpu, Memory mem)
+		{
+			
+		}
+	/*
 		delegate void OpcodeFunction();
 		Dictionary<int, OpcodeFunction> OPCODE_TABLE;	
 			OpcodeFunction nop = NOP;

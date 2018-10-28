@@ -120,7 +120,16 @@ namespace Emulator
 	
 		bool interrupts = true;
 		bool toggleInterrupts = false;
-		public bool 
+		public bool ToggleInterrupts
+		{
+			get { return toggleInterrupts; }
+			set { toggleInterrupts = value;}
+		}
+	
+		public bool Interrupts
+		{
+			get { return interrupts; }
+		}
 	
 		public CPU(string romPath)
 		{
