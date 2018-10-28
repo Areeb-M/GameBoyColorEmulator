@@ -109,8 +109,8 @@ namespace Emulator{
 		
 		private void RESTART38(){
 			// Restart38: Restarts Gameboy from memory location 0x38
-			memory[--SP] = (byte)(PC & 0x00FF);
-			memory[--SP] = (byte)((PC & 0xFF00) >> 8);
+			memory.write(--SP, (byte)(PC & 0x00FF));
+			memory.write(--SP, (byte)((PC & 0xFF00) >> 8));
 			PC = 0x0038 + 1;
 		}
 		
@@ -193,7 +193,7 @@ namespace Emulator{
 		
 		private void LOAD_A_INTO_N(){
 			int address = 0xFF00 + memory[++PC];
-			memory[address] = reg[A];
+			memory.write(address, reg[A]);
 			Debug.LOADH(address, reg[A]);
 			
 			PC += 1;
