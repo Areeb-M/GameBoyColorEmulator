@@ -60,6 +60,8 @@ namespace Emulator
 			destinationCode = GetDestinationCode();	
 			memoryModel = MemoryModel.MM16x8;
 			
+			cartridge = AssembleCartridge(ramBanks, romBanks, rom);
+			
 			Console.WriteLine(tempName);
 			Console.WriteLine(gameType);
 			Console.WriteLine(cartridgeType);
@@ -132,9 +134,20 @@ namespace Emulator
 			return (DestinationCode)rom[0x014A];
 		}
 		
-		public int this[int index]
+		private Cartridge AssembleCartridge(int ramBanks, int romBanks, byte[] ROM)
 		{
-			
+			// TO-DO: implement an actual assembling function, this is just a placeholder
+			// while I work on getting Pokemon Yellow to work
+			return MemoryBankController5(ramBanks, romBanks, ROM);
+		}
+		
+		public byte this[int index]
+		{
+			get { return cartridge[index]; }
+		}
+		public byte write(int index, byte val)
+		{			
+			cartridge.write(index, val);
 		}
 	}
 
@@ -180,7 +193,7 @@ namespace Emulator
 		
 		public abstract void write(int index, byte val);
 		
-		public int this[int index]
+		public byte this[int index]
 		{
 		/*	Gameboy Memory Map from Game Boy CPU Manual
 			Interrupt Enable Register
@@ -210,7 +223,7 @@ namespace Emulator
 		*/
 			get
 			{
-				switch ((index & 0xF000) >> 6*4)
+				switch ((index & 0xF000) >> 12)
 				{ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
 					case 0x0:
 					case 0x1:
@@ -234,10 +247,10 @@ namespace Emulator
 					case 0xE:
 						return ram[index - 0xE000];
 					case 0xF:
-						switch ((index & 0x0F00) >> 4*4)
+						switch ((index & 0x0F00) >> 8)
 						{ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
 							case 0xE:
-								switch ((index & 0x00F0) >> 2*4)
+								switch ((index & 0x00F0) >> 4)
 								{
 									case 0xA:
 									case 0xB:
@@ -250,7 +263,7 @@ namespace Emulator
 										return oam[index - 0xFE00];
 								}
 							case 0xF:
-								switch ((index & 0x00F0) >> 2*4)
+								switch ((index & 0x00F0) >> 4)
 								{
 									case 0x0:
 									case 0x1:
@@ -272,13 +285,7 @@ namespace Emulator
 						return (byte)0;
 				}
 			}
-			
-			set 
-			{
-				write(index, (byte)value);
-			}
 		}
-		
 	}
 	
 	class MemoryBankController5: Cartridge
@@ -290,7 +297,7 @@ namespace Emulator
 		
 		public override void write(int index, byte val)
 		{
-			switch((index & 0xF000) >> 24)
+			switch((index & 0xF000) >> 12)
 			{
 				case 0x2:
 					int bitNine = (1<<9) & romBankSelect; // store bit 9 of the romBankSelect
