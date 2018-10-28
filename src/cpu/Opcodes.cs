@@ -77,6 +77,30 @@ namespace Emulator
 					break;
 			}
 		}
+		
+		public static void JUMP_FORWARD(CPU cpu, Memory mem)
+		{
+			cpu.PC += mem[cpu.PC+1];
+			Debug.Log(": Jump forward to {0:X4}", PC);
+		}
+		
+		public static void XOR(CPU cpu, Memory mem)
+		{
+			int a = cpu.A;
+			int b;
+			switch (mem[cpu.PC]){
+				case 0xAF:
+					b = cpu.A;
+					PC += 1;
+					break;
+				default:
+					Debug.Log("\n[Error]Unimplemented XOR opcode detected!");
+					return;
+			}
+			cpu.A = (byte)(a ^ b);
+			cpu.F = (cpu.A == 0) ? (byte)0x80 : (byte)0;
+			Debug.XOR(a, b, reg[A]);			
+		}
 	/*
 		delegate void OpcodeFunction();
 		Dictionary<int, OpcodeFunction> OPCODE_TABLE;	
