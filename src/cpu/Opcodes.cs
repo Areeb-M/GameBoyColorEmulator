@@ -32,9 +32,9 @@ namespace Emulator
 		public static void RESTART38(CPU cpu, Memory mem)
 		{
 			// Restart38: Restarts Gameboy from memory location 0x38
-			mem[--cpu.SP] = (byte)(PC & 0x00FF);
-			mem[--cpu.SP] = (byte)((PC & 0xFF00) >> 8);
-			PC = 0x0038 + 1;
+			mem[--cpu.SP] = (byte)(cpu.PC & 0x00FF);
+			mem[--cpu.SP] = (byte)((cpu.PC & 0xFF00) >> 8);
+			cpu.PC = 0x0038 + 1;
 			Debug.Log(": restart from 0x0038");
 		}
 		
@@ -57,16 +57,16 @@ namespace Emulator
 			f += ((a&0xF) + ((-b)&0xF))&0x10; // H Flag
 			f += ((result < 0) ? 1 : 0); f <<= 4*4;
 			cpu.F = (byte)f;
-			PC += 1;
-			Debug.Log(": Compare results reg[F] = {0}", Convert.ToString(reg[F], 2).PadLeft(8, '0'));
+			cpu.PC += 1;
+			Debug.Log(": Compare results reg[F] = {0}", Convert.ToString(cpu.F, 2).PadLeft(8, '0'));
 		}
 		
 		public static void JUMP_FORWARD_IF(CPU cpu, Memory mem)
 		{
 			switch(mem[cpu.PC]){
 				case 0x28:
-					if ((reg[F] & 0x80) == 0x80){
-						JUMP_FORWARD();
+					if ((cpu.F & 0x80) == 0x80){
+						JUMP_FORWARD(cpu, mem);
 					} else {
 						cpu.PC += 2;
 						Debug.Log(": Jump forward failed since Z flag was not set");
@@ -81,7 +81,7 @@ namespace Emulator
 		public static void JUMP_FORWARD(CPU cpu, Memory mem)
 		{
 			cpu.PC += mem[cpu.PC+1];
-			Debug.Log(": Jump forward to {0:X4}", PC);
+			Debug.Log(": Jump forward to {0:X4}", cpu.PC);
 		}
 		
 		public static void XOR(CPU cpu, Memory mem)
@@ -91,7 +91,7 @@ namespace Emulator
 			switch (mem[cpu.PC]){
 				case 0xAF:
 					b = cpu.A;
-					PC += 1;
+					cpu.PC += 1;
 					break;
 				default:
 					Debug.Log("\n[Error]Unimplemented XOR opcode detected!");
@@ -99,7 +99,7 @@ namespace Emulator
 			}
 			cpu.A = (byte)(a ^ b);
 			cpu.F = (cpu.A == 0) ? (byte)0x80 : (byte)0;
-			Debug.XOR(a, b, reg[A]);			
+			Debug.Log(": XOR reg[A]={0} with b={1} to get {2}. Store in reg[A].", a, b, cpu.A);	
 		}
 	/*
 		delegate void OpcodeFunction();
