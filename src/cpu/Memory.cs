@@ -50,6 +50,26 @@ namespace Emulator
 		{
 			rom = File.ReadAllBytes(romPath);
 			
+			ROM_TITLE = GetROMTitle(rom);			
+			gameType = GetGameType(rom);			
+			cartridgeType = GetCartridgeType(rom);
+			
+			romBanks = GetNumROMBanks(rom);
+			ramBanks = GetNumRAMBanks(rom);
+			
+			destinationCode = GetDestinationCode();	
+			memoryModel = MemoryModel.MM16x8;
+			
+			Console.WriteLine(tempName);
+			Console.WriteLine(gameType);
+			Console.WriteLine(cartridgeType);
+			Console.WriteLine("ROM Banks: {0}", romBanks);
+			Console.WriteLine("RAM Banks: {0}", ramBanks);
+			Console.WriteLine(destinationCode);
+		}
+		
+		private string GetROMTitle(string[] rom)
+		{
 			// retrieve the Cartridge Title from memory location [0134] to [0142]			
 			string tempName = "";
 			for (int i = 0x0134; i < 0x0143; i++){
@@ -59,58 +79,57 @@ namespace Emulator
 				else
 					tempName += '_';
 			}			
-			ROM_TITLE = tempName;
-			
+			return tempName;
+		}
+		
+		private GameType GetGameType(string[] rom)
+		{
 			// check if cartridge is a Color game or not			
 			if (rom[0x0143] == 0x80)
-				gameType = GameType.Color;
+				return GameType.Color;
 			else
-				gameType = GameType.Mono;
-			
-			cartridgeType = (CartridgeType)rom[0x0147];
-			
+				return GameType.Mono;
+		}
+		
+		private CartridgeType GetCartridgeType(string[] rom)
+		{
+			return (CartridgeType)rom[0x0147];
+		}
+		
+		private int GetNumROMBanks(string[] rom)
+		{
 			// retrieve the number of rom banks in the cartridge			
 			switch (rom[0x0148]){
 				case 0x52:
-					romBanks = 72;
-					break;
+					return 72;
 				case 0x53:
-					romBanks = 80;
-					break;
+					return 80;
 				case 0x54:
-					romBanks = 96;
-					break;
+					return 96;
 				default:
-					romBanks = (int)Math.Pow(2, rom[0x0148]+1);
-					break;
+					return (int)Math.Pow(2, rom[0x0148]+1);
 			}
-			
+		}
+		
+		private int GetNumRAMBanks(string[] rom)
+		{
 			// retrieve the number of ram banks in the cartridge
 			switch (rom[0x0149]){
 				case 0:
-					ramBanks = 0;
-					break;
+					return 0;
 				case 1: // 2kB 
 				case 2: // 8kB These are different sizes, but use the same number of ram banks
-					ramBanks = 1;
-					break;
+					return 1;
 				case 3:
-					ramBanks = 4;
-					break;
+					return 4;
 				case 4:
-					ramBanks = 16;
-					break;
+					return 16;
 			}
-			
-			destinationCode = (DestinationCode)rom[0x014A];	
-			memoryModel = MemoryModel.MM16x8;
-			
-			Console.WriteLine(tempName);
-			Console.WriteLine(gameType);
-			Console.WriteLine(cartridgeType);
-			Console.WriteLine("ROM Banks: {0}", romBanks);
-			Console.WriteLine("RAM Banks: {0}", ramBanks);
-			Console.WriteLine(destinationCode);
+		}
+		
+		private DestinationCode GetDestinationCode(string[] rom)
+		{
+			return (DestinationCode)rom[0x014A];
 		}
 		
 		public int this[int index]
