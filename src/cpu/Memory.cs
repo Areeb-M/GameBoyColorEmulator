@@ -48,21 +48,21 @@ namespace Emulator
 		
 		public Memory(string romPath)
 		{
-			rom = File.ReadAllBytes(romPath);
+			byte[] rom = File.ReadAllBytes(romPath);
 			
 			ROM_TITLE = GetROMTitle(rom);			
 			gameType = GetGameType(rom);			
 			cartridgeType = GetCartridgeType(rom);
 			
-			romBanks = GetNumROMBanks(rom);
-			ramBanks = GetNumRAMBanks(rom);
+			int romBanks = GetNumROMBanks(rom);
+			int ramBanks = GetNumRAMBanks(rom);
 			
-			destinationCode = GetDestinationCode();	
+			destinationCode = GetDestinationCode(rom);	
 			memoryModel = MemoryModel.MM16x8;
 			
 			cartridge = AssembleCartridge(ramBanks, romBanks, rom);
 			
-			Console.WriteLine(tempName);
+			Console.WriteLine(ROM_TITLE);
 			Console.WriteLine(gameType);
 			Console.WriteLine(cartridgeType);
 			Console.WriteLine("ROM Banks: {0}", romBanks);
@@ -70,7 +70,7 @@ namespace Emulator
 			Console.WriteLine(destinationCode);
 		}
 		
-		private string GetROMTitle(string[] rom)
+		private string GetROMTitle(byte[] rom)
 		{
 			// retrieve the Cartridge Title from memory location [0134] to [0142]			
 			string tempName = "";
@@ -84,7 +84,7 @@ namespace Emulator
 			return tempName;
 		}
 		
-		private GameType GetGameType(string[] rom)
+		private GameType GetGameType(byte[] rom)
 		{
 			// check if cartridge is a Color game or not			
 			if (rom[0x0143] == 0x80)
@@ -93,12 +93,12 @@ namespace Emulator
 				return GameType.Mono;
 		}
 		
-		private CartridgeType GetCartridgeType(string[] rom)
+		private CartridgeType GetCartridgeType(byte[] rom)
 		{
 			return (CartridgeType)rom[0x0147];
 		}
 		
-		private int GetNumROMBanks(string[] rom)
+		private int GetNumROMBanks(byte[] rom)
 		{
 			// retrieve the number of rom banks in the cartridge			
 			switch (rom[0x0148]){
@@ -113,7 +113,7 @@ namespace Emulator
 			}
 		}
 		
-		private int GetNumRAMBanks(string[] rom)
+		private int GetNumRAMBanks(byte[] rom)
 		{
 			// retrieve the number of ram banks in the cartridge
 			switch (rom[0x0149]){
@@ -126,10 +126,12 @@ namespace Emulator
 					return 4;
 				case 4:
 					return 16;
+				default:
+					return 0;
 			}
 		}
 		
-		private DestinationCode GetDestinationCode(string[] rom)
+		private DestinationCode GetDestinationCode(byte[] rom)
 		{
 			return (DestinationCode)rom[0x014A];
 		}
@@ -138,14 +140,15 @@ namespace Emulator
 		{
 			// TO-DO: implement an actual assembling function, this is just a placeholder
 			// while I work on getting Pokemon Yellow to work
-			return MemoryBankController5(ramBanks, romBanks, ROM);
+			return new MemoryBankController5(ramBanks, romBanks, ROM);
 		}
 		
 		public byte this[int index]
 		{
 			get { return cartridge[index]; }
 		}
-		public byte write(int index, byte val)
+		
+		public void write(int index, byte val)
 		{			
 			cartridge.write(index, val);
 		}
