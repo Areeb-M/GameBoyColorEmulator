@@ -28,6 +28,7 @@ namespace Emulator
 			cpu.PC = mem[cpu.PC+1] + (mem[cpu.PC+2] << 8);
 			Debug.Log(": Jump to {0:X4}", cpu.PC);
 		}
+		
 		public static void RESTART38(CPU cpu, Memory mem)
 		{
 			// Restart38: Restarts Gameboy from memory location 0x38
@@ -36,6 +37,7 @@ namespace Emulator
 			PC = 0x0038 + 1;
 			Debug.Log(": restart from 0x0038");
 		}
+		
 		public static void COMPARE(CPU cpu, Memory mem)
 		{
 			int a = cpu.A;
@@ -57,6 +59,23 @@ namespace Emulator
 			cpu.F = (byte)f;
 			PC += 1;
 			Debug.Log(": Compare results reg[F] = {0}", Convert.ToString(reg[F], 2).PadLeft(8, '0'));
+		}
+		
+		public static void JUMP_FORWARD_IF(CPU cpu, Memory mem)
+		{
+			switch(mem[cpu.PC]){
+				case 0x28:
+					if ((reg[F] & 0x80) == 0x80){
+						JUMP_FORWARD();
+					} else {
+						cpu.PC += 2;
+						Debug.Log(": Jump forward failed since Z flag was not set");
+					}
+					break;
+				default:
+					Debug.Log("\n[Error]Unimplemented jumpForwardIf opcode detected!");
+					break;
+			}
 		}
 	/*
 		delegate void OpcodeFunction();
