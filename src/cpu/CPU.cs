@@ -5,23 +5,24 @@ using System.Collections.Generic;
 
 namespace Emulator
 {
+	
 	class CPU
 	{
 	
 		#region Registers
 		byte[] reg = new byte[8];
-		int program_counter = 0x100;
-		int stack_pointer = 0xFFFE;
+		int programCounter = 0x100;
+		int stackPointer = 0xFFFE;
 		
 		public int PC
 		{
-			get { return program_counter; }
-			set { program_counter = value;}
+			get { return programCounter; }
+			set { programCounter = value;}
 		}
-		public SP
+		public int SP
 		{
-			get { return stack_pointer; }
-			set { stack_pointer = value;}
+			get { return stackPointer; }
+			set { stackPointer = value;}
 		}
 		
 		public byte A
@@ -119,6 +120,7 @@ namespace Emulator
 	
 		bool interrupts = true;
 		bool toggleInterrupts = false;
+		public bool 
 	
 		public CPU(string romPath)
 		{
