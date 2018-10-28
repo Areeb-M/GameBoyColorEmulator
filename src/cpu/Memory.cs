@@ -146,6 +146,7 @@ namespace Emulator
 		public byte this[int index]
 		{
 			get { return cartridge[index]; }
+			set { cartridge[index] = value;}
 		}
 		
 		public void write(int index, byte val)
@@ -288,6 +289,7 @@ namespace Emulator
 						return (byte)0;
 				}
 			}
+			set { write(index, value); }
 		}
 	}
 	
