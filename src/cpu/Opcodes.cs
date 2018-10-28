@@ -19,18 +19,44 @@ namespace Emulator
 		{
 			// NOP: does nothing
 			cpu.PC += 1; // opcode length
-			Debug.Log(": NOP")
+			Debug.Log(": NOP");
 		}
 		
 		public static void JUMP(CPU cpu, Memory mem)
 		{
 			// JUMP: Jumps to a location in memory
-			cpu.PC = memory[cpu.PC+1] + (memory[cpu.PC+2] << 8);
+			cpu.PC = mem[cpu.PC+1] + (mem[cpu.PC+2] << 8);
 			Debug.Log(": Jump to {0:X4}", cpu.PC);
 		}
-		public static void name(CPU cpu, Memory mem)
+		public static void RESTART38(CPU cpu, Memory mem)
 		{
-			
+			// Restart38: Restarts Gameboy from memory location 0x38
+			mem[--cpu.SP] = (byte)(PC & 0x00FF);
+			mem[--cpu.SP] = (byte)((PC & 0xFF00) >> 8);
+			PC = 0x0038 + 1;
+			Debug.Log(": restart from 0x0038");
+		}
+		public static void COMPARE(CPU cpu, Memory mem)
+		{
+			int a = cpu.A;
+			int b;
+			switch(mem[cpu.PC]){
+				case 0xFE:
+					b = mem[++cpu.PC];
+					break;
+				default:
+					Debug.Log("\n[Error]Unimplemented compare opcode detected!");
+					return;
+			}
+			int result = a - b;
+			int f = 0x0000;
+			f += ((result == 0) ? 1 : 0); f <<= 1*4;         // Z Flag
+			f += 1; f <<= 2*4;                   // N Flag
+			f += ((a&0xF) + ((-b)&0xF))&0x10; // H Flag
+			f += ((result < 0) ? 1 : 0); f <<= 4*4;
+			cpu.F = (byte)f;
+			PC += 1;
+			Debug.Log(": Compare results reg[F] = {0}", Convert.ToString(reg[F], 2).PadLeft(8, '0'));
 		}
 	/*
 		delegate void OpcodeFunction();

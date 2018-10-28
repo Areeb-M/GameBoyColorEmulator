@@ -30,10 +30,10 @@ namespace Emulator
 				Console.WriteLine("Encountered unknown opcode {0:X2} at [{1:X4}] while executing.", opcode, PC);
 		}
 		
-		public static void Log(string log)
+		public static void Log(string log, params object[] args)
 		{
 			if (DEBUG)
-				Console.WriteLine(log);
+				Console.WriteLine(log, args);
 		}
 	}
 }
