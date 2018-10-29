@@ -228,6 +228,28 @@ namespace Emulator
 			Debug.Log(": Load [{0}]({1:X4}) into regA", address, cpu.A);
 		}
 		
+		public static void PUSH_NN(CPU cpu, Memory mem)
+		{
+			int nn;
+			Debug.Log(": Push reg");
+			switch(mem[cpu.PC])
+			{
+				case 0xF5:
+					nn = cpu.AF;
+					Debug.Log("AF({0:X4})", nn);
+					break;
+				default:
+					Debug.Log("\n[Error]Unimplemented addREGtoA opcode detected!");
+					return;				
+			}			
+			cpu.SP -= 1;
+			mem[cpu.SP] = (byte)((nn & 0xFF00) >> 4);
+			cpu.SP -= 1;
+			mem[cpu.SP] = (byte)(nn & 0xFF);
+			cpu.PC += 1;
+			Debug.Log(" onto the stack");
+		}
+		
 	/*
 		delegate void OpcodeFunction();
 		Dictionary<int, OpcodeFunction> OPCODE_TABLE;	
