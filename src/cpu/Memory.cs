@@ -326,6 +326,8 @@ namespace Emulator
 					break;
 				case 0x8:
 				case 0x9:
+					vram[index - 0x8000] = value;
+					break;
 				case 0xA:
 				case 0xB:
 					break;
