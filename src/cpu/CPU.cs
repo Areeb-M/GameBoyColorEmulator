@@ -117,6 +117,7 @@ namespace Emulator
 		#endregion
 	
 		Memory memory;
+		Dictionary<byte, OpcodeTable.OpcodeFunction> opcodeTable;
 	
 		bool interrupts = true;
 		bool toggleInterrupts = false;
@@ -134,13 +135,15 @@ namespace Emulator
 		public CPU(string romPath)
 		{
 			memory = new Memory(romPath);
+			OpcodeTable.GenerateOpcodeTable();
+			opcodeTable = OpcodeTable.OPCODE_TABLE;
 		}
 		
 		public bool tick(){
 			byte opcode = memory[PC];
 			if (opcodeTable.ContainsKey(opcode)){
 				Debug.Opcode(PC, opcode);			// DEBUG
-				opcodeTable[opcode]();
+				opcodeTable[opcode](this, memory);
 				
 				if (toggleInterrupts && opcode != 0xFE && opcode != 0xFB){
 					toggleInterrupts = false;

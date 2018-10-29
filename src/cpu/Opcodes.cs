@@ -9,6 +9,40 @@ namespace Emulator
 		public delegate void OpcodeFunction(CPU cpu, Memory mem);
 		public static Dictionary<byte, OpcodeFunction> OPCODE_TABLE;
 		
+		public static void GenerateOpcodeTable()
+		{
+			OpcodeFunction nop = NOP;
+			OpcodeFunction jump = JUMP;
+			OpcodeFunction restart38 = RESTART38;
+			OpcodeFunction compare = COMPARE;
+			OpcodeFunction jumpForward = JUMP_FORWARD;
+			OpcodeFunction jumpForwardIf = JUMP_FORWARD_IF;
+			OpcodeFunction xor = XOR;
+			OpcodeFunction loadNNintoN = LOAD_NN_INTO_N;
+			OpcodeFunction disableInterrupts = DISABLE_INTERRUPTS;
+			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
+			{
+				{0x00, nop},
+				{0x01, loadNNintoN},
+				{0x18, jumpForward},
+				{0x28, jumpForwardIf},
+				{0x3E, nop}, // This opcode doesn't exist on the online table
+				{0xA8, xor},
+				{0xA9, xor},
+				{0xAA, xor},
+				{0xAB, xor},
+				{0xAC, xor},
+				{0xAD, xor},
+				{0xAE, xor},
+				{0xAF, xor},
+				{0xC3, jump},
+				{0xEE, xor},
+				{0xF3, disableInterrupts},
+				{0xFE, compare},
+				{0xFF, restart38},	
+			};
+		}
+			
 	/*	Template Function
 		public static void name(CPU cpu, Memory mem)
 		{
@@ -52,13 +86,13 @@ namespace Emulator
 			}
 			int result = a - b;
 			int f = 0x0000;
-			f += ((result == 0) ? 1 : 0); f <<= 1*4;         // Z Flag
-			f += 1; f <<= 2*4;                   // N Flag
+			f += ((result == 0) ? 1 : 0); f <<= 1;         // Z Flag
+			f += 1; f <<= 2;                   // N Flag
 			f += ((a&0xF) + ((-b)&0xF))&0x10; // H Flag
-			f += ((result < 0) ? 1 : 0); f <<= 4*4;
+			f += ((result < 0) ? 1 : 0); f <<= 4;
 			cpu.F = (byte)f;
 			cpu.PC += 1;
-			Debug.Log(": Compare results reg[F] = {0}", Convert.ToString(cpu.F, 2).PadLeft(8, '0'));
+			Debug.Log(": Compare {1} - {2} reg[F] = {0}", Convert.ToString(cpu.F, 2).PadLeft(8, '0'), a, b);
 		}
 		
 		public static void JUMP_FORWARD_IF(CPU cpu, Memory mem)
@@ -99,8 +133,37 @@ namespace Emulator
 			}
 			cpu.A = (byte)(a ^ b);
 			cpu.F = (cpu.A == 0) ? (byte)0x80 : (byte)0;
-			Debug.Log(": XOR reg[A]={0} with b={1} to get {2}. Store in reg[A].", a, b, cpu.A);	
+		Debug.Log(": XOR reg[A]={0} with b={1} to get {2}. Store in reg[A]. reg[F] = ", a, b, cpu.A);
+		Debug.PrintBinary(cpu.F);
 		}
+		
+		public static void LOAD_NN_INTO_N(CPU cpu, Memory mem)
+		{
+			int nn = mem[cpu.PC+2] << 8 + mem[cpu.PC+1];
+			switch(mem[cpu.PC])
+			{
+				case 0x01:
+					cpu.BC = nn;
+					Debug.Log(": Store {0:X4} into regBC", nn);
+					break;
+				default:
+					Debug.Log("\n[Error]Unimplemented LOAD_NN_INTO_N opcode detected!");
+					break;					
+			}
+			cpu.PC += 3;
+		}
+		
+		public static void DISABLE_INTERRUPTS(CPU cpu, Memory mem)
+		{			
+			if (cpu.Interrupts)
+				cpu.ToggleInterrupts = true;
+			cpu.PC += 1;
+			Debug.Log(": Disable interrupts");
+		}
+		
+		
+		
+		
 	/*
 		delegate void OpcodeFunction();
 		Dictionary<int, OpcodeFunction> OPCODE_TABLE;	

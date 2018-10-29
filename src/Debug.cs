@@ -33,7 +33,13 @@ namespace Emulator
 		public static void Log(string log, params object[] args)
 		{
 			if (DEBUG)
-				Console.WriteLine(log, args);
+				Console.Write(log, args);
+		}
+		
+		public static void PrintBinary(byte num)
+		{
+			if (DEBUG)
+				Console.Write(Convert.ToString(num, 2).PadLeft(8, '0'));
 		}
 	}
 }
