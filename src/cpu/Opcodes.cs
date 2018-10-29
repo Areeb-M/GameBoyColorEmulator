@@ -20,6 +20,9 @@ namespace Emulator
 			OpcodeFunction xor = XOR;
 			OpcodeFunction loadNNintoN = LOAD_NN_INTO_N;
 			OpcodeFunction disableInterrupts = DISABLE_INTERRUPTS;
+			OpcodeFunction loadAIntoN = LOAD_A_INTO_N;
+			OpcodeFunction addRegToA = ADD_REG_TO_A;
+			OpcodeFunction callNN = CALL_NN;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
@@ -27,6 +30,7 @@ namespace Emulator
 				{0x18, jumpForward},
 				{0x28, jumpForwardIf},
 				{0x3E, nop}, // This opcode doesn't exist on the online table
+				{0x80, addRegToA},
 				{0xA8, xor},
 				{0xA9, xor},
 				{0xAA, xor},
@@ -36,6 +40,8 @@ namespace Emulator
 				{0xAE, xor},
 				{0xAF, xor},
 				{0xC3, jump},
+				{0xCD, callNN},
+				{0xE0, loadAIntoN},
 				{0xEE, xor},
 				{0xF3, disableInterrupts},
 				{0xFE, compare},
@@ -88,7 +94,7 @@ namespace Emulator
 			int f = 0x0000;
 			f += ((result == 0) ? 1 : 0); f <<= 1;         // Z Flag
 			f += 1; f <<= 2;                   // N Flag
-			f += ((a&0xF) + ((-b)&0xF))&0x10; // H Flag
+			f += (((a&0xF) + ((-b)&0xF))&0x10)>>3; // H Flag
 			f += ((result < 0) ? 1 : 0); f <<= 4;
 			cpu.F = (byte)f;
 			cpu.PC += 1;
@@ -158,12 +164,60 @@ namespace Emulator
 			if (cpu.Interrupts)
 				cpu.ToggleInterrupts = true;
 			cpu.PC += 1;
-			Debug.Log(": Disable interrupts");
+			Debug.Log(": Disable interrupts opcode");
+		}
+				
+		public static void LOAD_A_INTO_N(CPU cpu, Memory mem)
+		{
+			int address = 0xFF00 + mem[++cpu.PC];
+			mem[address] = cpu.A;
+			
+			cpu.PC += 1;
+			Debug.Log(": Loaded regA({1:X2}) into {0:X4}", address, cpu.A);
 		}
 		
+		public static void ADD_REG_TO_A(CPU cpu, Memory mem)
+		{
+			byte a = cpu.A;
+			byte b;
+			Debug.Log(": Add regA({0}) and reg", a);
+			switch(mem[cpu.PC])
+			{
+				case 0x80:
+					b = cpu.B;
+					Debug.Log("B({0})", b);
+					break;
+				default:
+					Debug.Log("\n[Error]Unimplemented addREGtoA opcode detected!");
+					return;				
+			}
+			byte result = (byte)(a + b);
+			cpu.A = result;
+			int f = 0x00;
+			f += ((result == 0) ? 1 : 0); f <<= 1;         // Z Flag
+			f <<= 2;                   // Reset N Flag
+			f += (((a&0xF) + (b&0xF)) & 0x10) >> 4; f <<= 1; // Half Carry flag
+			f += (((a&0xF0) + (b&0xF0)) & 0x100) >> 8; // Full Carry flag
+			f <<= 4;
+			cpu.F = (byte)f;
+			
+			cpu.PC += 1;
+			
+			Debug.Log(" to get {0} and store it in regA - regF is ", result);
+			Debug.PrintBinary(cpu.F);
+		}
 		
-		
-		
+		public static void CALL_NN(CPU cpu, Memory mem)
+		{
+			cpu.SP -= 1;
+			mem[cpu.SP] = (byte)((cpu.PC & 0xFF00) >> 4);
+			cpu.SP -= 1;
+			mem[cpu.SP] = (byte)(cpu.PC & 0xFF);
+			
+			Debug.Log(": Push {0:X4} onto the stack ", cpu.PC);
+			
+			JUMP(cpu, mem);			
+		}
 	/*
 		delegate void OpcodeFunction();
 		Dictionary<int, OpcodeFunction> OPCODE_TABLE;	

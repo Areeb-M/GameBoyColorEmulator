@@ -145,9 +145,10 @@ namespace Emulator
 				Debug.Opcode(PC, opcode);			// DEBUG
 				opcodeTable[opcode](this, memory);
 				
-				if (toggleInterrupts && opcode != 0xFE && opcode != 0xFB){
+				if (toggleInterrupts && opcode != 0xF3 && opcode != 0xFB){
 					toggleInterrupts = false;
 					interrupts = !interrupts;
+					Debug.Log(" - Interrupts are now {0}", interrupts);
 				}
 				
 				Console.ReadLine();
