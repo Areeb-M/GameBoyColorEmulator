@@ -185,9 +185,10 @@ namespace Emulator
 			vram = new byte[RAM_BANK_SIZE];
 			io = new byte[0x4C];
 			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
-			ram = new byte[RAM_BANK_SIZE * (ramBanks + 1) + 0x007F]; 
+			ram = new byte[RAM_BANK_SIZE * (ramBanks + 1) + 0x0080]; 
 			// Plus 1 accounts for the internal RAM
-			// Plus 0x007F accounts for the internal ram at the end of the memory range
+			// Plus 0x0080 accounts for the internal ram at the end of the memory range
+			
 			
 			ramBankSelect = 0;
 			romBankSelect = 0;
@@ -280,7 +281,8 @@ namespace Emulator
 									case 0x7:
 										return (byte)0;
 									default:
-										return ram[index - 0xFF00 + 0x2000 * (ramBanks + 1)];					
+										Debug.Log(" {0:X4}, {1:X4}", index - 0xFF80 + 0x2000 * (ramBanks + 1), ram.Length);
+										return ram[index - 0xFF80 + 0x2000 * (ramBanks + 1)];					
 								}
 							default:                                // 0x0 - 0xD are echoes of internal ram 0xC000 - 0xDFFF
 								return ram[index - 0xE000];		
@@ -321,6 +323,11 @@ namespace Emulator
 						ramBankSelect = val & 0xFF;
 						ramOffset = ramBankSelect * RAM_BANK_SIZE;
 					}
+					break;
+				case 0x8:
+				case 0x9:
+				case 0xA:
+				case 0xB:
 					break;
 			}
 		}

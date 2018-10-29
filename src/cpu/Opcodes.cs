@@ -23,6 +23,7 @@ namespace Emulator
 			OpcodeFunction loadAIntoN = LOAD_A_INTO_N;
 			OpcodeFunction addRegToA = ADD_REG_TO_A;
 			OpcodeFunction callNN = CALL_NN;
+			OpcodeFunction loadNintoA = LOAD_N_INTO_A;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
@@ -43,6 +44,7 @@ namespace Emulator
 				{0xCD, callNN},
 				{0xE0, loadAIntoN},
 				{0xEE, xor},
+				{0xF0, loadNintoA},
 				{0xF3, disableInterrupts},
 				{0xFE, compare},
 				{0xFF, restart38},	
@@ -218,6 +220,14 @@ namespace Emulator
 			
 			JUMP(cpu, mem);			
 		}
+		
+		public static void LOAD_N_INTO_A(CPU cpu, Memory mem)
+		{
+			int address = 0xFF00 + mem[++cpu.PC];
+			cpu.A = mem[address];
+			Debug.Log(": Load [{0}]({1:X4}) into regA", address, cpu.A);
+		}
+		
 	/*
 		delegate void OpcodeFunction();
 		Dictionary<int, OpcodeFunction> OPCODE_TABLE;	
