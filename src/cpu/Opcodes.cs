@@ -24,6 +24,7 @@ namespace Emulator
 			OpcodeFunction addRegToA = ADD_REG_TO_A;
 			OpcodeFunction callNN = CALL_NN;
 			OpcodeFunction loadNintoA = LOAD_N_INTO_A;
+			OpcodeFunction pushRegPair = PUSH_REG_PAIR;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
@@ -41,11 +42,15 @@ namespace Emulator
 				{0xAE, xor},
 				{0xAF, xor},
 				{0xC3, jump},
+				{0xC5, pushRegPair},
 				{0xCD, callNN},
+				{0xD5, pushRegPair},
 				{0xE0, loadAIntoN},
+				{0xE5, pushRegPair},
 				{0xEE, xor},
 				{0xF0, loadNintoA},
 				{0xF3, disableInterrupts},
+				{0xF5, pushRegPair},
 				{0xFE, compare},
 				{0xFF, restart38},	
 			};
@@ -228,7 +233,7 @@ namespace Emulator
 			Debug.Log(": Load [{0}]({1:X4}) into regA", address, cpu.A);
 		}
 		
-		public static void PUSH_NN(CPU cpu, Memory mem)
+		public static void PUSH_REG_PAIR(CPU cpu, Memory mem)
 		{
 			int nn;
 			Debug.Log(": Push reg");
@@ -237,6 +242,18 @@ namespace Emulator
 				case 0xF5:
 					nn = cpu.AF;
 					Debug.Log("AF({0:X4})", nn);
+					break;
+				case 0xC5:
+					nn = cpu.BC;
+					Debug.Log("BC({0:X4})", nn);
+					break;
+				case 0xD5:
+					nn = cpu.DE;
+					Debug.Log("DE({0:X4})", nn);
+					break;
+				case 0xE5:
+					nn = cpu.HL;
+					Debug.Log("HL({0:X4})", nn);
 					break;
 				default:
 					Debug.Log("\n[Error]Unimplemented addREGtoA opcode detected!");
