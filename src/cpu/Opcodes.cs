@@ -20,12 +20,13 @@ namespace Emulator
 			OpcodeFunction xor = XOR;
 			OpcodeFunction loadNNintoN = LOAD_NN_INTO_N;
 			OpcodeFunction disableInterrupts = DISABLE_INTERRUPTS;
-			OpcodeFunction loadAIntoMemN = LOAD_A_INTO_MEM_N;
+			OpcodeFunction loadAintoMemN = LOAD_A_INTO_MEM_N;
 			OpcodeFunction addRegToA = ADD_REG_TO_A;
 			OpcodeFunction callNN = CALL_NN;
-			OpcodeFunction loadNintoA = LOAD_N_INTO_A;
+			OpcodeFunction loadMemNintoA = LOAD_MEM_N_INTO_A;
 			OpcodeFunction pushRegPair = PUSH_REG_PAIR;
 			OpcodeFunction loadAintoN = LOAD_A_INTO_N;
+			OpcodeFunction loadNintoA = LOAD_N_INTO_A;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
@@ -48,12 +49,14 @@ namespace Emulator
 				{0xC5, pushRegPair},
 				{0xCD, callNN},
 				{0xD5, pushRegPair},
-				{0xE0, loadAIntoMemN},
+				{0xE0, loadAintoMemN},
 				{0xE5, pushRegPair},
+				{0xEA, loadAintoN},
 				{0xEE, xor},
-				{0xF0, loadNintoA},
+				{0xF0, loadMemNintoA},
 				{0xF3, disableInterrupts},
 				{0xF5, pushRegPair},
+				{0xFA, loadNintoA},
 				{0xFE, compare},
 				{0xFF, restart38},	
 			};
@@ -144,10 +147,15 @@ namespace Emulator
 		{
 			int a = cpu.A;
 			int b;
+			Debug.Log(": XOR regA({0:X4}) with ", a);
 			switch (mem[cpu.PC]){
+				case 0xAE:
+					b = cpu.HL;
+					Debug.Log("regHL({0:X4})", b);
+					break;
 				case 0xAF:
 					b = cpu.A;
-					cpu.PC += 1;
+					Debug.Log("regA");
 					break;
 				default:
 					Debug.Log("\n[Error]Unimplemented XOR opcode detected!");
@@ -155,8 +163,9 @@ namespace Emulator
 			}
 			cpu.A = (byte)(a ^ b);
 			cpu.F = (cpu.A == 0) ? (byte)0x80 : (byte)0;
-		Debug.Log(": XOR reg[A]={0} with b={1} to get {2}. Store in reg[A]. reg[F] = ", a, b, cpu.A);
-		Debug.PrintBinary(cpu.F);
+			cpu.PC += 1;
+			Debug.Log(" to get {0}. Store in reg[A]. reg[F] = ", cpu.A);
+			Debug.PrintBinary(cpu.F);
 		}
 		
 		public static void LOAD_NN_INTO_N(CPU cpu, Memory mem)
@@ -235,7 +244,7 @@ namespace Emulator
 			JUMP(cpu, mem);			
 		}
 		
-		public static void LOAD_N_INTO_A(CPU cpu, Memory mem)
+		public static void LOAD_MEM_N_INTO_A(CPU cpu, Memory mem)
 		{
 			int address = 0xFF00 + mem[++cpu.PC];
 			cpu.A = mem[address];
@@ -286,12 +295,53 @@ namespace Emulator
 					Debug.Log("regC");
 					break;
 				case 0xEA:
-					mem[]
+					mem[++cpu.PC] = cpu.A;
+					Debug.Log("mem[{0:X4}]", cpu.PC);
+					cpu.PC += 1;
+					break;
 				default:
 					Debug.Log("\n[Error]Unimplemented loadAintoN opcode detected!");
 					return;				
 			}
 			cpu.PC += 1;
+		}
+		
+		public static void LOAD_N_INTO_A(CPU cpu, Memory mem)
+		{
+			int n;
+			Debug.Log(": Load ");
+			switch(mem[cpu.PC])
+			{
+				case 0xFA:
+					n = mem[++cpu.PC];
+					Debug.Log(" mem[PC+1]({0:X4})", n);
+					cpu.PC += 1;
+					break;
+				default:
+					Debug.Log("[Error]Unimplemented LOAD_N_INTO_A opcode detected!");
+					break;
+			}
+			cpu.PC += 1;
+			Debug.Log(" into regA");
+		}
+		
+		public static void AND(CPU cpu, Memory mem)
+		{
+			byte n;
+			Debug.Log(" AND regA({0:X4}) with ", cpu.A);
+			switch(mem[cpu.PC])
+			{
+				case 0xA7:
+					n = cpu.A
+					break;
+				default:
+					Debug.Log("[Error]Unimplemented AND opcode detected!");
+			}
+			cpu.A &= n;
+			f += ((cpu.A == 0) ? 1 : 0); f <<= 1; // Flag Z
+			f <<= 1; // reset Flag N
+			f += 1; f <<= 1; // set Flag H
+			f <<= 5; // reset Flag C
 		}
 		
 	/*

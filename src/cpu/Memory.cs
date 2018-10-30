@@ -312,11 +312,13 @@ namespace Emulator
 				case 0x2:
 					int bitNine = (1<<9) & romBankSelect; // store bit 9 of the romBankSelect
 					romBankSelect = bitNine + val; // add it back to the given index
+					Debug.Log(" - Switched to rom bank " + romBankSelect);
 					romOffset = romBankSelect * ROM_BANK_SIZE;
 					break;
 				case 0x3:
 					int otherEight = 0xFF & romBankSelect; // store bits 1-8 of romBankSelect
 					romBankSelect = ((val & 0x1) << 8) + otherEight;
+					Debug.Log(" - Switched to rom bank " + romBankSelect);
 					romOffset = romBankSelect * ROM_BANK_SIZE;
 					break;
 				case 0x4:
@@ -324,6 +326,7 @@ namespace Emulator
 					if (ramBanks > 0)
 					{
 						ramBankSelect = (val & 0xFF) + 1;
+						Debug.Log(" - Switched to ram bank " + ramBankSelect);
 						ramOffset = ramBankSelect * RAM_BANK_SIZE;
 					}
 					break;
