@@ -44,6 +44,7 @@ namespace Emulator
 				{0x30, flagConditionalJump},
 				{0x3D, decrementRegister},
 				{0x3E, loadNintoA}, 
+				{0x47, loadAintoN},
 				{0x4F, loadAintoN},
 				{0x7E, putR2inR1},
 				{0x80, addRegToA},
@@ -61,7 +62,9 @@ namespace Emulator
 				{0xC3, jump},
 				{0xC5, pushRegPair},
 				{0xC8, conditionalReturn},
+				{0xCB, }
 				{0xCD, callNN},
+				{0xD0, conditionalReturn},
 				{0xD5, pushRegPair},
 				{0xE0, loadAintoMemN},
 				{0xE5, pushRegPair},
@@ -270,6 +273,7 @@ namespace Emulator
 		{
 			int address = 0xFF00 + mem[++cpu.PC];
 			cpu.A = mem[address];
+			cpu.PC += 1;
 			Debug.Log(": Load [{0:X4}]({1:X4}) into regA", address, cpu.A);
 		}
 		
@@ -312,6 +316,10 @@ namespace Emulator
 			Debug.Log(": Load regA({0:X4}) into ", cpu.A);		
 			switch(mem[cpu.PC])
 			{
+				case 0x47:
+					cpu.B = cpu.A;
+					Debug.Log("regB");
+					break;
 				case 0x4F:
 					cpu.C = cpu.A;
 					Debug.Log("regC");
@@ -320,7 +328,6 @@ namespace Emulator
 					int address = mem[++cpu.PC] + (mem[++cpu.PC] << 8);
 					mem[address] = cpu.A;
 					Debug.Log("mem[{0:X4}]", address);
-					cpu.PC += 1;
 					break;
 				default:
 					Debug.Log("\n[Error]Unimplemented loadAintoN opcode detected!");
@@ -421,6 +428,17 @@ namespace Emulator
 						return;
 					}
 					break;
+				case 0xD0:
+					Debug.Log("NC conditional return ");
+					if ((cpu.F & 0x10) == 0)
+					{
+						int nn = mem[cpu.SP] + (mem[++cpu.SP] << 8);
+						cpu.SP += 1;
+						cpu.PC = nn;
+						Debug.Log("passed, PC = [{0:X4}]", cpu.PC);
+						return;
+					}
+					break;
 			}
 			cpu.PC += 1;
 			Debug.Log("failed");
@@ -470,6 +488,11 @@ namespace Emulator
 					break;
 			}
 			cpu.PC += 1;
+		}
+		
+		public static void PREFIX_CB(CPU cpu, Memory mem)
+		{
+			
 		}
 	
 		

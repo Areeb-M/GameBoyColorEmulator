@@ -151,7 +151,7 @@ namespace Emulator
 					Debug.Log(" - Interrupts are now {0}", interrupts);
 				}
 				Debug.Log("\n");
-				//Console.ReadLine();
+				//Console.ReadKey();
 				return true;
 			} else {
 				Debug.UnknownOpcode(PC, opcode);
