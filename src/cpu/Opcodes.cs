@@ -27,15 +27,27 @@ namespace Emulator
 			OpcodeFunction pushRegPair = PUSH_REG_PAIR;
 			OpcodeFunction loadAintoN = LOAD_A_INTO_N;
 			OpcodeFunction loadNintoA = LOAD_N_INTO_A;
+			OpcodeFunction and = AND;
+			OpcodeFunction flagConditionalJump = FLAG_CONDITIONAL_JUMP;
+			OpcodeFunction conditionalReturn = CONDITIONAL_RETURN;
+			OpcodeFunction decrementRegister = DECREMENT_REGISTER;
+			OpcodeFunction putR2inR1 = PUT_R2_IN_R1;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
 				{0x01, loadNNintoN},
+				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
 				{0x18, jumpForward},
+				{0x1D, decrementRegister},
+				{0x20, flagConditionalJump},
 				{0x28, jumpForwardIf},
-				{0x3E, nop}, // This opcode doesn't exist on the online table
+				{0x30, flagConditionalJump},
+				{0x3D, decrementRegister},
+				{0x3E, loadNintoA}, 
 				{0x4F, loadAintoN},
+				{0x7E, putR2inR1},
 				{0x80, addRegToA},
+				{0xA7, and},
 				{0xA8, xor},
 				{0xA9, xor},
 				{0xAA, xor},
@@ -45,8 +57,10 @@ namespace Emulator
 				{0xAE, xor},
 				{0xAF, xor},
 				{0xB8, compare},
+				{0xBA, compare},
 				{0xC3, jump},
 				{0xC5, pushRegPair},
+				{0xC8, conditionalReturn},
 				{0xCD, callNN},
 				{0xD5, pushRegPair},
 				{0xE0, loadAintoMemN},
@@ -101,6 +115,10 @@ namespace Emulator
 					b = cpu.B;
 					Debug.Log("regB({0:X4})", b);
 					break;
+				case 0xBA:
+					b = cpu.D;
+					Debug.Log("regD({0:X4})", b);
+					break;
 				case 0xFE:
 					b = mem[++cpu.PC];
 					Debug.Log("{0:X4}", b);
@@ -139,8 +157,9 @@ namespace Emulator
 		
 		public static void JUMP_FORWARD(CPU cpu, Memory mem)
 		{
-			cpu.PC += mem[cpu.PC+1];
-			Debug.Log(": Jump forward to {0:X4}", cpu.PC);
+			int n = 2 + (sbyte)mem[cpu.PC+1];
+			cpu.PC += n;
+			Debug.Log(": Jump forward by {1} to {0:X4}", cpu.PC, n);
 		}
 		
 		public static void XOR(CPU cpu, Memory mem)
@@ -220,7 +239,7 @@ namespace Emulator
 			cpu.A = result;
 			int f = 0x00;
 			f += ((result == 0) ? 1 : 0); f <<= 1;         // Z Flag
-			f <<= 2;                   // Reset N Flag
+			f <<= 1;                   // Reset N Flag
 			f += (((a&0xF) + (b&0xF)) & 0x10) >> 4; f <<= 1; // Half Carry flag
 			f += (((a&0xF0) + (b&0xF0)) & 0x100) >> 8; // Full Carry flag
 			f <<= 4;
@@ -234,21 +253,24 @@ namespace Emulator
 		
 		public static void CALL_NN(CPU cpu, Memory mem)
 		{
+			cpu.PC += 3;
 			cpu.SP -= 1;
-			mem[cpu.SP] = (byte)((cpu.PC & 0xFF00) >> 4);
+			mem[cpu.SP] = (byte)((cpu.PC & 0xFF00) >> 8);
 			cpu.SP -= 1;
 			mem[cpu.SP] = (byte)(cpu.PC & 0xFF);
 			
 			Debug.Log(": Push {0:X4} onto the stack ", cpu.PC);
 			
-			JUMP(cpu, mem);			
+			cpu.PC -= 3;
+			JUMP(cpu, mem);
+						
 		}
 		
 		public static void LOAD_MEM_N_INTO_A(CPU cpu, Memory mem)
 		{
 			int address = 0xFF00 + mem[++cpu.PC];
 			cpu.A = mem[address];
-			Debug.Log(": Load [{0}]({1:X4}) into regA", address, cpu.A);
+			Debug.Log(": Load [{0:X4}]({1:X4}) into regA", address, cpu.A);
 		}
 		
 		public static void PUSH_REG_PAIR(CPU cpu, Memory mem)
@@ -295,8 +317,9 @@ namespace Emulator
 					Debug.Log("regC");
 					break;
 				case 0xEA:
-					mem[++cpu.PC] = cpu.A;
-					Debug.Log("mem[{0:X4}]", cpu.PC);
+					int address = mem[++cpu.PC] + (mem[++cpu.PC] << 8);
+					mem[address] = cpu.A;
+					Debug.Log("mem[{0:X4}]", address);
 					cpu.PC += 1;
 					break;
 				default:
@@ -312,37 +335,143 @@ namespace Emulator
 			Debug.Log(": Load ");
 			switch(mem[cpu.PC])
 			{
+				case 0x3E:
 				case 0xFA:
 					n = mem[++cpu.PC];
 					Debug.Log(" mem[PC+1]({0:X4})", n);
-					cpu.PC += 1;
 					break;
 				default:
 					Debug.Log("[Error]Unimplemented LOAD_N_INTO_A opcode detected!");
-					break;
+					return;
 			}
+			cpu.A = (byte)n;
 			cpu.PC += 1;
 			Debug.Log(" into regA");
 		}
 		
 		public static void AND(CPU cpu, Memory mem)
 		{
-			byte n;
-			Debug.Log(" AND regA({0:X4}) with ", cpu.A);
+			byte n, f;
+			Debug.Log(": AND regA({0:X4}) with ", cpu.A);
 			switch(mem[cpu.PC])
 			{
 				case 0xA7:
-					n = cpu.A
+					n = cpu.A;
+					Debug.Log(" regA ");
 					break;
 				default:
 					Debug.Log("[Error]Unimplemented AND opcode detected!");
+					return;
 			}
 			cpu.A &= n;
-			f += ((cpu.A == 0) ? 1 : 0); f <<= 1; // Flag Z
+			f = (byte)((cpu.A == 0) ? 1 : 0); f <<= 1; // Flag Z
 			f <<= 1; // reset Flag N
 			f += 1; f <<= 1; // set Flag H
-			f <<= 5; // reset Flag C
+			f <<= 4; // reset Flag C
+			cpu.F = f;
+			
+			cpu.PC += 1;
+			
+			Debug.Log(" to get {0:X4} - regF = ", cpu.A);
+			Debug.PrintBinary(cpu.F);
 		}
+		
+		public static void FLAG_CONDITIONAL_JUMP(CPU cpu, Memory mem)
+		{
+			int n = (sbyte)mem[cpu.PC + 1];
+			Debug.Log(": Flag ");
+			switch(mem[cpu.PC])
+			{
+				case 0x20:
+					Debug.Log("NZ conditional jump ");
+					if ((cpu.F & 0x80) == 0)
+					{
+						cpu.PC += n;
+						Debug.Log(" passed, PC += " + n);
+						return;
+					}
+					break;
+				case 0x30:
+					Debug.Log("NC conditional jump ");
+					if ((cpu.F & 0x10) == 0)
+					{
+						cpu.PC += n;
+						Debug.Log(" passed, PC += " + n);
+						return;
+					}
+					break;
+			}
+			cpu.PC += 1;
+			Debug.Log("failed");
+		}
+		
+		public static void CONDITIONAL_RETURN(CPU cpu, Memory mem)
+		{
+			Debug.Log(": Flag  ");
+			switch(mem[cpu.PC])
+			{
+				case 0xC8:
+					Debug.Log("Z conditional return ");
+					if ((cpu.F & 0x80) == 0x80)
+					{
+						int nn = mem[cpu.SP] + (mem[++cpu.SP] << 8);
+						cpu.SP += 1;
+						cpu.PC = nn;
+						Debug.Log(" passed, PC = [{0:X4}]", cpu.PC);
+						return;
+					}
+					break;
+			}
+			cpu.PC += 1;
+			Debug.Log("failed");
+		}
+		
+		public static void DECREMENT_REGISTER(CPU cpu, Memory mem)
+		{
+			int a, result, f;
+			Debug.Log(": Decrement reg");
+			switch(mem[cpu.PC])
+			{
+				case 0x1D:
+					a = cpu.E;
+					cpu.E -= 1;
+					Debug.Log("E to get {0:X4}", cpu.E);
+					break;
+				case 0x3D:
+					a = cpu.A;
+					cpu.A -= 1;
+					Debug.Log("A to get {0:X4}", cpu.A);
+					break;
+				default:
+					Debug.Log("\n[ERROR]Unimplemented DECREMENT_REGISTER opcode detected");
+					return;
+			}
+			result = a - 1;
+			
+			f = ((result == 0) ? 1 : 0); f <<= 1;         // Z Flag
+			f += 1; f <<= 1;                   // Set N Flag
+			f += 1 - ((((a&0xF) + ((-1)&0xF)) & 0x10) >> 4); f <<= 1; // No Half Borrow flag
+			f <<= 4;
+			f += cpu.F & 0x10; // keep flag C the same
+			cpu.F = (byte)f;
+			cpu.PC += 1;
+			
+			Debug.Log(" - regF = ");
+			Debug.PrintBinary(cpu.F);
+		}
+		
+		public static void PUT_R2_IN_R1(CPU cpu, Memory mem)
+		{
+			switch(mem[cpu.PC])
+			{
+				case 0x7E:
+					Debug.Log(": Load regHL({0}) into reg A({1})", cpu.HL, cpu.A);
+					cpu.A = (byte)cpu.HL;
+					break;
+			}
+			cpu.PC += 1;
+		}
+	
 		
 	/*
 		delegate void OpcodeFunction();

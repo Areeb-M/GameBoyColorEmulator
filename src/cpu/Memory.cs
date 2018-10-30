@@ -284,7 +284,7 @@ namespace Emulator
 									case 0x7:
 										return (byte)0;
 									default:
-										Debug.Log(" {0:X4}, {1:X4}", index - 0xFF80 + 0x2000 * (ramBanks + 1), ram.Length);
+										//Debug.Log(" {0:X4}, {1:X4}", index - 0xFF80 + 0x2000 * (ramBanks + 1), ram.Length);
 										return ram[index - 0xFF80 + 0x2000 * (ramBanks + 1)];					
 								}
 							default:                                // 0xF000 - 0xFD00 are echoes of internal ram 0xC000 - 0xDFFF
