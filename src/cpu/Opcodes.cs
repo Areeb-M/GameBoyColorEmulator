@@ -136,12 +136,10 @@ namespace Emulator
 					return;
 			}
 			int result = a - b;
-			int f = 0x0000;
-			f += ((result == 0) ? 1 : 0); f <<= 1;         // Z Flag
-			f += 1; f <<= 2;                   // N Flag
-			f += (((a&0xF) + ((-b)&0xF))&0x10)>>3; // H Flag
-			f += ((result < 0) ? 1 : 0); f <<= 4;
-			cpu.F = (byte)f;
+			cpu.fZ = result == 0;      // Z Flag
+			cpu.fN = true;                 // N Flag
+			cpu.fH = (((a&0xF) + ((-b)&0xF))&0x10) == 0x10; // H Flag
+			cpu.fC = result < 0;
 			cpu.PC += 1;
 			Debug.Log(" - reg[F] = {0}", Convert.ToString(cpu.F, 2).PadLeft(8, '0'), a, b);
 		}
@@ -150,7 +148,7 @@ namespace Emulator
 		{
 			switch(mem[cpu.PC]){
 				case 0x28:
-					if ((cpu.F & 0x80) == 0x80){
+					if (cpu.fZ){
 						JUMP_FORWARD(cpu, mem);
 					} else {
 						cpu.PC += 2;
@@ -189,7 +187,10 @@ namespace Emulator
 					return;
 			}
 			cpu.A = (byte)(a ^ b);
-			cpu.F = (cpu.A == 0) ? (byte)0x80 : (byte)0;
+			cpu.fZ = cpu.A == 0;
+			cpu.fN = false;
+			cpu.fH = false;
+			cpu.fC = false;
 			cpu.PC += 1;
 			Debug.Log(" to get {0}. Store in reg[A]. reg[F] = ", cpu.A);
 			Debug.PrintBinary(cpu.F);
@@ -245,13 +246,10 @@ namespace Emulator
 			}
 			byte result = (byte)(a + b);
 			cpu.A = result;
-			int f = 0x00;
-			f += ((result == 0) ? 1 : 0); f <<= 1;         // Z Flag
-			f <<= 1;                   // Reset N Flag
-			f += (((a&0xF) + (b&0xF)) & 0x10) >> 4; f <<= 1; // Half Carry flag
-			f += (((a&0xF0) + (b&0xF0)) & 0x100) >> 8; // Full Carry flag
-			f <<= 4;
-			cpu.F = (byte)f;
+			cpu.fZ = result == 0;         // Z Flag
+			cpu.fN = false;               // Reset N Flag
+			cpu.fH = (((a&0xF) + (b&0xF)) & 0x10) == 0x10; // Half Carry flag
+			cpu.fC = result < a+b; // Full Carry flag
 			
 			cpu.PC += 1;
 			
