@@ -96,7 +96,9 @@ namespace Emulator
 		public static void JUMP(CPU cpu, Memory mem)
 		{
 			// JUMP: Jumps to a location in memory
-			cpu.PC = mem[cpu.PC+1] + (mem[cpu.PC+2] << 8);
+			int low = mem[++cpu.PC];
+			int high = mem[++cpu.PC] << 8;
+			cpu.PC = high | low;
 			Debug.Log(": Jump to {0:X4}", cpu.PC);
 		}
 		
@@ -257,17 +259,18 @@ namespace Emulator
 		
 		public static void CALL_NN(CPU cpu, Memory mem)
 		{
-			cpu.PC += 3;
+			//cpu.PC += 3;
 			cpu.SP -= 1;
-			mem[cpu.SP] = (byte)((cpu.PC & 0xFF00) >> 8);
+			mem[cpu.SP] = (byte)(((cpu.PC+3) & 0xFF00) >> 8);
 			cpu.SP -= 1;
-			mem[cpu.SP] = (byte)(cpu.PC & 0xFF);
+			mem[cpu.SP] = (byte)((cpu.PC+3) & 0xFF);
 			
 			Debug.Log(": Push {0:X4} onto the stack ", cpu.PC);
 			
-			cpu.PC -= 3;
-			cpu.PC = mem[++cpu.PC] + mem[++cpu.PC] << 8;
-			Debug.Log("and jump to {0:X4}", cpu.PC);
+			//cpu.PC -= 3;
+			JUMP(cpu, mem);
+			//cpu.PC = mem[++cpu.PC] + mem[++cpu.PC] << 8;
+			//Debug.Log("and jump to {0:X4}", cpu.PC);
 		}
 		
 		public static void LOAD_MEM_N_INTO_A(CPU cpu, Memory mem)
