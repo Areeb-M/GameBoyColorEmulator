@@ -42,7 +42,7 @@ namespace Emulator
 				{0x01, loadNNintoN},
 				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
 				{0x18, jumpForward},
-				{0x1B, decrement16Register},
+				//{0x1B, decrement16Register},
 				{0x1D, decrementRegister},
 				{0x1E, loadRegNintoMemN},
 				{0x20, flagConditionalJump},
@@ -400,13 +400,14 @@ namespace Emulator
 		
 		public static void FLAG_CONDITIONAL_JUMP(CPU cpu, Memory mem)
 		{
-			int n = (sbyte)mem[cpu.PC + 1];
+			int n = (sbyte)mem[cpu.PC + 1];			
+			cpu.PC += 2;
 			Debug.Log(": Flag ");
 			switch(mem[cpu.PC])
 			{
 				case 0x20:
 					Debug.Log("NZ conditional jump ");
-					if ((cpu.F & 0x80) == 0)
+					if (!cpu.fZ)
 					{
 						cpu.PC += n;
 						Debug.Log(" passed, PC += " + n);
@@ -415,7 +416,7 @@ namespace Emulator
 					break;
 				case 0x30:
 					Debug.Log("NC conditional jump ");
-					if ((cpu.F & 0x10) == 0)
+					if (!cpu.fC)
 					{
 						cpu.PC += n;
 						Debug.Log(" passed, PC += " + n);
@@ -423,7 +424,6 @@ namespace Emulator
 					}
 					break;
 			}
-			cpu.PC += 1;
 			Debug.Log("failed");
 		}
 		
