@@ -8,7 +8,7 @@ namespace Emulator
 	{	
 		public delegate void OpcodeFunction(CPU cpu, Memory mem);
 		public static Dictionary<byte, OpcodeFunction> OPCODE_TABLE;
-		
+
 		public static void GenerateOpcodeTable()
 		{
 			OpcodeFunction nop = NOP;

@@ -114,6 +114,52 @@ namespace Emulator
 			}
 		}
 		
+		public bool fZ
+		{
+			get { return (F & 0x80) == 0x80; }
+			set 
+			{
+				if (value)
+					F |= 0x80;
+				else
+					F &= 0x7F;
+			}
+		}
+		public bool fN
+		{
+			get { return (F & 0x40) == 0x40; }
+			set 
+			{
+				if (value)
+					F |= 0x40;
+				else
+					F &= 0xBF;
+			}
+		}
+		public bool fH
+		{
+			get { return (F & 0x20) == 0x20; }
+			set 
+			{
+				if (value)
+					F |= 0x20;
+				else
+					F &= 0xDF;
+			}
+		}
+		public bool fC
+		{
+			get { return (F & 0x10) == 0x10; }
+			set 
+			{
+				if (value)
+					F |= 0x10;
+				else
+					F &= 0xEF;
+			}
+		}
+		
+		
 		#endregion
 	
 		Memory memory;
