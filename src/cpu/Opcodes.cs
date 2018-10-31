@@ -95,6 +95,7 @@ namespace Emulator
 		
 		public static void JUMP(CPU cpu, Memory mem)
 		{
+			Debug.Log(" {1:X2}{0:X2}", mem[cpu.PC+1], mem[cpu.PC+2]);
 			// JUMP: Jumps to a location in memory
 			int low = mem[++cpu.PC];
 			int high = mem[++cpu.PC] << 8;
@@ -105,8 +106,8 @@ namespace Emulator
 		public static void RESTART38(CPU cpu, Memory mem)
 		{
 			// Restart38: Restarts Gameboy from memory location 0x38
-			mem[--cpu.SP] = (byte)(cpu.PC & 0x00FF);
 			mem[--cpu.SP] = (byte)((cpu.PC & 0xFF00) >> 8);
+			mem[--cpu.SP] = (byte)(cpu.PC & 0x00FF);
 			cpu.PC = 0x0038 + 1;
 			Debug.Log(": restart from 0x0038");
 		}
@@ -347,8 +348,12 @@ namespace Emulator
 			switch(mem[cpu.PC])
 			{
 				case 0x3E:
+					n = mem[++cpu.PC];
+					Debug.Log(" mem[PC+1]({0:X4})", n);
+					break;
 				case 0xFA:
 					n = mem[++cpu.PC];
+					cpu.PC += 1;
 					Debug.Log(" mem[PC+1]({0:X4})", n);
 					break;
 				default:
