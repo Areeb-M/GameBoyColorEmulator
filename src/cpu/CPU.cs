@@ -17,7 +17,7 @@ namespace Emulator
 		public int PC
 		{
 			get { return programCounter; }
-			set { programCounter = value;}
+			set { programCounter = value & 0xFFFF;}
 		}
 		public int SP
 		{
@@ -139,7 +139,7 @@ namespace Emulator
 			opcodeTable = OpcodeTable.OPCODE_TABLE;
 			
 			// Test
-			A = 0x11;
+			//A = 0x11;
 		}
 		
 		public bool tick(){
@@ -153,8 +153,8 @@ namespace Emulator
 					interrupts = !interrupts;
 					Debug.Log(" - Interrupts are now {0}", interrupts);
 				}
+				Console.ReadKey();
 				Debug.Log("\n");
-				//Console.ReadKey();
 				return true;
 			} else {
 				Debug.UnknownOpcode(PC, opcode);

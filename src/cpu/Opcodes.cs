@@ -106,6 +106,7 @@ namespace Emulator
 		public static void RESTART38(CPU cpu, Memory mem)
 		{
 			// Restart38: Restarts Gameboy from memory location 0x38
+			cpu.PC += 1;
 			mem[--cpu.SP] = (byte)((cpu.PC & 0xFF00) >> 8);
 			mem[--cpu.SP] = (byte)(cpu.PC & 0x00FF);
 			cpu.PC = 0x0038 + 1;
@@ -166,7 +167,7 @@ namespace Emulator
 		{
 			int n = 2 + (sbyte)mem[cpu.PC+1];
 			cpu.PC += n;
-			Debug.Log(": Jump forward by {1} to {0:X4}", cpu.PC, n);
+			Debug.Log(": Jump forward by {1} to {0:X4}", cpu.PC, n-2);
 		}
 		
 		public static void XOR(CPU cpu, Memory mem)
@@ -196,7 +197,7 @@ namespace Emulator
 		
 		public static void LOAD_NN_INTO_N(CPU cpu, Memory mem)
 		{
-			int nn = mem[cpu.PC+2] << 8 + mem[cpu.PC+1];
+			int nn = (mem[cpu.PC+2] << 8) + mem[cpu.PC+1];
 			switch(mem[cpu.PC])
 			{
 				case 0x01:
