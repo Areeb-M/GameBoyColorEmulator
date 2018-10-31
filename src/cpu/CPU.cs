@@ -137,6 +137,9 @@ namespace Emulator
 			memory = new Memory(romPath);
 			OpcodeTable.GenerateOpcodeTable();
 			opcodeTable = OpcodeTable.OPCODE_TABLE;
+			
+			// Test
+			// A = 0x11;
 		}
 		
 		public bool tick(){
