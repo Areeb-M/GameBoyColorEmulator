@@ -371,7 +371,7 @@ namespace Emulator
 								case 0x2:
 								case 0x3:
 								case 0x4:
-									io[index - 0xFF] = val;
+									io[index - 0xFF00] = val;
 									break;
 								case 0x5:
 								case 0x6:

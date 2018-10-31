@@ -187,7 +187,7 @@ namespace Emulator
 			
 			// Test
 			//A = 0x11;
-			//memory[0xFF44] = 0x91;
+			memory[0xFF44] = 0x91;
 		}
 		
 		public bool tick(){
