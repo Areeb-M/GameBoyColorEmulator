@@ -139,7 +139,7 @@ namespace Emulator
 			opcodeTable = OpcodeTable.OPCODE_TABLE;
 			
 			// Test
-			// A = 0x11;
+			A = 0x11;
 		}
 		
 		public bool tick(){

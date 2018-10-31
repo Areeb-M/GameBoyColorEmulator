@@ -232,7 +232,7 @@ namespace Emulator
 			get
 			{
 				switch ((index & 0xF000) >> 12)
-				{ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
+				{ // Use bitwise AND to get topmost nibble, bitshift right 12 bits to move down
 					case 0x0:
 					case 0x1:
 					case 0x2:
