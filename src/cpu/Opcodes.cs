@@ -315,7 +315,7 @@ namespace Emulator
 					return;				
 			}			
 			cpu.SP -= 1;
-			mem[cpu.SP] = (byte)((nn & 0xFF00) >> 4);
+			mem[cpu.SP] = (byte)((nn & 0xFF00) >> 8);
 			cpu.SP -= 1;
 			mem[cpu.SP] = (byte)(nn & 0xFF);
 			cpu.PC += 1;
@@ -373,7 +373,7 @@ namespace Emulator
 		
 		public static void AND(CPU cpu, Memory mem)
 		{
-			byte n, f;
+			byte n;
 			Debug.Log(": AND regA({0:X4}) with ", cpu.A);
 			switch(mem[cpu.PC])
 			{
@@ -386,11 +386,10 @@ namespace Emulator
 					return;
 			}
 			cpu.A &= n;
-			f = (byte)((cpu.A == 0) ? 1 : 0); f <<= 1; // Flag Z
-			f <<= 1; // reset Flag N
-			f += 1; f <<= 1; // set Flag H
-			f <<= 4; // reset Flag C
-			cpu.F = f;
+			cpu.fZ = cpu.A == 0;
+			cpu.fN = false;
+			cpu.fH = true;
+			cpu.fC = false;
 			
 			cpu.PC += 1;
 			
@@ -403,7 +402,7 @@ namespace Emulator
 			int n = (sbyte)mem[cpu.PC + 1];			
 			cpu.PC += 2;
 			Debug.Log(": Flag ");
-			switch(mem[cpu.PC])
+			switch(mem[cpu.PC-2])
 			{
 				case 0x20:
 					Debug.Log("NZ conditional jump ");
@@ -434,7 +433,7 @@ namespace Emulator
 			{
 				case 0xC8:
 					Debug.Log("Z conditional return ");
-					if ((cpu.F & 0x80) == 0x80)
+					if (cpu.fZ)
 					{
 						int nn = mem[cpu.SP] + (mem[++cpu.SP] << 8);
 						cpu.SP += 1;
@@ -445,7 +444,7 @@ namespace Emulator
 					break;
 				case 0xD0:
 					Debug.Log("NC conditional return ");
-					if ((cpu.F & 0x10) == 0)
+					if (!cpu.fC)
 					{
 						int nn = mem[cpu.SP] + (mem[++cpu.SP] << 8);
 						cpu.SP += 1;
