@@ -124,7 +124,7 @@ namespace Emulator
 		{
 			int a = cpu.A;
 			int b;
-			Debug.Log(": Compare regA({0:X4}) - ", a);
+			Debug.Log(": Compare regA({0:X4}) minus ", a);
 			switch(mem[cpu.PC]){
 				case 0xB8:
 					b = cpu.B;
@@ -170,16 +170,16 @@ namespace Emulator
 		
 		public static void JUMP_FORWARD(CPU cpu, Memory mem)
 		{
-			int n = 2 + (sbyte)mem[cpu.PC+1];
-			cpu.PC += n;
-			Debug.Log(": Jump forward by {1} to {0:X4}", cpu.PC, n-2);
+			int n = (sbyte)mem[cpu.PC+1];
+			cpu.PC += n + 2;
+			Debug.Log(": Jump forward by {1} to {0:X4}", cpu.PC, n);
 		}
 		
 		public static void XOR(CPU cpu, Memory mem)
 		{
 			int a = cpu.A;
 			int b;
-			Debug.Log(": XOR regA({0:X4}) with ", a);
+			Debug.Log(": XOR regA({0:X2}) with ", a);
 			switch (mem[cpu.PC]){
 				case 0xAE:
 					b = cpu.HL;
@@ -324,7 +324,7 @@ namespace Emulator
 		
 		public static void LOAD_A_INTO_N(CPU cpu, Memory mem)
 		{	
-			Debug.Log(": Load regA({0:X4}) into ", cpu.A);		
+			Debug.Log(": Load regA({0:X2}) into ", cpu.A);		
 			switch(mem[cpu.PC])
 			{
 				case 0x47:
@@ -513,14 +513,14 @@ namespace Emulator
 			switch(instruction)
 			{
 				case 0x87:
-					CB.RESET_BIT_B_IN_REG(cpu, mem);
+					CB.RESET_BIT_0_IN_REG(cpu, mem);
 					break;
 				default:
 					Debug.Log("[ERROR] Unimplemented CB prefix instruction {0:X2}", instruction);
 					Console.ReadLine();
 					break;
 			}
-			cpu.PC += 2;
+			cpu.PC += 1;
 		}
 		
 		public static void DECREMENT_16_REGISTER(CPU cpu, Memory mem)
@@ -565,11 +565,10 @@ namespace Emulator
 	
 	class CB
 	{
-		public static void RESET_BIT_B_IN_REG(CPU cpu, Memory mem)
+		public static void RESET_BIT_0_IN_REG(CPU cpu, Memory mem)
 		{
-			byte b = (byte)(mem[cpu.PC + 1] & 0x7);
-			byte mask = (byte)(255 - (1 << b));
-			Debug.Log(": reset bit " + b + " in ");
+			byte mask = (byte)(255 - (1 << 0));
+			Debug.Log(": reset bit 0 in ");
 			switch(mem[cpu.PC])
 			{
 				case 0x87:

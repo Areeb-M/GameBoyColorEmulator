@@ -167,6 +167,7 @@ namespace Emulator
 	
 		bool interrupts = true;
 		bool toggleInterrupts = false;
+		
 		public bool ToggleInterrupts
 		{
 			get { return toggleInterrupts; }
@@ -186,6 +187,7 @@ namespace Emulator
 			
 			// Test
 			//A = 0x11;
+			//memory[0xFF44] = 0x91;
 		}
 		
 		public bool tick(){
@@ -199,7 +201,7 @@ namespace Emulator
 					interrupts = !interrupts;
 					Debug.Log(" - Interrupts are now {0}", interrupts);
 				}
-				//Console.ReadKey();
+				Console.ReadKey();
 				Debug.Log("\n");
 				return true;
 			} else {
