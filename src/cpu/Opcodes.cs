@@ -33,20 +33,27 @@ namespace Emulator
 			OpcodeFunction decrementRegister = DECREMENT_REGISTER;
 			OpcodeFunction putR2inR1 = PUT_R2_IN_R1;
 			OpcodeFunction prefixCB = PREFIX_CB;
+			OpcodeFunction decrement16Register = DECREMENT_16_REGISTER;
+			OpcodeFunction loadRegNintoMemN = LOAD_REG_NN_INTO_MEM_N;
+			OpcodeFunction increment16Register = INCREMENT_16_REGISTER;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
 				{0x01, loadNNintoN},
 				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
 				{0x18, jumpForward},
+				{0x1B, decrement16Register},
 				{0x1D, decrementRegister},
+				{0x1E, loadRegNintoMemN},
 				{0x20, flagConditionalJump},
 				{0x28, jumpForwardIf},
 				{0x30, flagConditionalJump},
+				{0x33, increment16Register},
 				{0x3D, decrementRegister},
 				{0x3E, loadNintoA}, 
 				{0x47, loadAintoN},
 				{0x4F, loadAintoN},
+				{0x6B, putR2inR1}, 
 				{0x7E, putR2inR1},
 				{0x80, addRegToA},
 				{0xA7, and},
@@ -454,7 +461,7 @@ namespace Emulator
 		
 		public static void DECREMENT_REGISTER(CPU cpu, Memory mem)
 		{
-			int a, result, f;
+			int a, result;
 			Debug.Log(": Decrement reg");
 			switch(mem[cpu.PC])
 			{
@@ -474,12 +481,10 @@ namespace Emulator
 			}
 			result = a - 1;
 			
-			f = ((result == 0) ? 1 : 0); f <<= 1;         // Z Flag
-			f += 1; f <<= 1;                   // Set N Flag
-			f += 1 - ((((a&0xF) + ((-1)&0xF)) & 0x10) >> 4); f <<= 1; // No Half Borrow flag
-			f <<= 4;
-			f += cpu.F & 0x10; // keep flag C the same
-			cpu.F = (byte)f;
+			cpu.fZ = result == 0;        // Z Flag
+			cpu.fN = true;                  // Set N Flag
+			cpu.fH = (1 - ((((a&0xF) + ((-1)&0xF)) & 0x10) >> 4)) == 1; // No Half Borrow flag
+			// keep flag C the same
 			cpu.PC += 1;
 			
 			Debug.Log(" - regF = ");
@@ -493,6 +498,10 @@ namespace Emulator
 				case 0x7E:
 					Debug.Log(": Load regHL({0}) into reg A({1})", cpu.HL, cpu.A);
 					cpu.A = (byte)cpu.HL;
+					break;
+				case 0x6B:
+					Debug.Log(": Load regE({0}) into regL({1})", cpu.E, cpu.L);
+					cpu.E = cpu.L;
 					break;
 			}
 			cpu.PC += 1;
@@ -513,6 +522,44 @@ namespace Emulator
 					break;
 			}
 			cpu.PC += 2;
+		}
+		
+		public static void DECREMENT_16_REGISTER(CPU cpu, Memory mem)
+		{
+			Debug.Log(": Decrement 18 bit reg");
+			switch(mem[cpu.PC])
+			{
+				case 0x1B:
+					cpu.DE -= 1;
+					Debug.Log("DE({0:X4})", cpu.DE);
+					break;
+			}
+			cpu.PC += 1;
+		}
+		
+		public static void LOAD_REG_NN_INTO_MEM_N(CPU cpu, Memory mem)
+		{
+			Debug.Log(": Load reg");
+			switch(mem[cpu.PC])
+			{
+				case 0x1E:
+					Debug.Log("E({0:X2}) into mem[{1:X4}]", cpu.E, ++cpu.PC);
+					mem[cpu.PC] = cpu.E;
+					break;
+			}
+			cpu.PC += 1;
+		}
+		
+		public static void INCREMENT_16_REGISTER(CPU cpu, Memory mem)
+		{
+			Debug.Log(": Increment reg");
+			switch(mem[cpu.PC])
+			{
+				case 0x33:
+					Debug.Log("SP to {0:X4}", ++cpu.SP);
+					break;
+			}
+			cpu.PC += 1;
 		}
 		
 	}
