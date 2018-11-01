@@ -39,6 +39,7 @@ namespace Emulator
 			OpcodeFunction ret = RETURN;
 			OpcodeFunction or = OR;
 			OpcodeFunction pop = POP;
+			OpcodeFunction loadAintoMemHL = LOAD_A_INTO_MEM_HL;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
@@ -51,6 +52,7 @@ namespace Emulator
 				{0x1E, loadRegNintoMemN},
 				{0x20, flagConditionalJump},
 				{0x21, loadNNintoN},
+				{0x22, loadAintoMemHL},
 				{0x23, increment16Register},
 				{0x28, jumpForwardIf},
 				{0x30, flagConditionalJump},
@@ -648,6 +650,14 @@ namespace Emulator
 					cpu.AF = val;
 					break;				
 			}
+			cpu.PC += 1;
+		}
+		
+		public static void LOAD_A_INTO_MEM_HL(CPU cpu, Memory mem)
+		{
+			Debug.Log(": store regA({0:X2}) into mem[HL=({1:X4})] and increment HL", cpu.A, cpu.HL);
+			mem[cpu.HL] = cpu.A;
+			cpu.HL += 1;
 			cpu.PC += 1;
 		}
 		
