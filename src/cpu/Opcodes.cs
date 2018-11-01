@@ -37,6 +37,8 @@ namespace Emulator
 			OpcodeFunction loadRegNintoMemN = LOAD_REG_NN_INTO_MEM_N;
 			OpcodeFunction increment16Register = INCREMENT_16_REGISTER;
 			OpcodeFunction ret = RETURN;
+			OpcodeFunction or = OR;
+			OpcodeFunction pop = POP;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
@@ -61,6 +63,7 @@ namespace Emulator
 				{0x4F, loadAintoN},
 				{0x6B, putR2inR1}, 
 				{0x78, putR2inR1},
+				{0x79, putR2inR1},
 				{0x7E, putR2inR1},
 				{0x80, addRegToA},
 				{0xA7, and},
@@ -72,6 +75,7 @@ namespace Emulator
 				{0xAD, xor},
 				{0xAE, xor},
 				{0xAF, xor},
+				{0xB1, or},
 				{0xB8, compare},
 				{0xBA, compare},
 				{0xC3, jump},
@@ -88,6 +92,7 @@ namespace Emulator
 				{0xEA, loadAintoN},
 				{0xEE, xor},
 				{0xF0, loadMemNintoA},
+				{0xF1, pop},
 				{0xF3, disableInterrupts},
 				{0xF5, pushRegPair},
 				{0xFA, loadNintoA},
@@ -513,7 +518,7 @@ namespace Emulator
 			{
 				case 0x36:
 					Debug.Log(": Load mem[cpu.PC+1]({0:X2}) into regHL", mem[cpu.PC + 1]);
-					cpu.HL = mem[cpu.PC + 1];
+					mem[cpu.HL] = mem[cpu.PC + 1];
 					break;
 				case 0x6B:
 					Debug.Log(": Load regE({0}) into regL({1})", cpu.E, cpu.L);
@@ -522,6 +527,10 @@ namespace Emulator
 				case 0x78:
 					Debug.Log(": Load regB({0}) into regA({1})", cpu.B, cpu.A);
 					cpu.A = cpu.B;
+					break;
+				case 0x79:
+					Debug.Log(": Load regC({0}) into regA({1})", cpu.C, cpu.A);
+					cpu.A = cpu.C;
 					break;
 				case 0x7E:
 					Debug.Log(": Load regHL({0}) into reg A({1})", cpu.HL, cpu.A);
@@ -624,6 +633,21 @@ namespace Emulator
 			Debug.Log(" - regF = ");
 			Debug.PrintBinary(cpu.F);
 			
+			cpu.PC += 1;
+		}
+		
+		public static void POP(CPU cpu, Memory mem)
+		{
+			int val = (mem[cpu.SP]) | (mem[++cpu.SP] << 8);
+			Debug.Log(": Pop ({0:X4}) off the stack and store in reg", val);
+			cpu.SP += 1;
+			switch(mem[cpu.PC])
+			{
+				case 0xF1:
+					Debug.Log("AF");
+					cpu.AF = val;
+					break;				
+			}
 			cpu.PC += 1;
 		}
 		

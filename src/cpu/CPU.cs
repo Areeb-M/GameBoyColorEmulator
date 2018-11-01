@@ -75,7 +75,7 @@ namespace Emulator
 			{
 				value &= 0xFFFF;
 				A = (byte)(value >> 8);
-				F = (byte)(value & 0xFF);
+				F = (byte)(value & 0xF0);
 			}
 		}		
 		public int BC
