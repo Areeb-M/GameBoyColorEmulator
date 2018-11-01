@@ -41,6 +41,7 @@ namespace Emulator
 			{
 				{0x00, nop},
 				{0x01, loadNNintoN},
+				{0x0B, decrement16Register},
 				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
 				{0x18, jumpForward},
 				// {0x1B, decrement16Register},
@@ -379,7 +380,7 @@ namespace Emulator
 					Debug.Log(" mem[PC+1]({0:X4})", n);
 					break;
 				default:
-					Debug.Log("[Error]Unimplemented LOAD_N_INTO_A opcode detected!");
+					Debug.ERROR("Unimplemented LOAD_N_INTO_A opcode detected!");
 					return;
 			}
 			cpu.A = (byte)n;
@@ -402,7 +403,7 @@ namespace Emulator
 					Debug.Log("mem[PC+1]({0:X2})", n);
 					break;
 				default:
-					Debug.Log("[Error]Unimplemented AND opcode detected!");
+					Debug.ERROR("Unimplemented AND opcode detected!");
 					return;
 			}
 			cpu.A &= n;
@@ -491,7 +492,7 @@ namespace Emulator
 					Debug.Log("A to get {0:X4}", cpu.A);
 					break;
 				default:
-					Debug.Log("\n[ERROR]Unimplemented DECREMENT_REGISTER opcode detected");
+					Debug.ERROR("Unimplemented DECREMENT_REGISTER opcode detected");
 					return;
 			}
 			result = a - 1;
@@ -540,7 +541,7 @@ namespace Emulator
 					CB.RESET_BIT_0_IN_REG(cpu, mem);
 					break;
 				default:
-					Debug.Log("[ERROR] Unimplemented CB prefix instruction {0:X2}", instruction);
+					Debug.ERROR("Unimplemented CB prefix instruction {0:X2}", instruction);
 					Console.ReadLine();
 					break;
 			}
@@ -549,9 +550,13 @@ namespace Emulator
 		
 		public static void DECREMENT_16_REGISTER(CPU cpu, Memory mem)
 		{
-			Debug.Log(": Decrement 18 bit reg");
+			Debug.Log(": Decrement 16 bit reg");
 			switch(mem[cpu.PC])
 			{
+				case 0x0B:
+					cpu.BC -= 1;
+					Debug.Log("BC({0:X4})", cpu.BC);
+					break;
 				case 0x1B:
 					cpu.DE -= 1;
 					Debug.Log("DE({0:X4})", cpu.DE);
@@ -594,6 +599,32 @@ namespace Emulator
 			cpu.SP += 1;
 			cpu.PC = nn;
 			Debug.Log(": Returned to [{0:X4}]", nn);
+		}
+		
+		public static void OR(CPU cpu, Memory mem)
+		{
+			byte n;
+			Debug.Log(": Logical OR regA({0:X2}) with reg", cpu.A);
+			switch(mem[cpu.PC])
+			{
+				case 0xB1:
+					n = cpu.C;
+					Debug.Log("C({0:X2})", n);
+					break;
+				default:
+					Debug.ERROR("Unimplemented OR opcode detected!");
+					return;
+			}
+			cpu.A |= n;
+			
+			cpu.fZ = cpu.A == 0;
+			cpu.fN = false;
+			cpu.fH = false;
+			cpu.fC = false;
+			Debug.Log(" - regF = ");
+			Debug.PrintBinary(cpu.F);
+			
+			cpu.PC += 1;
 		}
 		
 	}

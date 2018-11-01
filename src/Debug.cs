@@ -41,5 +41,11 @@ namespace Emulator
 			if (DEBUG)
 				Console.Write(Convert.ToString(num, 2).PadLeft(8, '0'));
 		}
+		
+		public static void ERROR(string log, params object[] args)
+		{
+			Console.Write("\n[ERROR]" + log, args);
+			Console.ReadKey();
+		}
 	}
 }

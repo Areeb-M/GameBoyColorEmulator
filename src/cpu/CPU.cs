@@ -69,7 +69,7 @@ namespace Emulator
 		{
 			get 
 			{
-				return A << 8 + F;
+				return (A << 8) | F;
 			}
 			set 
 			{
@@ -82,7 +82,7 @@ namespace Emulator
 		{
 			get 
 			{
-				return B << 8 + C;
+				return (B << 8) | C;
 			}
 			set 
 			{
@@ -95,7 +95,7 @@ namespace Emulator
 		{
 			get 
 			{
-				return D << 8 + E;
+				return (D << 8) | E;
 			}
 			set 
 			{
@@ -108,7 +108,7 @@ namespace Emulator
 		{
 			get 
 			{
-				return H << 8 + L;
+				return (H << 8) | L;
 			}
 			set 
 			{
