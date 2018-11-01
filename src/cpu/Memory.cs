@@ -153,6 +153,21 @@ namespace Emulator
 		{			
 			cartridge.write(index, val);
 		}
+	
+		#region RAM Dumping and Save States
+		
+		public byte[] dumpRAM()
+		{
+			return cartridge.dumpRAM();
+		}
+		
+		public void loadRAM(byte[] all)
+		{
+			cartridge.loadRAM(all);
+		}
+		
+		#endregion
+	
 	}
 
 	
@@ -296,6 +311,38 @@ namespace Emulator
 			}
 			set { write(index, value); }
 		}
+	
+		#region RAM Dumping and Save States
+	
+		public byte[] dumpRAM()
+		{
+			byte[] all = new byte[ram.Length + vram.Length + io.Length + oam.Length];
+			int i = 0;
+			Array.Copy(ram, 0, all, i, ram.Length);
+			i += ram.Length;
+			Array.Copy(vram, 0, all, i, vram.Length);
+			i += vram.Length;
+			Array.Copy(io, 0, all, i, io.Length);
+			i += io.Length;
+			Array.Copy(oam, 0, all, i, oam.Length);
+			
+			return all;
+		}
+		
+		public void loadRAM(byte[] all)
+		{
+			int i = 0;
+			Array.Copy(all, 0, ram, i, ram.Length);
+			i += ram.Length;
+			Array.Copy(all, 0, vram, i, vram.Length);
+			i += vram.Length;
+			Array.Copy(all, 0, io, i, io.Length);
+			i += io.Length;
+			Array.Copy(all, 0, oam, i, oam.Length);
+		}
+		
+		#endregion
+	
 	}
 	
 	class MemoryBankController5: Cartridge
