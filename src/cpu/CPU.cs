@@ -225,7 +225,7 @@ namespace Emulator
 					interrupts = !interrupts;
 					Debug.Log(" - Interrupts are now {0}", interrupts);
 				}
-				Console.ReadKey();
+				//Console.ReadKey();
 				Debug.Log("\n");
 				return true;
 			} else {
