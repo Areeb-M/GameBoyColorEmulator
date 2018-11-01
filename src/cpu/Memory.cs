@@ -316,8 +316,11 @@ namespace Emulator
 	
 		public byte[] dumpRAM()
 		{
-			byte[] all = new byte[ram.Length + vram.Length + io.Length + oam.Length];
-			int i = 0;
+			byte[] all = new byte[1 + 2 + ram.Length + vram.Length + io.Length + oam.Length];
+			all[0] = (byte)ramBankSelect;
+			all[1] = (byte)(romBankSelect & 0xFF); // lower 8 bits of the rom bank select
+			all[2] = (byte)((romBankSelect >> 8) & 0x1;) // 9th bit of rom bank select
+			int i = 3;
 			Array.Copy(ram, 0, all, i, ram.Length);
 			i += ram.Length;
 			Array.Copy(vram, 0, all, i, vram.Length);
@@ -331,7 +334,12 @@ namespace Emulator
 		
 		public void loadRAM(byte[] all)
 		{
-			int i = 0;
+			ramBankSelect = all[0];
+			ramOffset = ramBankSelect * RAM_BANK_SIZE;
+			romBankSelect = all[1] | (all[0] << 8);
+			romOffset = romBankSelect * ROM_BANK_SIZE;
+			
+			int i = 3;
 			Array.Copy(all, 0, ram, i, ram.Length);
 			i += ram.Length;
 			Array.Copy(all, 0, vram, i, vram.Length);
