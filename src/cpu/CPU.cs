@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -194,6 +195,25 @@ namespace Emulator
 			memory[0xFF44] = 0x91;
 		}
 		
+		public CPU(string romPath, string savePath)
+		{
+			memory = new Memory(romPath);
+			OpcodeTable.GenerateOpcodeTable();
+			opcodeTable = OpcodeTable.OPCODE_TABLE;
+			
+			byte[] stateDump = File.ReadAllBytes(savePath);
+			int lenCpuState = 2 + 2 + 1 + reg.Length;
+			
+			PC = stateDump[0] | (stateDump[1] << 8);
+			SP = stateDump[2] | (stateDump[3] << 8);
+			interrupts = (stateDump[4] & 0x1) == 0x1;
+			toggleInterrupts = (stateDump[4] & 0x2) == 0x2;
+			
+			byte[] ramDump = new byte[stateDump.Length - lenCpuState];
+			Array.Copy(stateDump, lenCpuState, ramDump, 0, ramDump.Length);
+			memory.loadRAM(ramDump);
+		}
+		
 		public bool tick(){
 			byte opcode = memory[PC];
 			if (opcodeTable.ContainsKey(opcode)){
@@ -205,7 +225,7 @@ namespace Emulator
 					interrupts = !interrupts;
 					Debug.Log(" - Interrupts are now {0}", interrupts);
 				}
-				//Console.ReadKey();
+				Console.ReadKey();
 				Debug.Log("\n");
 				return true;
 			} else {
@@ -213,6 +233,26 @@ namespace Emulator
 				return false;
 			}
 				
+		}
+		
+		public void SaveState(string path)
+		{
+			byte[] ramDump = memory.dumpRAM();
+			byte[] cpuState = new byte[2 + 2 + 1 + reg.Length];
+			cpuState[0] = (byte)(PC & 0xFF); // lower byte of PC
+			cpuState[1] = (byte)((PC & 0xFF00) >> 8); // upper byte of PC
+			cpuState[2] = (byte)(SP & 0xFF); // lower byte of SP
+			cpuState[3] = (byte)((SP & 0XFF00) >> 8); // upper byte of SP
+			cpuState[4] = (byte)((interrupts ? 1 : 0) + (toggleInterrupts ? 2 : 0));
+			// bit 1 = interrupts, bit 2 = toggleInterrupts
+			Array.Copy(reg, 0, cpuState, 5, reg.Length);
+			
+			FileStream fs = File.Create(path);
+			
+			fs.Write(cpuState, 0, cpuState.Length);
+			fs.Write(ramDump, 0, ramDump.Length);
+			fs.Flush();
+			fs.Dispose();			
 		}
 	
 	}
