@@ -153,6 +153,21 @@ namespace Emulator
 		{			
 			cartridge.write(index, val);
 		}
+	
+		#region RAM Dumping and Save States
+		
+		public byte[] dumpRAM()
+		{
+			return cartridge.dumpRAM();
+		}
+		
+		public void loadRAM(byte[] all)
+		{
+			cartridge.loadRAM(all);
+		}
+		
+		#endregion
+	
 	}
 
 	
@@ -296,6 +311,150 @@ namespace Emulator
 			}
 			set { write(index, value); }
 		}
+	
+		#region RAM Dumping and Save States
+	
+		public byte[] dumpRAM()
+		{
+			byte[] all = new byte[1 + 2 + ram.Length + vram.Length + io.Length + oam.Length];
+			all[0] = (byte)ramBankSelect;
+			all[1] = (byte)(romBankSelect & 0xFF); // lower 8 bits of the rom bank select
+			all[2] = (byte)((romBankSelect >> 8) & 0x1); // 9th bit of rom bank select
+			int i = 3;
+			Array.Copy(ram, 0, all, i, ram.Length);
+			i += ram.Length;
+			Array.Copy(vram, 0, all, i, vram.Length);
+			i += vram.Length;
+			Array.Copy(io, 0, all, i, io.Length);
+			i += io.Length;
+			Array.Copy(oam, 0, all, i, oam.Length);
+			
+			return all;
+		}
+		
+		public void loadRAM(byte[] all)
+		{
+			Debug.Log("\nSize of ram dump should be: {0}", 1+2+ram.Length+vram.Length+io.Length+oam.Length);
+			ramBankSelect = all[0];
+			ramOffset = ramBankSelect * RAM_BANK_SIZE;
+			romBankSelect = all[1] | (all[2] << 8);
+			romOffset = romBankSelect * ROM_BANK_SIZE;
+			
+			int i = 3;
+			Debug.Log("\nCopying data from dump to ram...");
+			Array.Copy(all, i, ram, 0, ram.Length);
+			i += ram.Length;
+			Debug.Log("\nCopying data from dump to vram...");
+			Array.Copy(all, i, vram, 0, vram.Length);
+			i += vram.Length;
+			Debug.Log("\nCopying data from dump to io...");
+			Array.Copy(all, i, io, 0, io.Length);
+			i += io.Length;
+			Debug.Log("\nCopying data from dump to oam...");
+			Array.Copy(all, i, oam, 0, oam.Length);
+		}
+		
+		#endregion
+	
+	}
+	
+	class MemoryBankController1: Cartridge
+	{
+		bool[] ramBankState;
+		public MemoryBankController5(int ramBanks, int romBanks, byte[] ROM) : base(ramBanks, romBanks, ROM)
+		{
+			ramBankState = new bool[ramBanks];
+		}		
+		
+		
+		
+		public override void write(int index, byte val)
+		{
+			switch((index & 0xF000) >> 12)
+			{
+				case 0x0:
+				case 0x1:
+					ramBankState[ramBankSelect] = (val&0xFF) == 0x0A;
+					Debug.Log(" - Set current ram bank operations to "+ramBankState[ramBankSelect]);
+					break;
+				case 0x2:
+				case 0x3:
+					
+					break;
+				case 0x4:
+				case 0x5:
+					if (ramBanks > 0)
+					{
+						ramBankSelect = (val & 0xFF) + 1;
+						Debug.Log(" - Switched to ram bank " + ramBankSelect);
+						ramOffset = ramBankSelect * RAM_BANK_SIZE;
+					}
+					break;
+				case 0x6:
+				case 0x7:
+					memoryModel = (MemoryModel)(val & 0x1);
+					Debug.Log(" - Switch to MemoryModel {0}", memoryModel);
+					break;
+				case 0x8:
+				case 0x9:
+					vram[index - 0x8000] = val;
+					break;
+				case 0xA:
+				case 0xB:
+					ram[index - 0xA000 + ramOffset] = val;
+					break;
+				case 0xC:
+				case 0xD:
+					ram[index - 0xC000] = val;
+					break;
+				case 0xE:
+					ram[index - 0xE000] = val;
+					break;
+				case 0xF:
+					switch ((index & 0x0F00) >> 8)
+					{ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
+						case 0xE:
+							switch ((index & 0x00F0) >> 4)
+							{
+								case 0xA:
+								case 0xB:
+								case 0xC:
+								case 0xD:
+								case 0xE:
+								case 0xF:
+									return;
+								default:
+									oam[index - 0xFE00] = val;
+									break;
+							}
+							break;
+						case 0xF:
+							switch ((index & 0x00F0) >> 4)
+							{
+								case 0x0:
+								case 0x1:
+								case 0x2:
+								case 0x3:
+								case 0x4:
+									io[index - 0xFF00] = val;
+									break;
+								case 0x5:
+								case 0x6:
+								case 0x7:
+									return;
+								default:
+									ram[index - 0xFF80 + 0x2000 * (ramBanks + 1)] = val;
+									break;
+							}
+							break;
+						default:                                // 0xF000 - 0xFD00 are echoes of internal ram 0xC000 - 0xDFFF
+							ram[index - 0xE000] = val;		
+							break;
+					}
+					break;
+				
+			}
+		}
 	}
 	
 	class MemoryBankController5: Cartridge
@@ -309,6 +468,9 @@ namespace Emulator
 		{
 			switch((index & 0xF000) >> 12)
 			{
+				case 0x0:
+				case 0x1:
+					break;
 				case 0x2:
 					int bitNine = (1<<9) & romBankSelect; // store bit 9 of the romBankSelect
 					romBankSelect = bitNine + val; // add it back to the given index
@@ -329,6 +491,9 @@ namespace Emulator
 						Debug.Log(" - Switched to ram bank " + ramBankSelect);
 						ramOffset = ramBankSelect * RAM_BANK_SIZE;
 					}
+					break;
+				case 0x6:
+				case 0x7:
 					break;
 				case 0x8:
 				case 0x9:

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -168,7 +169,9 @@ namespace Emulator
 	
 		Memory memory;
 		Dictionary<byte, OpcodeTable.OpcodeFunction> opcodeTable;
-	
+		
+		string message = "";
+		
 		bool interrupts = true;
 		bool toggleInterrupts = false;
 		
@@ -194,6 +197,30 @@ namespace Emulator
 			memory[0xFF44] = 0x91;
 		}
 		
+		public CPU(string romPath, string savePath)
+		{
+			memory = new Memory(romPath);
+			OpcodeTable.GenerateOpcodeTable();
+			opcodeTable = OpcodeTable.OPCODE_TABLE;
+			
+			Debug.Log("\nLoading save state from file...");
+			byte[] stateDump = File.ReadAllBytes(savePath);
+			int lenCpuState = 2 + 2 + 1 + reg.Length;
+			
+			PC = stateDump[0] | (stateDump[1] << 8);
+			SP = stateDump[2] | (stateDump[3] << 8);
+			interrupts = (stateDump[4] & 0x1) == 0x1;
+			toggleInterrupts = (stateDump[4] & 0x2) == 0x2;
+			Debug.Log("\nLoading register values from state dump...");
+			Array.Copy(stateDump, 5, reg, 0, reg.Length);
+			
+			Debug.Log("\nCreating new array with ram dump data...");
+			byte[] ramDump = new byte[stateDump.Length - lenCpuState];
+			Array.Copy(stateDump, lenCpuState, ramDump, 0, ramDump.Length);
+			Debug.Log("\nPassing ram dump to memory class...");
+			memory.loadRAM(ramDump);
+		}
+		
 		public bool tick(){
 			byte opcode = memory[PC];
 			if (opcodeTable.ContainsKey(opcode)){
@@ -205,14 +232,50 @@ namespace Emulator
 					interrupts = !interrupts;
 					Debug.Log(" - Interrupts are now {0}", interrupts);
 				}
-				//Console.ReadKey();
+				Console.ReadKey();
 				Debug.Log("\n");
+				
+				// Serial Comms Monitor (for Blarggs Test Roms)
+				if (memory[0xFF02] == 0x81)
+				{
+					message += "" + (char)memory[0xFF01];
+				} else if (message.Length > 0)
+				{
+					Debug.Log("[SERIAL MESSAGE]" + message);
+					message = "";
+				}				
 				return true;
 			} else {
 				Debug.UnknownOpcode(PC, opcode);
 				return false;
 			}
 				
+		}
+		
+		public void SaveState(string path)
+		{
+			Debug.Log("\nDumping ram...");
+			byte[] ramDump = memory.dumpRAM();
+			Debug.Log("\nRam dump complete!");
+			byte[] cpuState = new byte[2 + 2 + 1 + reg.Length];
+			cpuState[0] = (byte)(PC & 0xFF); // lower byte of PC
+			cpuState[1] = (byte)((PC & 0xFF00) >> 8); // upper byte of PC
+			cpuState[2] = (byte)(SP & 0xFF); // lower byte of SP
+			cpuState[3] = (byte)((SP & 0XFF00) >> 8); // upper byte of SP
+			cpuState[4] = (byte)((interrupts ? 1 : 0) + (toggleInterrupts ? 2 : 0));
+			// bit 1 = interrupts, bit 2 = toggleInterrupts
+			Array.Copy(reg, 0, cpuState, 5, reg.Length);
+			Debug.Log("\nStored CPU state in array[");
+			foreach(byte n in cpuState)
+				Debug.Log("{0:X2},", n);
+			Debug.Log("]\nSaving ({0} bytes) state to file...", ramDump.Length + cpuState.Length);
+			
+			FileStream fs = File.Create(path);
+			
+			fs.Write(cpuState, 0, cpuState.Length);
+			fs.Write(ramDump, 0, ramDump.Length);
+			fs.Flush();
+			fs.Dispose();			
 		}
 	
 	}

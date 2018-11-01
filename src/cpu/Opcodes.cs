@@ -9,6 +9,16 @@ namespace Emulator
 		public delegate void OpcodeFunction(CPU cpu, Memory mem);
 		public static Dictionary<byte, OpcodeFunction> OPCODE_TABLE;
 
+		private static bool CheckHalfCarry(int a, int b) // (a) + (b)
+		{
+			return (((a&0xF) + (b&0xF)) & 0x10) == 0x10;
+		}		
+		
+		private static bool CheckHalfBorrow(int a, int b) // (a) - (b)
+		{
+			return ((((a&0xF) + ((0-b)&0xF)) & 0x10) >> 4) == 1;
+		}
+		
 		public static void GenerateOpcodeTable()
 		{
 			OpcodeFunction nop = NOP;
@@ -40,12 +50,20 @@ namespace Emulator
 			OpcodeFunction or = OR;
 			OpcodeFunction pop = POP;
 			OpcodeFunction loadAintoMemHL = LOAD_A_INTO_MEM_HL;
+			OpcodeFunction incrementRegister = INCREMENT_REGISTER;
+			OpcodeFunction jumpHL = JUMP_HL;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
 				{0x01, loadNNintoN},
+				{0x04, incrementRegister},
+				{0x05, decrementRegister},
+				{0x06, loadRegNintoMemN},
 				{0x0B, decrement16Register},
+				{0x0D, decrementRegister},
+				{0x0E, loadRegNintoMemN},
 				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
+				{0x11, loadNNintoN},
 				{0x18, jumpForward},
 				// {0x1B, decrement16Register},
 				{0x1D, decrementRegister},
@@ -63,11 +81,13 @@ namespace Emulator
 				{0x3E, loadNintoA}, 
 				{0x47, loadAintoN},
 				{0x4F, loadAintoN},
+				{0x5D, putR2inR1},
 				{0x6B, putR2inR1}, 
 				{0x78, putR2inR1},
 				{0x79, putR2inR1},
 				{0x7E, putR2inR1},
 				{0x80, addRegToA},
+				{0xA1, and},
 				{0xA7, and},
 				{0xA8, xor},
 				{0xA9, xor},
@@ -80,6 +100,7 @@ namespace Emulator
 				{0xB1, or},
 				{0xB8, compare},
 				{0xBA, compare},
+				{0xC0, conditionalReturn},
 				{0xC3, jump},
 				{0xC5, pushRegPair},
 				{0xC8, conditionalReturn},
@@ -91,6 +112,7 @@ namespace Emulator
 				{0xE0, loadAintoMemN},
 				{0xE5, pushRegPair},
 				{0xE6, and},
+				{0xE9, jumpHL},
 				{0xEA, loadAintoN},
 				{0xEE, xor},
 				{0xF0, loadMemNintoA},
@@ -221,12 +243,16 @@ namespace Emulator
 		
 		public static void LOAD_NN_INTO_N(CPU cpu, Memory mem)
 		{
-			int nn = (mem[cpu.PC+2] << 8) + mem[cpu.PC+1];
+			int nn = (mem[cpu.PC+2] << 8) | mem[cpu.PC+1];
 			switch(mem[cpu.PC])
 			{
 				case 0x01:
 					cpu.BC = nn;
 					Debug.Log(": Store {0:X4} into regBC", nn);
+					break;
+				case 0x11:
+					cpu.DE = nn;
+					Debug.Log(": Store {0:X4} into regDE", nn);
 					break;
 				case 0x21:
 					cpu.HL = nn;
@@ -279,7 +305,7 @@ namespace Emulator
 			cpu.A = result;
 			cpu.fZ = result == 0;         // Z Flag
 			cpu.fN = false;               // Reset N Flag
-			cpu.fH = (((a&0xF) + (b&0xF)) & 0x10) == 0x10; // Half Carry flag
+			cpu.fH = CheckHalfCarry(a, b); // Half Carry flag
 			cpu.fC = result < a+b; // Full Carry flag
 			
 			cpu.PC += 1;
@@ -306,10 +332,10 @@ namespace Emulator
 		
 		public static void LOAD_MEM_N_INTO_A(CPU cpu, Memory mem)
 		{
+			Debug.Log(": Load mem[0xFF00 + {0:X2}] into regA", mem[cpu.PC+1]);
 			int address = 0xFF00 + mem[++cpu.PC];
 			cpu.A = mem[address];
 			cpu.PC += 1;
-			Debug.Log(": Load [{0:X4}]({1:X4}) into regA", address, cpu.A);
 		}
 		
 		public static void PUSH_REG_PAIR(CPU cpu, Memory mem)
@@ -401,9 +427,13 @@ namespace Emulator
 			Debug.Log(": AND regA({0:X4}) with ", cpu.A);
 			switch(mem[cpu.PC])
 			{
+				case 0xA1:
+					n = cpu.C;
+					Debug.Log("regC");
+					break;
 				case 0xA7:
 					n = cpu.A;
-					Debug.Log(" regA ");
+					Debug.Log("regA");
 					break;
 				case 0xE6:
 					n = mem[++cpu.PC];
@@ -459,6 +489,15 @@ namespace Emulator
 			Debug.Log(": Flag  ");
 			switch(mem[cpu.PC])
 			{
+				case 0xC0:
+					Debug.Log("NZ conditional return ");
+					if (!cpu.fZ)
+					{
+						RETURN(cpu, mem);
+						Debug.Log("passed, PC = [{0:X4}]", cpu.PC);
+						return;
+					}
+					break;
 				case 0xC8:
 					Debug.Log("Z conditional return ");
 					if (cpu.fZ)
@@ -488,15 +527,25 @@ namespace Emulator
 			Debug.Log(": Decrement reg");
 			switch(mem[cpu.PC])
 			{
+				case 0x05:
+					a = cpu.B;
+					cpu.B -= 1;
+					Debug.Log("C to get ({0:X2})", cpu.B);
+					break;
+				case 0x0D:
+					a = cpu.C;
+					cpu.C -= 1;
+					Debug.Log("C to get ({0:X2})", cpu.C);
+					break;
 				case 0x1D:
 					a = cpu.E;
 					cpu.E -= 1;
-					Debug.Log("E to get {0:X4}", cpu.E);
+					Debug.Log("E to get {0:X2}", cpu.E);
 					break;
 				case 0x3D:
 					a = cpu.A;
 					cpu.A -= 1;
-					Debug.Log("A to get {0:X4}", cpu.A);
+					Debug.Log("A to get {0:X2}", cpu.A);
 					break;
 				default:
 					Debug.ERROR("Unimplemented DECREMENT_REGISTER opcode detected");
@@ -506,7 +555,7 @@ namespace Emulator
 			
 			cpu.fZ = result == 0;        // Z Flag
 			cpu.fN = true;                  // Set N Flag
-			cpu.fH = (1 - ((((a&0xF) + ((-1)&0xF)) & 0x10) >> 4)) == 1; // No Half Borrow flag
+			cpu.fH = !CheckHalfBorrow(a, 1); // No Half Borrow flag
 			// keep flag C the same
 			cpu.PC += 1;
 			
@@ -521,6 +570,10 @@ namespace Emulator
 				case 0x36:
 					Debug.Log(": Load mem[cpu.PC+1]({0:X2}) into regHL", mem[cpu.PC + 1]);
 					mem[cpu.HL] = mem[cpu.PC + 1];
+					break;
+				case 0x5D:
+					Debug.Log(": Load regL({0}) into regE({1})", cpu.E, cpu.L);
+					cpu.L = cpu.E;
 					break;
 				case 0x6B:
 					Debug.Log(": Load regE({0}) into regL({1})", cpu.E, cpu.L);
@@ -581,6 +634,14 @@ namespace Emulator
 			Debug.Log(": Load reg");
 			switch(mem[cpu.PC])
 			{
+				case 0x06:
+					Debug.Log("B({0:X2}) into mem[{1:X4}]", cpu.B, ++cpu.PC);
+					mem[cpu.PC] = cpu.B;
+					break;
+				case 0x0E:
+					Debug.Log("C({0:X2}) into mem[{1:X4}]", cpu.C, ++cpu.PC);
+					mem[cpu.PC] = cpu.C;
+					break;
 				case 0x1E:
 					Debug.Log("E({0:X2}) into mem[{1:X4}]", cpu.E, ++cpu.PC);
 					mem[cpu.PC] = cpu.E;
@@ -606,7 +667,7 @@ namespace Emulator
 		
 		public static void RETURN(CPU cpu, Memory mem)
 		{
-			int nn = mem[cpu.SP] + (mem[++cpu.SP] << 8);
+			int nn = mem[cpu.SP] | (mem[++cpu.SP] << 8);
 			cpu.SP += 1;
 			cpu.PC = nn;
 			Debug.Log(": Returned to [{0:X4}]", nn);
@@ -659,6 +720,36 @@ namespace Emulator
 			mem[cpu.HL] = cpu.A;
 			cpu.HL += 1;
 			cpu.PC += 1;
+		}
+		
+		public static void INCREMENT_REGISTER(CPU cpu, Memory mem)
+		{
+			int a, result;
+			Debug.Log(": Increment reg");
+			switch(mem[cpu.PC])
+			{
+				case 0x04:
+					a = cpu.B;
+					cpu.B += 1;
+					Debug.Log("B to get {0:X2}", cpu.B);
+					break;
+				default:
+					Debug.ERROR("Unimplemented INCREMENT_REGISTER opcode detected");
+					return;
+			}
+			result = a + 1;
+			
+			cpu.fZ = result == 0;
+			cpu.fN = false;
+			cpu.fH = CheckHalfCarry(a, 1);
+			
+			cpu.PC += 1;
+		}	
+
+		public static void JUMP_HL(CPU cpu, Memory mem)
+		{
+			Debug.Log(": Jump to address stored in regHL");
+			cpu.PC = cpu.HL;
 		}
 		
 	}
