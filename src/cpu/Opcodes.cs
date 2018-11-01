@@ -196,8 +196,8 @@ namespace Emulator
 			Debug.Log(": XOR regA({0:X2}) with ", a);
 			switch (mem[cpu.PC]){
 				case 0xAE:
-					b = cpu.HL;
-					Debug.Log("regHL({0:X4})", b);
+					b = mem[cpu.HL];
+					Debug.Log("mem[regHL]({0:X2})", b);
 					break;
 				case 0xAF:
 					b = cpu.A;
@@ -380,9 +380,9 @@ namespace Emulator
 					Debug.Log(" mem[PC+1]({0:X4})", n);
 					break;
 				case 0xFA:
-					n = mem[++cpu.PC];
-					cpu.PC += 1;
-					Debug.Log(" mem[PC+1]({0:X4})", n);
+					int address = (mem[++cpu.PC]) | (mem[++cpu.PC] << 8)
+					n = mem[address];
+					Debug.Log(" mem[({1:X4})]({0:X4})", n, address);
 					break;
 				default:
 					Debug.ERROR("Unimplemented LOAD_N_INTO_A opcode detected!");
@@ -533,8 +533,8 @@ namespace Emulator
 					cpu.A = cpu.C;
 					break;
 				case 0x7E:
-					Debug.Log(": Load regHL({0}) into reg A({1})", cpu.HL, cpu.A);
-					cpu.A = (byte)cpu.HL;
+					Debug.Log(": Load mem[regHL]({0:X2}) into reg A({1})", cpu.HL, cpu.A);
+					cpu.A = (byte)mem[cpu.HL];
 					break;
 			}
 			cpu.PC += 1;
