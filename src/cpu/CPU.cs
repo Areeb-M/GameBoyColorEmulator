@@ -201,6 +201,7 @@ namespace Emulator
 			OpcodeTable.GenerateOpcodeTable();
 			opcodeTable = OpcodeTable.OPCODE_TABLE;
 			
+			Debug.Log("\nLoading save state from file...");
 			byte[] stateDump = File.ReadAllBytes(savePath);
 			int lenCpuState = 2 + 2 + 1 + reg.Length;
 			
@@ -208,9 +209,10 @@ namespace Emulator
 			SP = stateDump[2] | (stateDump[3] << 8);
 			interrupts = (stateDump[4] & 0x1) == 0x1;
 			toggleInterrupts = (stateDump[4] & 0x2) == 0x2;
-			
+			Debug.Log("\nCreating new array with ram dump data...");
 			byte[] ramDump = new byte[stateDump.Length - lenCpuState];
 			Array.Copy(stateDump, lenCpuState, ramDump, 0, ramDump.Length);
+			Debug.Log("\nPassing ram dump to memory class...");
 			memory.loadRAM(ramDump);
 		}
 		
@@ -237,7 +239,9 @@ namespace Emulator
 		
 		public void SaveState(string path)
 		{
+			Debug.Log("\nDumping ram...");
 			byte[] ramDump = memory.dumpRAM();
+			Debug.Log("\nRam dump complete!");
 			byte[] cpuState = new byte[2 + 2 + 1 + reg.Length];
 			cpuState[0] = (byte)(PC & 0xFF); // lower byte of PC
 			cpuState[1] = (byte)((PC & 0xFF00) >> 8); // upper byte of PC
@@ -246,6 +250,10 @@ namespace Emulator
 			cpuState[4] = (byte)((interrupts ? 1 : 0) + (toggleInterrupts ? 2 : 0));
 			// bit 1 = interrupts, bit 2 = toggleInterrupts
 			Array.Copy(reg, 0, cpuState, 5, reg.Length);
+			Debug.Log("\nStored CPU state in array[");
+			foreach(byte n in cpuState)
+				Debug.Log("{0:X2},", n);
+			Debug.Log("]\nSaving ({0} bytes) state to file...", ramDump.Length + cpuState.Length);
 			
 			FileStream fs = File.Create(path);
 			

@@ -334,19 +334,24 @@ namespace Emulator
 		
 		public void loadRAM(byte[] all)
 		{
+			Debug.Log("\nSize of ram dump should be: {0}", 1+2+ram.Length+vram.Length+io.Length+oam.Length);
 			ramBankSelect = all[0];
 			ramOffset = ramBankSelect * RAM_BANK_SIZE;
 			romBankSelect = all[1] | (all[2] << 8);
 			romOffset = romBankSelect * ROM_BANK_SIZE;
 			
 			int i = 3;
-			Array.Copy(all, 0, ram, i, ram.Length);
+			Debug.Log("\nCopying data from dump to ram...");
+			Array.Copy(all, i, ram, 0, ram.Length);
 			i += ram.Length;
-			Array.Copy(all, 0, vram, i, vram.Length);
+			Debug.Log("\nCopying data from dump to vram...");
+			Array.Copy(all, i, vram, 0, vram.Length);
 			i += vram.Length;
-			Array.Copy(all, 0, io, i, io.Length);
+			Debug.Log("\nCopying data from dump to io...");
+			Array.Copy(all, i, io, 0, io.Length);
 			i += io.Length;
-			Array.Copy(all, 0, oam, i, oam.Length);
+			Debug.Log("\nCopying data from dump to oam...");
+			Array.Copy(all, i, oam, 0, oam.Length);
 		}
 		
 		#endregion

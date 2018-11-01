@@ -14,14 +14,17 @@ namespace Emulator{
 			else
 				cpu = new CPU(romPath, savePath);
 			
-			Console.WriteLine("\n========Beginning Emulation========\n\n");
+			Debug.Log("\n========Beginning Emulation========\n\n");
 			while(cpu.tick()){};
+			Debug.Log("\n========Ending    Emulation========\n\n");
 			
+			Debug.Log("Check if State Dumps directory exists...");
 			if (!Directory.Exists("c:/dumps"))
 			{
-				Directory.CreateDirectory("c:/\dumps");
+				Debug.Log("\nCreating directory...");
+				Directory.CreateDirectory("c:/dumps");
 			}
-			
+			Debug.Log("\nSaving CPU state...");
 			cpu.SaveState(savePath);
 			
 		}	
