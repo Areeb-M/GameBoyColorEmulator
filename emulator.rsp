@@ -1,0 +1,3 @@
+-out:build\build.exe 
+src\*.cs 
+src\cpu\*.cs
