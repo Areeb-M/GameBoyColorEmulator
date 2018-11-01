@@ -61,6 +61,7 @@ namespace Emulator
 				{0x06, loadRegNintoMemN},
 				{0x0B, decrement16Register},
 				{0x0D, decrementRegister},
+				{0x0E, loadRegNintoMemN},
 				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
 				{0x11, loadNNintoN},
 				{0x18, jumpForward},
@@ -242,7 +243,7 @@ namespace Emulator
 		
 		public static void LOAD_NN_INTO_N(CPU cpu, Memory mem)
 		{
-			int nn = (mem[cpu.PC+2] << 8) + mem[cpu.PC+1];
+			int nn = (mem[cpu.PC+2] << 8) | mem[cpu.PC+1];
 			switch(mem[cpu.PC])
 			{
 				case 0x01:
@@ -636,6 +637,10 @@ namespace Emulator
 				case 0x06:
 					Debug.Log("B({0:X2}) into mem[{1:X4}]", cpu.B, ++cpu.PC);
 					mem[cpu.PC] = cpu.B;
+					break;
+				case 0x0E:
+					Debug.Log("C({0:X2}) into mem[{1:X4}]", cpu.C, ++cpu.PC);
+					mem[cpu.PC] = cpu.C;
 					break;
 				case 0x1E:
 					Debug.Log("E({0:X2}) into mem[{1:X4}]", cpu.E, ++cpu.PC);

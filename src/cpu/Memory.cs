@@ -358,17 +358,23 @@ namespace Emulator
 	
 	}
 	
-	class MemoryBankController5: Cartridge
+	class MemoryBankController1: Cartridge
 	{
+		bool[] ramBankState;
 		public MemoryBankController5(int ramBanks, int romBanks, byte[] ROM) : base(ramBanks, romBanks, ROM)
 		{
-			
-		}
+			ramBankState = new bool[ramBanks];
+		}		
 		
 		public override void write(int index, byte val)
 		{
 			switch((index & 0xF000) >> 12)
 			{
+				case 0x0:
+				case 0x1:
+					ramBankState[romBankSelect] = (val&0xFF) == 0x0A;
+					Debug.Log(" - Set current ram bank ");
+					break;
 				case 0x2:
 					int bitNine = (1<<9) & romBankSelect; // store bit 9 of the romBankSelect
 					romBankSelect = bitNine + val; // add it back to the given index
@@ -389,6 +395,111 @@ namespace Emulator
 						Debug.Log(" - Switched to ram bank " + ramBankSelect);
 						ramOffset = ramBankSelect * RAM_BANK_SIZE;
 					}
+					break;
+				case 0x6:
+				case 0x7:
+					memoryModel = (MemoryModel)(val & 0x1);
+					Debug.Log(" - Switch to MemoryModel {0}", memoryModel);
+					break;
+				case 0x8:
+				case 0x9:
+					vram[index - 0x8000] = val;
+					break;
+				case 0xA:
+				case 0xB:
+					ram[index - 0xA000 + ramOffset] = val;
+					break;
+				case 0xC:
+				case 0xD:
+					ram[index - 0xC000] = val;
+					break;
+				case 0xE:
+					ram[index - 0xE000] = val;
+					break;
+				case 0xF:
+					switch ((index & 0x0F00) >> 8)
+					{ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
+						case 0xE:
+							switch ((index & 0x00F0) >> 4)
+							{
+								case 0xA:
+								case 0xB:
+								case 0xC:
+								case 0xD:
+								case 0xE:
+								case 0xF:
+									return;
+								default:
+									oam[index - 0xFE00] = val;
+									break;
+							}
+							break;
+						case 0xF:
+							switch ((index & 0x00F0) >> 4)
+							{
+								case 0x0:
+								case 0x1:
+								case 0x2:
+								case 0x3:
+								case 0x4:
+									io[index - 0xFF00] = val;
+									break;
+								case 0x5:
+								case 0x6:
+								case 0x7:
+									return;
+								default:
+									ram[index - 0xFF80 + 0x2000 * (ramBanks + 1)] = val;
+									break;
+							}
+							break;
+						default:                                // 0xF000 - 0xFD00 are echoes of internal ram 0xC000 - 0xDFFF
+							ram[index - 0xE000] = val;		
+							break;
+					}
+					break;
+				
+			}
+		}
+	}
+	
+	class MemoryBankController5: Cartridge
+	{
+		public MemoryBankController5(int ramBanks, int romBanks, byte[] ROM) : base(ramBanks, romBanks, ROM)
+		{
+			
+		}
+		
+		public override void write(int index, byte val)
+		{
+			switch((index & 0xF000) >> 12)
+			{
+				case 0x0:
+				case 0x1:
+					break;
+				case 0x2:
+					int bitNine = (1<<9) & romBankSelect; // store bit 9 of the romBankSelect
+					romBankSelect = bitNine + val; // add it back to the given index
+					Debug.Log(" - Switched to rom bank " + romBankSelect);
+					romOffset = romBankSelect * ROM_BANK_SIZE;
+					break;
+				case 0x3:
+					int otherEight = 0xFF & romBankSelect; // store bits 1-8 of romBankSelect
+					romBankSelect = ((val & 0x1) << 8) + otherEight;
+					Debug.Log(" - Switched to rom bank " + romBankSelect);
+					romOffset = romBankSelect * ROM_BANK_SIZE;
+					break;
+				case 0x4:
+				case 0x5:
+					if (ramBanks > 0)
+					{
+						ramBankSelect = (val & 0xFF) + 1;
+						Debug.Log(" - Switched to ram bank " + ramBankSelect);
+						ramOffset = ramBankSelect * RAM_BANK_SIZE;
+					}
+					break;
+				case 0x6:
+				case 0x7:
 					break;
 				case 0x8:
 				case 0x9:

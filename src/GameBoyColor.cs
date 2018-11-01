@@ -6,7 +6,7 @@ namespace Emulator{
 	class GameBoyColor{
 	
 		public GameBoyColor(string romPath){
-			string savePath = Directory.GetCurrentDirectory() + "/dumps/test.dump";
+			string savePath = Directory.GetCurrentDirectory() + "/dumps/test";
 			CPU cpu;
 			
 			if (!File.Exists(savePath))			
@@ -18,14 +18,14 @@ namespace Emulator{
 			while(cpu.tick()){};
 			Debug.Log("\n========Ending    Emulation========\n\n");
 			
-			Debug.Log("Check if State Dumps directory exists...");
+			/*Debug.Log("Check if State Dumps directory exists...");
 			if (!Directory.Exists(Directory.GetCurrentDirectory() + "/dumps"))
 			{
 				Debug.Log("\nCreating directory...");
 				Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/dumps");
 			}
 			Debug.Log("\nSaving CPU state...");
-			cpu.SaveState(savePath);
+			cpu.SaveState(savePath);*/
 			
 		}	
 		
