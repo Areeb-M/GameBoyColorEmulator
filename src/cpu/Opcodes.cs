@@ -44,7 +44,9 @@ namespace Emulator
 			{
 				{0x00, nop},
 				{0x01, loadNNintoN},
+				{0x05, decrementRegister},
 				{0x0B, decrement16Register},
+				{0x0D, decrementRegister},
 				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
 				{0x18, jumpForward},
 				// {0x1B, decrement16Register},
@@ -306,10 +308,10 @@ namespace Emulator
 		
 		public static void LOAD_MEM_N_INTO_A(CPU cpu, Memory mem)
 		{
+			Debug.Log(": Load mem[0xFF00 + {0:X2}] into regA", mem[cpu.PC+1]);
 			int address = 0xFF00 + mem[++cpu.PC];
 			cpu.A = mem[address];
 			cpu.PC += 1;
-			Debug.Log(": Load [{0:X4}]({1:X4}) into regA", address, cpu.A);
 		}
 		
 		public static void PUSH_REG_PAIR(CPU cpu, Memory mem)
@@ -488,15 +490,25 @@ namespace Emulator
 			Debug.Log(": Decrement reg");
 			switch(mem[cpu.PC])
 			{
+				case 0x05:
+					a = cpu.B;
+					cpu.B -= 1;
+					Debug.Log("C to get ({0:X2})", cpu.B);
+					break;
+				case 0x0D:
+					a = cpu.C;
+					cpu.C -= 1;
+					Debug.Log("C to get ({0:X2})", cpu.C);
+					break;
 				case 0x1D:
 					a = cpu.E;
 					cpu.E -= 1;
-					Debug.Log("E to get {0:X4}", cpu.E);
+					Debug.Log("E to get {0:X2}", cpu.E);
 					break;
 				case 0x3D:
 					a = cpu.A;
 					cpu.A -= 1;
-					Debug.Log("A to get {0:X4}", cpu.A);
+					Debug.Log("A to get {0:X2}", cpu.A);
 					break;
 				default:
 					Debug.ERROR("Unimplemented DECREMENT_REGISTER opcode detected");
