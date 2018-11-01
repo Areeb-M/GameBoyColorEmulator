@@ -209,6 +209,9 @@ namespace Emulator
 			SP = stateDump[2] | (stateDump[3] << 8);
 			interrupts = (stateDump[4] & 0x1) == 0x1;
 			toggleInterrupts = (stateDump[4] & 0x2) == 0x2;
+			Debug.Log("\nLoading register values from state dump...");
+			Array.Copy(stateDump, 5, reg, 0, reg.Length);
+			
 			Debug.Log("\nCreating new array with ram dump data...");
 			byte[] ramDump = new byte[stateDump.Length - lenCpuState];
 			Array.Copy(stateDump, lenCpuState, ramDump, 0, ramDump.Length);

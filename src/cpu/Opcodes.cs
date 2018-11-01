@@ -673,6 +673,10 @@ namespace Emulator
 			cpu.PC += 1;
 		}
 		
+		public static void INCREMENT_REGISTER(CPU cpu, Memory mem)
+		{
+			
+		}		
 	}
 	
 	class CB
