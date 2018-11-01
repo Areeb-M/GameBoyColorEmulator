@@ -22,7 +22,7 @@ namespace Emulator
 		public int SP
 		{
 			get { return stackPointer; }
-			set { stackPointer = value;}
+			set { stackPointer = value & 0xFFFF;}
 		}
 		
 		public byte A
@@ -73,6 +73,7 @@ namespace Emulator
 			}
 			set 
 			{
+				value &= 0xFFFF;
 				A = (byte)(value >> 8);
 				F = (byte)(value & 0xFF);
 			}
@@ -85,6 +86,7 @@ namespace Emulator
 			}
 			set 
 			{
+				value &= 0xFFFF;
 				B = (byte)(value >> 8);
 				C = (byte)(value & 0xFF);
 			}
@@ -97,6 +99,7 @@ namespace Emulator
 			}
 			set 
 			{
+				value &= 0xFFFF;
 				D = (byte)(value >> 8);
 				E = (byte)(value & 0xFF);
 			}
@@ -109,6 +112,7 @@ namespace Emulator
 			}
 			set 
 			{
+				value &= 0xFFFF;
 				H = (byte)(value >> 8);
 				L = (byte)(value & 0xFF);
 			}
@@ -201,7 +205,7 @@ namespace Emulator
 					interrupts = !interrupts;
 					Debug.Log(" - Interrupts are now {0}", interrupts);
 				}
-				Console.ReadKey();
+				//Console.ReadKey();
 				Debug.Log("\n");
 				return true;
 			} else {

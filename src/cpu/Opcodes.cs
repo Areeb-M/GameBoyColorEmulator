@@ -36,24 +36,30 @@ namespace Emulator
 			OpcodeFunction decrement16Register = DECREMENT_16_REGISTER;
 			OpcodeFunction loadRegNintoMemN = LOAD_REG_NN_INTO_MEM_N;
 			OpcodeFunction increment16Register = INCREMENT_16_REGISTER;
+			OpcodeFunction ret = RETURN;
 			OPCODE_TABLE = new Dictionary<byte, OpcodeFunction>()
 			{
 				{0x00, nop},
 				{0x01, loadNNintoN},
 				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
 				{0x18, jumpForward},
-				//{0x1B, decrement16Register},
+				// {0x1B, decrement16Register},
 				{0x1D, decrementRegister},
 				{0x1E, loadRegNintoMemN},
 				{0x20, flagConditionalJump},
+				{0x21, loadNNintoN},
+				{0x23, increment16Register},
 				{0x28, jumpForwardIf},
 				{0x30, flagConditionalJump},
+				{0x31, loadNNintoN},
 				{0x33, increment16Register},
+				{0x36, putR2inR1},
 				{0x3D, decrementRegister},
 				{0x3E, loadNintoA}, 
 				{0x47, loadAintoN},
 				{0x4F, loadAintoN},
 				{0x6B, putR2inR1}, 
+				{0x78, putR2inR1},
 				{0x7E, putR2inR1},
 				{0x80, addRegToA},
 				{0xA7, and},
@@ -70,12 +76,14 @@ namespace Emulator
 				{0xC3, jump},
 				{0xC5, pushRegPair},
 				{0xC8, conditionalReturn},
+				{0xC9, ret},
 				{0xCB, prefixCB},
 				{0xCD, callNN},
 				{0xD0, conditionalReturn},
 				{0xD5, pushRegPair},
 				{0xE0, loadAintoMemN},
 				{0xE5, pushRegPair},
+				{0xE6, and},
 				{0xEA, loadAintoN},
 				{0xEE, xor},
 				{0xF0, loadMemNintoA},
@@ -211,6 +219,14 @@ namespace Emulator
 				case 0x01:
 					cpu.BC = nn;
 					Debug.Log(": Store {0:X4} into regBC", nn);
+					break;
+				case 0x21:
+					cpu.HL = nn;
+					Debug.Log(": Store {0:X4} into regHL", nn);
+					break;
+				case 0x31:
+					cpu.SP = nn;
+					Debug.Log(": Point SP to {0:X4}", nn);
 					break;
 				default:
 					Debug.Log("\n[Error]Unimplemented LOAD_NN_INTO_N opcode detected!");
@@ -381,6 +397,10 @@ namespace Emulator
 					n = cpu.A;
 					Debug.Log(" regA ");
 					break;
+				case 0xE6:
+					n = mem[++cpu.PC];
+					Debug.Log("mem[PC+1]({0:X2})", n);
+					break;
 				default:
 					Debug.Log("[Error]Unimplemented AND opcode detected!");
 					return;
@@ -435,9 +455,7 @@ namespace Emulator
 					Debug.Log("Z conditional return ");
 					if (cpu.fZ)
 					{
-						int nn = mem[cpu.SP] + (mem[++cpu.SP] << 8);
-						cpu.SP += 1;
-						cpu.PC = nn;
+						RETURN(cpu, mem);
 						Debug.Log(" passed, PC = [{0:X4}]", cpu.PC);
 						return;
 					}
@@ -446,9 +464,7 @@ namespace Emulator
 					Debug.Log("NC conditional return ");
 					if (!cpu.fC)
 					{
-						int nn = mem[cpu.SP] + (mem[++cpu.SP] << 8);
-						cpu.SP += 1;
-						cpu.PC = nn;
+						RETURN(cpu, mem);
 						Debug.Log("passed, PC = [{0:X4}]", cpu.PC);
 						return;
 					}
@@ -494,13 +510,21 @@ namespace Emulator
 		{
 			switch(mem[cpu.PC])
 			{
-				case 0x7E:
-					Debug.Log(": Load regHL({0}) into reg A({1})", cpu.HL, cpu.A);
-					cpu.A = (byte)cpu.HL;
+				case 0x36:
+					Debug.Log(": Load mem[cpu.PC+1]({0:X2}) into regHL", mem[cpu.PC + 1]);
+					cpu.HL = mem[cpu.PC + 1];
 					break;
 				case 0x6B:
 					Debug.Log(": Load regE({0}) into regL({1})", cpu.E, cpu.L);
 					cpu.E = cpu.L;
+					break;
+				case 0x78:
+					Debug.Log(": Load regB({0}) into regA({1})", cpu.B, cpu.A);
+					cpu.A = cpu.B;
+					break;
+				case 0x7E:
+					Debug.Log(": Load regHL({0}) into reg A({1})", cpu.HL, cpu.A);
+					cpu.A = (byte)cpu.HL;
 					break;
 			}
 			cpu.PC += 1;
@@ -554,11 +578,22 @@ namespace Emulator
 			Debug.Log(": Increment reg");
 			switch(mem[cpu.PC])
 			{
+				case 0x23:
+					Debug.Log("HL to {0:X4}", ++cpu.HL);
+					break;
 				case 0x33:
 					Debug.Log("SP to {0:X4}", ++cpu.SP);
 					break;
 			}
 			cpu.PC += 1;
+		}
+		
+		public static void RETURN(CPU cpu, Memory mem)
+		{
+			int nn = mem[cpu.SP] + (mem[++cpu.SP] << 8);
+			cpu.SP += 1;
+			cpu.PC = nn;
+			Debug.Log(": Returned to [{0:X4}]", nn);
 		}
 		
 	}
