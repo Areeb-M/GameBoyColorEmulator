@@ -382,7 +382,7 @@ namespace Emulator
 					Debug.Log(" mem[PC+1]({0:X4})", n);
 					break;
 				case 0xFA:
-					int address = (mem[++cpu.PC]) | (mem[++cpu.PC] << 8)
+					int address = (mem[++cpu.PC]) | (mem[++cpu.PC] << 8);
 					n = mem[address];
 					Debug.Log(" mem[({1:X4})]({0:X4})", n, address);
 					break;
