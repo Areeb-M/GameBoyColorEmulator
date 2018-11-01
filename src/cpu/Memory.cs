@@ -146,6 +146,7 @@ namespace Emulator
 		public byte this[int index]
 		{
 			get { return cartridge[index]; }
+			set { cartridge[index] = value;}
 		}
 		
 		public void write(int index, byte val)
@@ -184,13 +185,17 @@ namespace Emulator
 			vram = new byte[RAM_BANK_SIZE];
 			io = new byte[0x4C];
 			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
-			ram = new byte[RAM_BANK_SIZE * (ramBanks + 1) + 0x007F]; 
+			ram = new byte[RAM_BANK_SIZE * (ramBanks + 1) + 0x0080]; 
 			// Plus 1 accounts for the internal RAM
-			// Plus 0x007F accounts for the internal ram at the end of the memory range
+			// internal ram 0x2000
+			// ram banks 0x2000 * ram banks
+			// internal ram 0x80
+			// Plus 0x0080 accounts for the internal ram at the end of the memory range
+			
 			
 			ramBankSelect = 0;
 			romBankSelect = 0;
-			ramOffset = 0;
+			ramOffset = 0x2000;
 			romOffset = 0;
 		}
 		
@@ -227,7 +232,7 @@ namespace Emulator
 			get
 			{
 				switch ((index & 0xF000) >> 12)
-				{ // Use bitwise AND to get topmost nibble, bitshift right 24 bits to move down
+				{ // Use bitwise AND to get topmost nibble, bitshift right 12 bits to move down
 					case 0x0:
 					case 0x1:
 					case 0x2:
@@ -243,8 +248,8 @@ namespace Emulator
 						return vram[index - 0x8000];
 					case 0xA:
 					case 0xB:
-						return ram[index + ramOffset - 0xA000 + 0x2000]; // Offset by 0xA000 to set at the start of ram banks.
-					case 0xC:											 // Offset by 0x2000 to account for internal ram
+						return ram[index + ramOffset - 0xA000]; // Offset by 0xA000 to set at the start of ram banks.
+					case 0xC:											 
 					case 0xD:
 						return ram[index - 0xC000];
 					case 0xE:
@@ -272,22 +277,24 @@ namespace Emulator
 									case 0x1:
 									case 0x2:
 									case 0x3:
-										return io[index - 0xFF00];
 									case 0x4:
+										return io[index - 0xFF00];
 									case 0x5:
 									case 0x6:
 									case 0x7:
 										return (byte)0;
 									default:
-										return ram[index - 0xFF00 + 0x2000 * (ramBanks + 1)];					
+										//Debug.Log(" {0:X4}, {1:X4}", index - 0xFF80 + 0x2000 * (ramBanks + 1), ram.Length);
+										return ram[index - 0xFF80 + 0x2000 * (ramBanks + 1)];					
 								}
-							default:                                // 0x0 - 0xD are echoes of internal ram 0xC000 - 0xDFFF
+							default:                                // 0xF000 - 0xFD00 are echoes of internal ram 0xC000 - 0xDFFF
 								return ram[index - 0xE000];		
 						}
 					default:
 						return (byte)0;
 				}
 			}
+			set { write(index, value); }
 		}
 	}
 	
@@ -305,21 +312,82 @@ namespace Emulator
 				case 0x2:
 					int bitNine = (1<<9) & romBankSelect; // store bit 9 of the romBankSelect
 					romBankSelect = bitNine + val; // add it back to the given index
+					Debug.Log(" - Switched to rom bank " + romBankSelect);
 					romOffset = romBankSelect * ROM_BANK_SIZE;
 					break;
 				case 0x3:
 					int otherEight = 0xFF & romBankSelect; // store bits 1-8 of romBankSelect
 					romBankSelect = ((val & 0x1) << 8) + otherEight;
+					Debug.Log(" - Switched to rom bank " + romBankSelect);
 					romOffset = romBankSelect * ROM_BANK_SIZE;
 					break;
 				case 0x4:
 				case 0x5:
 					if (ramBanks > 0)
 					{
-						ramBankSelect = val & 0xFF;
+						ramBankSelect = (val & 0xFF) + 1;
+						Debug.Log(" - Switched to ram bank " + ramBankSelect);
 						ramOffset = ramBankSelect * RAM_BANK_SIZE;
 					}
 					break;
+				case 0x8:
+				case 0x9:
+					vram[index - 0x8000] = val;
+					break;
+				case 0xA:
+				case 0xB:
+					ram[index - 0xA000 + ramOffset] = val;
+					break;
+				case 0xC:
+				case 0xD:
+					ram[index - 0xC000] = val;
+					break;
+				case 0xE:
+					ram[index - 0xE000] = val;
+					break;
+				case 0xF:
+					switch ((index & 0x0F00) >> 8)
+					{ // Use bitwise AND to get 3rd from right nibble, bitshift right 4 to move down
+						case 0xE:
+							switch ((index & 0x00F0) >> 4)
+							{
+								case 0xA:
+								case 0xB:
+								case 0xC:
+								case 0xD:
+								case 0xE:
+								case 0xF:
+									return;
+								default:
+									oam[index - 0xFE00] = val;
+									break;
+							}
+							break;
+						case 0xF:
+							switch ((index & 0x00F0) >> 4)
+							{
+								case 0x0:
+								case 0x1:
+								case 0x2:
+								case 0x3:
+								case 0x4:
+									io[index - 0xFF00] = val;
+									break;
+								case 0x5:
+								case 0x6:
+								case 0x7:
+									return;
+								default:
+									ram[index - 0xFF80 + 0x2000 * (ramBanks + 1)] = val;
+									break;
+							}
+							break;
+						default:                                // 0xF000 - 0xFD00 are echoes of internal ram 0xC000 - 0xDFFF
+							ram[index - 0xE000] = val;		
+							break;
+					}
+					break;
+				
 			}
 		}
 		
