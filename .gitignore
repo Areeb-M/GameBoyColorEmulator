@@ -5,4 +5,4 @@ docs/GB opcode chart.pdf
 *.gbc
 docs/OpcodeChart.pdf
 docs/
-src/SkiaSharp.1.60.3/
+libraries/
