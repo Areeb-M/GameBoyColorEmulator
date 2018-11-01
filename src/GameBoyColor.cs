@@ -6,19 +6,20 @@ namespace Emulator{
 	class GameBoyColor{
 	
 		public GameBoyColor(string romPath){
-			string savePath = @"/dumps/save.dump";
+			string savePath = @"c:/dumps/save.dump";
 			CPU cpu;
 			
 			if (!File.Exists(savePath))			
 				cpu = new CPU(romPath);	
 			else
 				cpu = new CPU(romPath, savePath);
+			
 			Console.WriteLine("\n========Beginning Emulation========\n\n");
 			while(cpu.tick()){};
 			
-			if (!Directory.Exists("/dumps"))
+			if (!Directory.Exists("c:/dumps"))
 			{
-				Directory.CreateDirectory("/dumps");
+				Directory.CreateDirectory("c:/\dumps");
 			}
 			
 			cpu.SaveState(savePath);
