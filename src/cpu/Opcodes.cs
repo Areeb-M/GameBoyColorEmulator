@@ -62,6 +62,7 @@ namespace Emulator
 				{0x0B, decrement16Register},
 				{0x0D, decrementRegister},
 				{0x10, nop}, // this instruction is actually supposed to be STOP, but I don't have buttons implemented yet, so no can do
+				{0x11, loadNNintoN},
 				{0x18, jumpForward},
 				// {0x1B, decrement16Register},
 				{0x1D, decrementRegister},
@@ -247,6 +248,10 @@ namespace Emulator
 				case 0x01:
 					cpu.BC = nn;
 					Debug.Log(": Store {0:X4} into regBC", nn);
+					break;
+				case 0x11:
+					cpu.DE = nn;
+					Debug.Log(": Store {0:X4} into regDE", nn);
 					break;
 				case 0x21:
 					cpu.HL = nn;

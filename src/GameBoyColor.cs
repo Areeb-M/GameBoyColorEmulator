@@ -6,7 +6,7 @@ namespace Emulator{
 	class GameBoyColor{
 	
 		public GameBoyColor(string romPath){
-			string savePath = Directory.GetCurrentDirectory() + "/dumps/save.dump";
+			string savePath = Directory.GetCurrentDirectory() + "/dumps/test.dump";
 			CPU cpu;
 			
 			if (!File.Exists(savePath))			

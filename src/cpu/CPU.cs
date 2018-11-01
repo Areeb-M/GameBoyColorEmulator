@@ -169,7 +169,9 @@ namespace Emulator
 	
 		Memory memory;
 		Dictionary<byte, OpcodeTable.OpcodeFunction> opcodeTable;
-	
+		
+		string message = "";
+		
 		bool interrupts = true;
 		bool toggleInterrupts = false;
 		
@@ -232,6 +234,16 @@ namespace Emulator
 				}
 				//Console.ReadKey();
 				Debug.Log("\n");
+				
+				// Serial Comms Monitor (for Blarggs Test Roms)
+				if (memory[0xFF02] == 0x81)
+				{
+					message += "" + (char)memory[0xFF01];
+				} else if (message.Length > 0)
+				{
+					Debug.Log("[SERIAL MESSAGE]" + message);
+					message = "";
+				}				
 				return true;
 			} else {
 				Debug.UnknownOpcode(PC, opcode);
