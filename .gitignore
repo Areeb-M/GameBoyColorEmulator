@@ -1,7 +1,4 @@
-
 *.exe
-GBCPUman.pdf
-docs/GB opcode chart.pdf
 *.gbc
 docs/
 build/
