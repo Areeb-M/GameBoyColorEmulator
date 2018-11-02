@@ -1,14 +1,19 @@
 using System;
 
-namespace Emulator{
-
-	class Program{
+namespace Emulator
+{
 	
-		static void Main(String[] arguments){
+	class Program
+	{
+		
+		public static void Main(String[] args)
+		{
+			// Possible Arguments
+			// {0} Game ROM path
 			
-			GameBoyColor gbc = new GameBoyColor(arguments[0]);
 			
 		}
-	
+		
 	}
+	
 }

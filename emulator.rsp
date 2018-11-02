@@ -1,3 +1,6 @@
 -out:build\build.exe 
 src\*.cs 
 src\cpu\*.cs
+src\io\*.cs
+src\memory\*.cs
+src\memory\cartridge\*.cs
