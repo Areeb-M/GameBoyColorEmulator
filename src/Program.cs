@@ -11,7 +11,6 @@ namespace Emulator
 			// Possible Arguments
 			// {0} Game ROM path
 			
-			
 		}
 		
 	}
