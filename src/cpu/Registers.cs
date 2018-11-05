@@ -163,9 +163,26 @@ namespace Emulator.CPU
 		#endregion
 		
 		#region Special IO Registers
-		byte[] IOregisters = new byte[43];
+		// Register Descriptions are from the Gameboy CPU Manual 
+		byte[] io = new byte[43];
 		
+		public byte P1
+		{
+			// Register for reading joy pad info and determining system type.
+			// Read/Write
+			get { return io[0]; }
+			set { io[0] = value;}
+		}
 		
+		public byte SB
+		{
+			// Serial transfer data - 8 bits of data to be read/written
+			// Read/Write
+			get { return io[1]; }
+			set { io[1] = value;}
+		}
+		
+		public byte 
 		#endregion
 		
 		
