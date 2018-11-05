@@ -182,7 +182,18 @@ namespace Emulator.CPU
 			set { io[1] = value;}
 		}
 		
-		public byte 
+		public byte SC
+		{
+			// SIO control
+			// Read/Write
+			get { return io[2]; }
+			set { io[2] = value;}
+		}
+		
+		public byte DIV
+		{
+			
+		}
 		#endregion
 		
 		
