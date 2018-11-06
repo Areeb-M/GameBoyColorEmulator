@@ -8,7 +8,6 @@ namespace Emulator
 	{
 		//private CPU cpu;
 		//private Memory memory;
-		//private Memory memory;
 		
 		public GameBoyColor(string romPath)
 		{
