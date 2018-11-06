@@ -1,6 +1,6 @@
 using System;
 
-namespace Emulator.CPU
+namespace Emulator
 {
 	class Register
 	{	
@@ -8,12 +8,12 @@ namespace Emulator.CPU
 		int programCounter = 0x100;
 		int stackPointer = 0xFFFE;
 		
-		public PC
+		public int PC
 		{
 			get { return programCounter; }
 			set { programCounter = value;}
 		}
-		public SP
+		public int SP
 		{
 			get { return stackPointer; }
 			set { stackPointer = value;}
@@ -21,7 +21,7 @@ namespace Emulator.CPU
 		#endregion
 
 		#region Registers
-		byte[] registers = new byte[8];
+		byte[] reg = new byte[8];
 		
 		public byte A
 		{
@@ -504,7 +504,6 @@ namespace Emulator.CPU
 			set { io[40] = value;}				
 		}		
 		#endregion // Registers
-		
 		
 	}
 	

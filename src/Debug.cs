@@ -6,18 +6,18 @@ namespace Emulator
 	public enum OutputTarget {Console = 1, File = 2};
 	public static class Debug
 	{
-		private static byte target = OutputTarget.Console;
+		private static byte target = (byte)OutputTarget.Console;
 		// By default, route Debug messages to Console
 		
 		private static StreamWriter file;
 		
 		private static void Write(string message, params object[] args)
 		{
-			if (target & OutputTarget.Console == OutputTarget.Console)
+			if ((target & (byte)OutputTarget.Console) == (byte)OutputTarget.Console)
 			{
 				Console.Write(message, args);
 			}
-			if (target & OutputTarget.File == OutputTarget.File)
+			if ((target & (byte)OutputTarget.File) == (byte)OutputTarget.File)
 			{
 				string processed_message = String.Format(message, args);
 				file.Write(processed_message);
@@ -33,19 +33,19 @@ namespace Emulator
 			
 			try
 			{
-				file = new File.AppendText(path);
+				file = File.AppendText(path);
 			} catch (DirectoryNotFoundException e)
 			{
 				LogError("Invalid log file path provided {0}", path);
 				throw;
 			}
-			target |= OutputTarget.File;
+			target |= (byte)OutputTarget.File;
 		}
 		
 		public static void DetachTarget(OutputTarget t)
 		{
 			LogWarning("Attempting to detach {0} as an output target", t);
-			byte mask = 255 ^ t;
+			byte mask = (byte)(255 ^ (byte)t);
 			target &= mask;
 		}
 		
