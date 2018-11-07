@@ -2,7 +2,7 @@ using System;
 
 namespace Emulator
 {
-	class Register
+	class Registers
 	{	
 		#region PC & SP
 		int programCounter = 0x100;
