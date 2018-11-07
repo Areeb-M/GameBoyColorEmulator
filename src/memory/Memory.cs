@@ -59,6 +59,9 @@ namespace Emulator
 			
 			destinationCode = GetDestinationCode(rom);	
 			memoryModel = MemoryModel.MM16x8;			
+			
+			Debug.Log("ROM Title:{0}\nGame Type:{1}\nCartridge Type:{2}\nROM Banks:{3}\nRAM Banks:{4}\nDestination Code:{5}\n", 
+			ROM_TITLE, gameType, cartridgeType, romBanks, ramBanks, destinationCode);
 		}
 		
 		private string GetROMTitle(byte[] rom)
