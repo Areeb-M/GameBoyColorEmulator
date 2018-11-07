@@ -12,6 +12,13 @@ namespace Emulator
 		public GameBoyColor(string romPath)
 		{
 			// Base Derivation
+			memory = new Memory(romPath);
+			cpu = new CPU(memory);
+		}
+		
+		public void Run()
+		{
+			
 		}
 		
 	}
