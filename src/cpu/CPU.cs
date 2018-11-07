@@ -12,7 +12,6 @@ namespace Emulator
 			reg	= new Registers();
 			memory = mem;
 			memory.AttachRegisters(reg);
-		}
-		
+		}		
 	}	
 }
