@@ -68,7 +68,8 @@ namespace Emulator
 		{
 			// retrieve the Cartridge Title from memory location [0134] to [0142]			
 			string tempName = "";
-			for (int i = 0x0134; i < 0x0143; i++){
+			for (int i = 0x0134; i < 0x0143; i++)
+			{
 				char letter = (char)rom[i];
 				if (letter != (char)0x00 && letter != ' ')
 					tempName += (char)rom[i];
@@ -95,7 +96,8 @@ namespace Emulator
 		private int GetNumROMBanks(byte[] rom)
 		{
 			// retrieve the number of rom banks in the cartridge			
-			switch (rom[0x0148]){
+			switch (rom[0x0148])
+			{
 				case 0x52:
 					return 72;
 				case 0x53:
@@ -110,7 +112,8 @@ namespace Emulator
 		private int GetNumRAMBanks(byte[] rom)
 		{
 			// retrieve the number of ram banks in the cartridge
-			switch (rom[0x0149]){
+			switch (rom[0x0149])
+			{
 				case 0:
 					return 0;
 				case 1: // 2kB 
