@@ -13,5 +13,10 @@ namespace Emulator
 			memory = mem;
 			memory.AttachRegisters(reg);
 		}		
+		
+		public bool Tick()
+		{
+			byte opcode = mem[reg.PC];
+		}
 	}	
 }
