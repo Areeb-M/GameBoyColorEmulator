@@ -50,7 +50,7 @@ namespace Emulator
 			this.reg = reg;
 		}
 		
-		public abstract void write(int index, byte val);
+		//public abstract void write(int index, byte val);
 		
 		public byte this[int index]
 		{
@@ -168,8 +168,46 @@ namespace Emulator
 			}
 			set
 			{
-				write(index, value);
+				// Instead of having each Cartridge type implement 
+				// its own writing page table, each section of
+				// the memory table is handled by an overrideable
+				// function, so only cartridge specific changes
+				// have to be made instead of entirely rewriting
+				// it for every class. Neat && extendable!
+				switch ((index & 0xF000) >> 12)
+				{
+					case 0x0:
+					case 0x1:
+					case 0x2:
+					case 0x3:
+						WriteROMBank0(index, value);
+						break;
+					case 0x4:
+					case 0x5:
+					case 0x6:
+					case 0x7:
+						WriteSwitchableROMBank(index, value);
+						break;
+					case 0x8:
+					case 0x9:
+						WriteVRAM(index, value);
+				}
 			}
+		}
+		
+		protected override void WriteROMBank0(int index, byte val)
+		{
+			// Does nothing
+		}
+		
+		protected override void WriteSwitchableROMBank(int index, byte val)
+		{
+			// Does nothing
+		}
+		
+		protected override void WriteVRAM(int index, byte val)
+		{
+			vram[index - 0x8000] = val;
 		}
 		
 		protected byte ReadRegister(int index)
