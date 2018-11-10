@@ -53,7 +53,7 @@ namespace Emulator
 			this.reg = reg;
 		}
 		
-		public byte this[int index]
+		public virtual byte this[int index]
 		{
 		/*	Gameboy Memory Map from Game Boy CPU Manual
 			Interrupt Enable Register
