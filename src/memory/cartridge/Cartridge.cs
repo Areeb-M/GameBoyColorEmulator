@@ -50,8 +50,6 @@ namespace Emulator
 			this.reg = reg;
 		}
 		
-		//public abstract void write(int index, byte val);
-		
 		public byte this[int index]
 		{
 		/*	Gameboy Memory Map from Game Boy CPU Manual
@@ -148,17 +146,7 @@ namespace Emulator
 										return (byte)0;
 								}
 							case 0xF:
-								switch((index & 0x00F0) >> 4)
-								{
-									case 0:
-									case 1:
-									case 2:
-									case 3:
-									case 4:
-										return ReadRegister(index&0xFF);
-									default: // this should never be reached
-										return (byte)0;
-								}
+								return ReadFBlock(index&0xFF);
 							default: // this should never be reached
 								return (byte)0;
 						}
@@ -191,26 +179,152 @@ namespace Emulator
 					case 0x8:
 					case 0x9:
 						WriteVRAM(index, value);
+						break;
+					case 0xA:
+					case 0xB:
+						WriteSwitchableRAM(index, value);
+						break;
+					case 0xC:
+					case 0xD:
+						WriteInternalRAM(index, value);
+						break;
+					case 0xE:
+						WriteInternalRAMEcho(index, value);
+						break;
+					case 0xF:
+						WriteFBlock(index, value);
+						break;						
 				}
 			}
 		}
 		
-		protected override void WriteROMBank0(int index, byte val)
+		protected virtual void WriteROMBank0(int index, byte val)
 		{
 			// Does nothing
 		}
 		
-		protected override void WriteSwitchableROMBank(int index, byte val)
+		protected virtual void WriteSwitchableROMBank(int index, byte val)
 		{
 			// Does nothing
 		}
 		
-		protected override void WriteVRAM(int index, byte val)
+		protected virtual void WriteVRAM(int index, byte val)
 		{
 			vram[index - 0x8000] = val;
 		}
 		
-		protected byte ReadRegister(int index)
+		protected virtual void WriteSwitchableRAM(int index, byte val)
+		{
+			ram[index - 0xA000 + ramOffset] = val;
+		}
+		
+		protected virtual void WriteInternalRAM(int index, byte val)
+		{
+			ram[index - 0xC000] = val;
+		}
+		
+		protected virtual void WriteInternalRAMEcho(int index, byte val)
+		{
+			ram[index - 0xE000] = val;
+		}
+		
+		protected virtual void WriteOAM(int index, byte val)
+		{
+			oam[index - 0xFE00] = val;
+		}
+		
+		protected virtual void WriteEmptyButUnusable(int index, byte val)
+		{
+			// Does nothing
+		}
+		
+		protected virtual void WriteIORegister(int index, byte val)
+		{
+			
+		}
+		
+		protected virtual void WriteEndInternalRAM(int index, byte val)
+		{
+			ram[index - 0x80 + 0x2000 * (ramBanks + 1)] = val;
+		}
+		
+		protected virtual void WriteFBlock(int index, byte val)
+		{
+			// Since this block has so many different purposes
+			// and the behavior is mostly consistent across 
+			// different cartridges, everything will be contained
+			// within one function
+			
+			switch ((index & 0x0F00) >> 8)
+			{ // get third nibble of index
+				case 0x0: // Continuation
+				case 0x1: // of
+				case 0x2: // the
+				case 0x3: // echo
+				case 0x4: // of
+				case 0x5: // internal
+				case 0x6: // ram
+				case 0x7: // from
+				case 0x8: // 0xE000
+				case 0x9: // to 
+				case 0xA: // 0xFE00
+				case 0xB:
+				case 0xC:
+				case 0xD:
+					WriteInternalRAMEcho(index, val);
+					break;
+				case 0xE:
+					switch ((index & 0x00F0) >> 4)
+					{
+						case 0x0:
+						case 0x1:
+						case 0x2:
+						case 0x3:
+						case 0x4:
+						case 0x5:
+						case 0x6:
+						case 0x7:
+						case 0x8:
+						case 0x9:
+							WriteOAM(index, val);
+							break;
+						case 0xA: // A-F
+						case 0xB: // are
+						case 0xC: // empty
+						case 0xD: // but
+						case 0xE: // unusable
+						case 0xF:
+							WriteEmptyButUnusable(index, val);
+							break;
+					}
+					break;
+				case 0xF:
+					switch((index & 0x00F0) >> 4)
+					{
+						case 0:
+						case 1:
+						case 2:
+						case 3:
+							WriteIORegister(index&0xFF, val);
+							break;
+						case 4:
+							if (index < 0xFF4C)
+								WriteIORegister(index&0xFF, val);
+							else
+								WriteEmptyButUnusable(index, val);
+							break;
+						default:
+							if (index < 0xFFFF)
+								WriteEndInternalRAM(index, val);
+							else
+								WriteIORegister(index, val);
+							break;						
+					}
+					break;
+			}	
+		}
+		
+		protected byte ReadFBlock(int index)
 		{
 			switch(index)
 			{
@@ -301,6 +415,8 @@ namespace Emulator
 				default:
 					if (index < 0x4C)
 						return io[index];
+					else if (index >= 0x80)
+						return ram[index - 0x80 + 0x2000 * (ramBanks + 1)];
 					else
 						return (byte)0;
 			}
