@@ -46,8 +46,10 @@ namespace Emulator
 		
 		Registers reg;
 		Cartridge cartridge;
+		Cartridge cartridgeRead;
+		Cartridge boomROM;
 		
-		public Memory(string romPath)
+		public Memory(string romPath, Registers registers)
 		{
 			byte[] rom = File.ReadAllBytes(romPath);
 			
@@ -61,13 +63,16 @@ namespace Emulator
 			destinationCode = GetDestinationCode(rom);	
 			memoryModel = MemoryModel.MM16x8;	
 			
+			reg = registers;
+			
 			Debug.Log("ROM Title:{0}\nGame Type:{1}\nCartridge Type:{2}\nROM Banks:{3}\nRAM Banks:{4}\nDestination Code:{5}\n", 
 			ROM_TITLE, gameType, cartridgeType, romBanks, ramBanks, destinationCode);
 		}
 		
-		public Memory(string romPath, bool bootROMPath)
+		public Memory(string romPath, bool bootROMPath, Registers registers)
 		{
-			
+			reg = registers;
+			reg.PC = 0x0; // Bootrom starts at 0x00
 		}
 		
 		private string GetROMTitle(byte[] rom)
@@ -139,14 +144,9 @@ namespace Emulator
 			return (DestinationCode)rom[0x014A];
 		}
 		
-		public void AttachRegisters(Registers registers)
-		{
-			reg = registers;
-		}
-		
 		public byte this[int index]
 		{
-			get { return cartridge[index]; }
+			get { return cartridgeRead[index]; }
 			set { cartridge[index] = value;}
 		}
 	}	
