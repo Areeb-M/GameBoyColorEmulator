@@ -11,7 +11,7 @@ namespace Emulator
 			// Possible Arguments
 			// {0} Game ROM path
 			// {1] Boot ROM path
-			GameBoyColor gbc = new GameBoyColor(args[0]);
+			GameBoyColor gbc = new GameBoyColor(args[0], args[1]);
 			
 		}
 		

@@ -43,6 +43,7 @@ namespace Emulator
 		CartridgeType cartridgeType;
 		DestinationCode destinationCode;
 		MemoryModel memoryModel;		
+		int romBanks, ramBanks;
 		
 		Registers reg;
 		Cartridge cartridge;
@@ -53,29 +54,54 @@ namespace Emulator
 		{
 			byte[] rom = File.ReadAllBytes(romPath);
 			
+			ScrapeMetaData(rom);			
+			reg = registers;
+			
+		}
+		
+		public Memory(string romPath, string bootROMPath, Registers registers)
+		{			
+			byte[] rom = File.ReadAllBytes(romPath);
+			byte[] boot = File.ReadAllBytes(bootROMPath);
+			
+			ScrapeMetaData(rom);
+			reg = registers;
+			reg.PC = 0x0; // Bootrom starts at 0x00
+			
+			cartridgeNorm = ConstructCartridge(rom);
+			bootROM = new BootRom(boot, this, cartridgeNorm);
+			cartridge = bootROM;
+		}
+		
+		private Cartridge ConstructCartridge(byte[] rom)
+		{
+			switch(cartridgeType)
+			{
+				case CartridgeType.ROM:
+					return new Cartridge(ramBanks, romBanks, rom);
+				default:
+					return new Cartridge(ramBanks, romBanks, rom);
+			}
+		}
+		
+		#region Metadata		
+		
+		private void ScrapeMetaData(byte[] rom)
+		{			
 			ROM_TITLE = GetROMTitle(rom);			
 			gameType = GetGameType(rom);			
 			cartridgeType = GetCartridgeType(rom);
 			
-			int romBanks = GetNumROMBanks(rom);
-			int ramBanks = GetNumRAMBanks(rom);
+			romBanks = GetNumROMBanks(rom);
+			ramBanks = GetNumRAMBanks(rom);
 			
 			destinationCode = GetDestinationCode(rom);	
-			memoryModel = MemoryModel.MM16x8;	
-			
-			reg = registers;
+			memoryModel = MemoryModel.MM16x8;		
 			
 			Debug.Log("ROM Title:{0}\nGame Type:{1}\nCartridge Type:{2}\nROM Banks:{3}\nRAM Banks:{4}\nDestination Code:{5}\n", 
-			ROM_TITLE, gameType, cartridgeType, romBanks, ramBanks, destinationCode);
+			ROM_TITLE, gameType, cartridgeType, romBanks, ramBanks, destinationCode);		
 		}
 		
-		public Memory(string romPath, bool bootROMPath, Registers registers)
-		{
-			reg = registers;
-			reg.PC = 0x0; // Bootrom starts at 0x00
-		}
-		
-		#region Metadata		
 		private string GetROMTitle(byte[] rom)
 		{
 			// retrieve the Cartridge Title from memory location [0134] to [0142]			

@@ -24,9 +24,9 @@ namespace Emulator
 			set
 			{
 				if (index < 0x100 || index == 0xFF50)
-					base[index] = val;
+					base[index] = value;
 				else
-					cartridge[index] = val;
+					cartridge[index] = value;
 			}
 		}
 		
@@ -36,4 +36,5 @@ namespace Emulator
 				memory.DetachBootROM();
 		}
 	}
+	
 }
