@@ -65,6 +65,11 @@ namespace Emulator
 			ROM_TITLE, gameType, cartridgeType, romBanks, ramBanks, destinationCode);
 		}
 		
+		public Memory(string romPath, bool bootROMPath)
+		{
+			
+		}
+		
 		private string GetROMTitle(byte[] rom)
 		{
 			// retrieve the Cartridge Title from memory location [0134] to [0142]			
