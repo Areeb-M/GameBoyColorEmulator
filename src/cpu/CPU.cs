@@ -16,7 +16,8 @@ namespace Emulator
 		
 		public bool Tick()
 		{
-			byte opcode = mem[reg.PC];
+			//byte opcode = memory[reg.PC];
+			return true;
 		}
 	}	
 }
