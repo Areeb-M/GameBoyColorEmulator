@@ -166,6 +166,10 @@ namespace Emulator
 						return (byte)0; 
 				}
 			}
+			set
+			{
+				write(index, value);
+			}
 		}
 		
 		protected byte ReadRegister(int index)

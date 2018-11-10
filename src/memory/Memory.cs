@@ -45,6 +45,7 @@ namespace Emulator
 		MemoryModel memoryModel;		
 		
 		Registers reg;
+		Cartridge cartridge;
 		
 		public Memory(string romPath)
 		{
@@ -136,6 +137,12 @@ namespace Emulator
 		public void AttachRegisters(Registers registers)
 		{
 			reg = registers;
+		}
+		
+		public byte this[int index]
+		{
+			get { return cartridge[index]; }
+			set { cartridge[index] = value;}
 		}
 	}	
 }
