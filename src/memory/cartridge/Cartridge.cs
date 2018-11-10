@@ -255,7 +255,12 @@ namespace Emulator
 				case 0x4B:
 					return reg.WX;
 				case 0xFF:
-					return reg.IE:
+					return reg.IE;
+				default:
+					if (index < 0x4C)
+						return io[index];
+					else
+						return (byte)0;
 			}
 		}
 	}
