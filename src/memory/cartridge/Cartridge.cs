@@ -240,6 +240,138 @@ namespace Emulator
 		
 		protected virtual void WriteIORegister(int index, byte val)
 		{
+			switch(index)
+			{
+				case 0x00:
+					reg.P1 = val;
+					break;
+				case 0x01:
+					reg.SB = val;
+					break;
+				case 0x02:
+					reg.SC = val;
+					break;
+				case 0x04:
+					reg.DIV = val;
+					break;
+				case 0x05:
+					reg.TIMA = val;
+					break;
+				case 0x06:
+					reg.TMA = val;
+					break;
+				case 0x07:
+					reg.TAC = val;
+					break;
+				case 0x0F:
+					reg.IF = val;
+					break;
+				case 0x10:
+					reg.NR10 = val;
+					break;
+				case 0x11:
+					reg.NR11 = val;
+					break;
+				case 0x12:
+					reg.NR12 = val;
+					break;
+				case 0x13:
+					reg.NR13 = val;
+					break;
+				case 0x14:
+					reg.NR14 = val;
+					break;
+				case 0x16:
+					reg.NR21 = val;
+					break;
+				case 0x17:
+					reg.NR22 = val;
+					break;
+				case 0x18:
+					reg.NR23 = val;
+					break;
+				case 0x19:
+					reg.NR14 = val;
+					break;
+				case 0x1A:
+					reg.NR30 = val;
+					break;
+				case 0x1B:
+					reg.NR31 = val;
+					break;
+				case 0x1C:
+					reg.NR32 = val;
+					break;
+				case 0x1D:
+					reg.NR33 = val;
+					break;
+				case 0x1E:
+					reg.NR34 = val;
+					break;
+				case 0x20:
+					reg.NR41 = val;
+					break;
+				case 0x21:
+					reg.NR42 = val;
+					break;
+				case 0x22:
+					reg.NR43 = val;
+					break;
+				case 0x23:
+					reg.NR44 = val;
+					break;
+				case 0x24:
+					reg.NR50 = val;
+					break;
+				case 0x25:
+					reg.NR51 = val;
+					break;
+				case 0x26:
+					reg.NR52 = val;
+					break;
+				case 0x40:
+					reg.LCDC = val;
+					break;
+				case 0x41:
+					reg.STAT = val;
+					break;
+				case 0x42:
+					reg.SCY = val;
+					break;
+				case 0x43:
+					reg.SCX = val;
+					break;
+				case 0x44:
+					reg.LY = val;
+					break;
+				case 0x45:
+					reg.LYC = val;
+					break;
+				case 0x46:
+					reg.DMA = val;
+					break;
+				case 0x47:
+					reg.BGP = val;
+					break;
+				case 0x48:
+					reg.OBP0 = val;
+					break;
+				case 0x49:
+					reg.OBP1 = val;
+					break;
+				case 0x4A:
+					reg.WY = val;
+					break;
+				case 0x4B:
+					reg.WX = val;
+					break;
+				case 0xFF:
+					reg.IE = val;
+					break;
+				default:
+					io[index] = val;
+					break;
+			}
 			
 		}
 		
