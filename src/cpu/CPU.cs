@@ -24,8 +24,15 @@ namespace Emulator
 		
 		public bool Tick()
 		{
-			//byte opcode = memory[reg.PC];
-			return true;
+			byte opcode = memory[reg.PC];
+			Debug.LogOpcode(reg.PC, opcode);
+			if (OpcodeTable.ContainsKey(opcode)){
+				OpcodeTable.Call(opcode, memory, reg);
+				return true;
+			} else {
+				Debug.Log("Unknown Opcode");
+				return false;
+			}
 		}
 	}	
 }

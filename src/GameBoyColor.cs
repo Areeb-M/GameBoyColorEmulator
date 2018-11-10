@@ -27,7 +27,13 @@ namespace Emulator
 		
 		public void Run()
 		{
-			
+			Debug.Log("\n=====Beginning Emulation=====\n\n");
+			while(cpu.Tick())
+			{
+				Debug.Log(" | {0}", cpu.registers);
+				Console.ReadLine();
+			}
+			Debug.Log(" | {0}\n", cpu.registers);
 		}
 		
 	}

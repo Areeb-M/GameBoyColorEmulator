@@ -4,6 +4,15 @@ namespace Emulator
 {
 	class Registers
 	{	
+	
+		public override string ToString()
+		{
+			string representation = "PC:[{0:X4}] SP:[{1:X4}] ";
+			representation += "reg[A:{2:X2} B:{3:X2} C:{4:X2} D:{5:X2} E:{6:X2} F:{7:X2} H:{8:X2} L:{9:X2}]";
+			representation = String.Format(representation, PC, SP, A, B, C, D, E, F, H, L);
+			return representation;
+		}
+	
 		#region PC & SP
 		int programCounter = 0x100;
 		int stackPointer = 0xFFFE;

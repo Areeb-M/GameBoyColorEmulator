@@ -63,6 +63,11 @@ namespace Emulator
 		{
 			Write(message, args);
 		}		
+		
+		public static void LogOpcode(int PC, byte opcode)
+		{
+			Log("[{0:X4}]{1:X2}: ", PC, opcode);
+		}
 	}
 	
 }
