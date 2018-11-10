@@ -114,8 +114,9 @@ namespace Emulator
 		
 		public static void LOAD_0xFFCC_A(Memory mem, Registers reg)
 		{
-			Debug.Log("LD $FF00+C, A");
+			Debug.Log("LD ($FF00+C), A");
 			mem[0xFF00 + reg.C] = reg.A;
+			cpu.PC += 2;
 		}
 	}
 	
