@@ -5,14 +5,22 @@ namespace Emulator
 	class CPU
 	{
 		private Memory memory;
-		private Registers reg;		
+		private Registers reg;	
+
+		public Registers registers
+		{
+			get { return reg; }
+		}
 		
-		public CPU(Memory mem)
+		public CPU()
 		{
 			reg	= new Registers();
-			memory = mem;
-			memory.AttachRegisters(reg);
 		}		
+		
+		public void AttachMemory(Memory mem)
+		{
+			memory = mem;
+		}
 		
 		public bool Tick()
 		{
