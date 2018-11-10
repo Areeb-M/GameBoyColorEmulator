@@ -18,6 +18,7 @@ namespace Emulator
 		protected int ramBankSelect;
 		protected int romOffset;
 		protected int ramOffset;
+		protected bool[] ramBankEnable;
 		protected Registers reg;
 		
 		public const int ROM_BANK_SIZE = 0x4000;
@@ -43,6 +44,8 @@ namespace Emulator
 			romBankSelect = 0;
 			ramOffset = 0x2000;
 			romOffset = 0;			
+			if (ramBanks > 0)
+				ramBankEnable = new bool[ramBanks];
 		}
 		
 		public void AttachRegisters(Registers reg)
@@ -97,7 +100,10 @@ namespace Emulator
 						return vram[index - 0x8000];
 					case 0xA:
 					case 0xB:
-						return ram[index - 0xA000 + ramOffset];
+						if (ramBanks > 0 && ramBankEnable[ramBankSelect])
+							return ram[index - 0xA000 + ramOffset];
+						else
+							return 0xFF;
 					case 0xC:
 					case 0xD:
 						return ram[index - 0xC000];
@@ -182,7 +188,8 @@ namespace Emulator
 						break;
 					case 0xA:
 					case 0xB:
-						WriteSwitchableRAM(index, value);
+						if (ramBanks > 0 && ramBankEnable[ramBankSelect])
+							WriteSwitchableRAM(index, value);
 						break;
 					case 0xC:
 					case 0xD:
