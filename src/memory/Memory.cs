@@ -46,8 +46,8 @@ namespace Emulator
 		
 		Registers reg;
 		Cartridge cartridge;
-		Cartridge cartridgeRead;
-		Cartridge boomROM;
+		Cartridge cartridgeNorm;
+		Cartridge bootROM;
 		
 		public Memory(string romPath, Registers registers)
 		{
@@ -75,6 +75,7 @@ namespace Emulator
 			reg.PC = 0x0; // Bootrom starts at 0x00
 		}
 		
+		#region Metadata		
 		private string GetROMTitle(byte[] rom)
 		{
 			// retrieve the Cartridge Title from memory location [0134] to [0142]			
@@ -143,10 +144,17 @@ namespace Emulator
 		{
 			return (DestinationCode)rom[0x014A];
 		}
+		#endregion
+		
+		public void DetachBootROM()
+		{
+			cartridge = cartridgeNorm;
+		}
+		
 		
 		public byte this[int index]
 		{
-			get { return cartridgeRead[index]; }
+			get { return cartridge[index]; }
 			set { cartridge[index] = value;}
 		}
 	}	
