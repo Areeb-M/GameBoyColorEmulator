@@ -24,7 +24,7 @@ namespace Emulator
 			reg.PC += 1;
 		}
 		
-		public static void LOAD_N_NN(Memory mem, Registers reg)
+		public static void LOAD_N_D16(Memory mem, Registers reg)
 		{
 			// 16 bit load
 			int high = mem[reg.PC + 2] << 8;
@@ -88,6 +88,25 @@ namespace Emulator
 			{
 				case 0x20:
 					Debug.Log("JR NZ, r8");
+					if (!reg.fZ)
+						reg.PC += n;
+					break;
+			}
+			reg.PC += 2;
+		}
+		
+		public static void LOAD_N_D8(Memory mem, Registers reg)
+		{
+			byte n = mem[reg.PC + 1];
+			switch(mem[reg.PC])
+			{
+				case 0x0E:
+					Debug.Log("LD C, D8");
+					reg.C = n;
+					break;
+				case 0x3E:
+					Debug.Log("LD A, D8");
+					reg.A = n;
 					break;
 			}
 			reg.PC += 2;

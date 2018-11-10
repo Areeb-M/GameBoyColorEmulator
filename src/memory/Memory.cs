@@ -71,6 +71,9 @@ namespace Emulator
 			cartridgeNorm = ConstructCartridge(rom);
 			bootROM = new BootRom(boot, this, cartridgeNorm);
 			cartridge = bootROM;
+			
+			cartridge.AttachRegisters(reg);
+			cartridgeNorm.AttachRegisters(reg);
 		}
 		
 		private Cartridge ConstructCartridge(byte[] rom)
