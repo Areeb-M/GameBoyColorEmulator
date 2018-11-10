@@ -111,6 +111,12 @@ namespace Emulator
 			}
 			reg.PC += 2;
 		}
+		
+		public static void LOAD_0xFFCC_A(Memory mem, Registers reg)
+		{
+			Debug.Log("LD $FF00+C, A");
+			mem[0xFF00 + reg.C] = reg.A;
+		}
 	}
 	
 	static class PrefixCB
