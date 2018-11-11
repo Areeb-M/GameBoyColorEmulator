@@ -348,8 +348,8 @@ namespace Emulator
 				case 0x43:
 					reg.SCX = val;
 					break;
-				case 0x44:
-					reg.LY = val;
+				case 0x44: // Special Case: According to docs, writing values to LY resets it.
+					reg.LY = 0;
 					break;
 				case 0x45:
 					reg.LYC = val;

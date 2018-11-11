@@ -9,15 +9,15 @@ namespace Emulator
 		Color[] output;
 		
 		int ppuClock;
-		int line;
 		
+		Registers reg;
 		int PPUState;
 		// 0 - OAM Search
 		// 1 - Pixel Transfer
 		// 2 - H-Blank
 		// 3 - V-Blank
 		
-		public PPU()
+		public PPU(Registers registers)
 		{
 			vram = new byte[0x2000];
 			oam = new byte[40 * 4];
@@ -25,27 +25,39 @@ namespace Emulator
 			output = new Color[160*144];
 			// one color for each pixel
 			
-			ppuClock = 0;
-			line = 0;
-			
+			reg = registers;
 			PPUState = 0;
+			
+			ppuClock = 0;
+			reg.LY = 0;
+			
 		}
 		
 		public void Tick()
 		{
+			switch(PPUState)
+			{
+				case 0:  // OAM Search
+					break;
+				case 1:  // Push Pixels to Screen
+					break;
+				case 2:  // H-Blank
+				case 3:  // V-Blank
+					break;
+			}
+			// 0 - OAM Search, find and select Sprites that should be visible in this line. oam.x != 0, LY + 16 >=oam.Y, LY + 16 < oam.y + h
+			// 1 - Push Pixels to Screen
+			// 2 - Remainder is H-Blank
+			
 			ppuClock = (ppuClock + 1) % 114;
 			
 			if (ppuClock == 0)
-				line = (line + 1) % 154;
+				reg.LY = (reg.LY + 1) % 154;
 			else if (ppuClock == 20)
 				PPUState = 1;
 			
-			if (line >= 143) // V-Blank
+			if (reg.LY >= 143) // V-Blank
 				PPUState = 3;
-			
-			// 1 - OAM Search, find and select Sprites that should be visible in this line. oam.x != 0, LY + 16 >=oam.Y, LY + 16 < oam.y + h
-			// 2 - Push Pixels to Screen
-			// 3 - Remainder is H-Blank
 		}		
 		
 		
