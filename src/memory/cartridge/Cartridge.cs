@@ -17,8 +17,8 @@ namespace Emulator
 		protected int romOffset;
 		protected int ramOffset;
 		protected bool[] ramBankEnable;
-		protected Registers reg;
 		
+		protected Registers reg;		
 		protected PPU ppu;
 		
 		public const int ROM_BANK_SIZE = 0x4000;
