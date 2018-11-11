@@ -19,6 +19,7 @@ namespace Emulator
 		protected int romOffset;
 		protected int ramOffset;
 		protected bool[] ramBankEnable;
+		protected bool vramEnable;
 		protected Registers reg;
 		
 		public const int ROM_BANK_SIZE = 0x4000;
@@ -46,6 +47,7 @@ namespace Emulator
 			romOffset = 0;			
 			if (ramBanks > 0)
 				ramBankEnable = new bool[ramBanks];
+			vramEnable = true;
 		}
 		
 		public void AttachRegisters(Registers reg)

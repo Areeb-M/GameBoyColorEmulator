@@ -180,6 +180,12 @@ namespace Emulator
 			cartridge = cartridgeNorm;
 		}
 		
+		public Cartridge GetCartridge()
+		{
+			if (bootROM != null)
+				return cartridgeNorm;
+			return cartridge;
+		}
 		
 		public byte this[int index]
 		{

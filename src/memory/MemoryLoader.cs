@@ -7,6 +7,7 @@ namespace Emulator
 		
 		public static Memory ReloadSaveState(Memory memory, Registers reg, string pathToSave)
 		{
+			
 			return memory;
 		}
 		
