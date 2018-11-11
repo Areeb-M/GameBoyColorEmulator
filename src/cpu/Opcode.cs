@@ -116,7 +116,7 @@ namespace Emulator
 		{
 			Debug.Log("LD ($FF00+C), A");
 			mem[0xFF00 + reg.C] = reg.A;
-			cpu.PC += 2;
+			reg.PC += 1;
 		}
 	}
 	

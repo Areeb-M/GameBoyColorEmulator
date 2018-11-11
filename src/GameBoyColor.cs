@@ -13,17 +13,18 @@ namespace Emulator
 		public GameBoyColor(string romPath)
 		{
 			// Base Derivation
-			cpu = new CPU();
 			ppu = new PPU();
-			memory = new Memory(romPath, cpu.registers);
+			cpu = new CPU(ppu);
+			memory = new Memory(romPath, cpu.registers, ppu);
 			cpu.AttachMemory(memory);
 		}
 		
 		public GameBoyColor(string romPath, string bootROMPath)
 		{
 			// Base Derivation
-			cpu = new CPU();
-			memory = new Memory(romPath, bootROMPath, cpu.registers);
+			ppu = new PPU();
+			cpu = new CPU(ppu);
+			memory = new Memory(romPath, bootROMPath, cpu.registers, ppu);
 			cpu.AttachMemory(memory);
 		}
 		

@@ -97,7 +97,7 @@ namespace Emulator
 						return rom[index + romOffset];
 					case 0x8:
 					case 0x9:
-						return vram[index - 0x8000];
+						return ppu.ReadVRAM(index - 0x8000);
 					case 0xA:
 					case 0xB:
 						if (ramBanks > 0 && ramBankEnable[ramBankSelect])
@@ -140,7 +140,7 @@ namespace Emulator
 									case 0x7:
 									case 0x8:
 									case 0x9:
-										return oam[index - 0xFE00];
+										return ppu.ReadOAM(index - 0xFE00);
 									case 0xA: // A-F
 									case 0xB: // are
 									case 0xC: // empty
@@ -217,7 +217,7 @@ namespace Emulator
 		
 		protected virtual void WriteVRAM(int index, byte val)
 		{
-			vram[index - 0x8000] = val;
+			ppu.WriteVRAM(index - 0x8000, val);
 		}
 		
 		protected virtual void WriteSwitchableRAM(int index, byte val)
@@ -237,7 +237,7 @@ namespace Emulator
 		
 		protected virtual void WriteOAM(int index, byte val)
 		{
-			oam[index - 0xFE00] = val;
+			ppu.WriteOAM(index - 0xFE00, val);
 		}
 		
 		protected virtual void WriteEmptyButUnusable(int index, byte val)
@@ -382,7 +382,7 @@ namespace Emulator
 			
 		}
 		
-		protected virtual void WriteEndInternalRAM(int index, byte val)
+		protected virtual void WriteHRAM(int index, byte val)
 		{
 			ram[index - 0x80 + 0x2000 * (ramBanks + 1)] = val;
 		}
@@ -454,7 +454,7 @@ namespace Emulator
 							break;
 						default:
 							if (index < 0xFFFF)
-								WriteEndInternalRAM(index, val);
+								WriteHRAM(index, val);
 							else
 								WriteIORegister(index, val);
 							break;						

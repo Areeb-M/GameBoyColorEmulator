@@ -72,7 +72,7 @@ namespace Emulator
 			this.ppu = ppu;
 			
 			cartridgeNorm = ConstructCartridge(rom);
-			bootROM = new BootRom(boot, this, cartridgeNorm, ppu);
+			bootROM = new BootRom(ppu, boot, this, cartridgeNorm);
 			cartridge = bootROM;
 			
 			cartridge.AttachRegisters(reg);
@@ -84,9 +84,9 @@ namespace Emulator
 			switch(cartridgeType)
 			{
 				case CartridgeType.ROM:
-					return new Cartridge(ramBanks, romBanks, rom);
+					return new Cartridge(ppu, ramBanks, romBanks, rom);
 				default:
-					return new Cartridge(ramBanks, romBanks, rom);
+					return new Cartridge(ppu, ramBanks, romBanks, rom);
 			}
 		}
 		
