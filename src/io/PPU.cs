@@ -52,7 +52,7 @@ namespace Emulator
 			ppuClock = (ppuClock + 1) % 114;
 			
 			if (ppuClock == 0)
-				reg.LY = (reg.LY + 1) % 154;
+				reg.LY = (byte)((reg.LY + 1) % 154);
 			else if (ppuClock == 20)
 				PPUState = 1;
 			
