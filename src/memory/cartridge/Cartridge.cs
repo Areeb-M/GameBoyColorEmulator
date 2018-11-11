@@ -9,9 +9,7 @@ namespace Emulator
 		protected int ramBanks;
 		protected byte[] rom;
 		protected byte[] ram;
-		protected byte[] vram;
-		protected byte[] io;
-		protected byte[] oam; // Object Attribute Memory		
+		protected byte[] io;		
 		
 		// State Information
 		protected int romBankSelect;
@@ -19,21 +17,22 @@ namespace Emulator
 		protected int romOffset;
 		protected int ramOffset;
 		protected bool[] ramBankEnable;
-		protected bool vramEnable;
 		protected Registers reg;
+		
+		protected PPU ppu;
 		
 		public const int ROM_BANK_SIZE = 0x4000;
 		public const int RAM_BANK_SIZE = 0x2000;
 		
-		public Cartridge(int ramBanks, int romBanks, byte[] ROM)
+		public Cartridge(PPU ppu, int ramBanks, int romBanks, byte[] ROM)
 		{
+			this.ppu = ppu;
+			
 			this.ramBanks = ramBanks;
 			this.romBanks = romBanks;
 			
 			rom = ROM;
-			vram = new byte[RAM_BANK_SIZE];
 			io = new byte[0x4C];
-			oam = new byte[0x4 * 40]; // 40 4-byte attribute memory slots
 			ram = new byte[RAM_BANK_SIZE * (ramBanks + 1) + 0x0080]; 
 			// Plus 1 accounts for the internal RAM
 			// internal ram 0x2000
@@ -47,7 +46,6 @@ namespace Emulator
 			romOffset = 0;			
 			if (ramBanks > 0)
 				ramBankEnable = new bool[ramBanks];
-			vramEnable = true;
 		}
 		
 		public void AttachRegisters(Registers reg)

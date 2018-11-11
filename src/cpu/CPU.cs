@@ -4,17 +4,19 @@ namespace Emulator
 {
 	class CPU
 	{
-		private Memory memory;
-		private Registers reg;	
+		Memory memory;
+		Registers reg;
+		PPU ppu;
 
 		public Registers registers
 		{
 			get { return reg; }
 		}
 		
-		public CPU()
+		public CPU(PPU ppu)
 		{
 			reg	= new Registers();
+			this.ppu = ppu;
 		}		
 		
 		public void AttachMemory(Memory mem)

@@ -46,20 +46,22 @@ namespace Emulator
 		int romBanks, ramBanks;
 		
 		Registers reg;
+		PPU ppu;
 		Cartridge cartridge;
 		Cartridge cartridgeNorm;
 		Cartridge bootROM;
 		
-		public Memory(string romPath, Registers registers)
+		public Memory(string romPath, Registers registers, PPU ppu)
 		{
 			byte[] rom = File.ReadAllBytes(romPath);
 			
 			ScrapeMetaData(rom);			
 			reg = registers;
+			this.ppu = ppu;
 			
 		}
 		
-		public Memory(string romPath, string bootROMPath, Registers registers)
+		public Memory(string romPath, string bootROMPath, Registers registers, PPU ppu)
 		{			
 			byte[] rom = File.ReadAllBytes(romPath);
 			byte[] boot = File.ReadAllBytes(bootROMPath);
@@ -67,9 +69,10 @@ namespace Emulator
 			ScrapeMetaData(rom);
 			reg = registers;
 			reg.PC = 0x0; // Bootrom starts at 0x00
+			this.ppu = ppu;
 			
 			cartridgeNorm = ConstructCartridge(rom);
-			bootROM = new BootRom(boot, this, cartridgeNorm);
+			bootROM = new BootRom(boot, this, cartridgeNorm, ppu);
 			cartridge = bootROM;
 			
 			cartridge.AttachRegisters(reg);
