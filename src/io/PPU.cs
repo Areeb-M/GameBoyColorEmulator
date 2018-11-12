@@ -9,19 +9,38 @@ namespace Emulator
 		Color[] output;
 
 		DataBus<byte> lcdControl;
-		DataBus<byte> ldcStatus;
+		DataBus<byte> lcdStatus;
 		DataBus<byte> scrollY;
 		DataBus<byte> scrollX;
 		DataBus<byte> scanLine;
 		DataBus<byte> scanLineCompare;
-		DataBus<int> dmaTransferAddress;
+		DataBus<byte> dmaTransferAddress;
 		DataBus<byte> bgPalette;
 		DataBus<byte> obj0Palette;
 		DataBus<byte> obj1Palette;
 		DataBus<byte> windowY;
 		DataBus<byte> windowX;
 		
-		
+		public DataBus<byte>[] DisplayRegisters
+		{
+			get 
+			{
+				return new DataBus<byte>[]{
+					lcdControl,
+					lcdStatus,
+					scrollY,
+					scrollX,
+					scanLine,
+					scanLineCompare,
+					dmaTransferAddress,
+					bgPalette,
+					obj0Palette,
+					obj1Palette,
+					windowY,
+					windowX
+				};
+			}
+		}		
 		
 		// 0 - OAM Search
 		// 1 - Pixel Transfer
