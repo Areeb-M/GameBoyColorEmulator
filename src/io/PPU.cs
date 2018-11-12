@@ -58,7 +58,19 @@ namespace Emulator
 			output = new Color[160*144];
 			// one color for each pixel
 			
-			OUTPUT = new DataBus<Color[]>(output);
+			// Assign Default Values
+			lcdControl = new DataBus<byte>(0);
+			lcdStatus = new DataBus<byte>(0);
+			scrollY = new DataBus<byte>(0);
+			scrollX = new DataBus<byte>(0);
+			scanLine = new DataBus<byte>(0);
+			scanLineCompare = new DataBus<byte>(0);
+			dmaTransferAddress = new DataBus<byte>(0);
+			bgPalette = new DataBus<byte>(0);
+			obj0Palette = new DataBus<byte>(0);
+			obj1Palette = new DataBus<byte>(0);
+			windowY = new DataBus<byte>(0);
+			windowX = new DataBus<byte>(0);
 			
 			ppuState = 0;			
 			ppuClock = 0;
@@ -66,31 +78,27 @@ namespace Emulator
 		}
 		
 		public void Tick()
-		{
-			switch(ppuState)
-			{
-				case 0:  // OAM Search
-					break;
-				case 1:  // Push Pixels to Screen
-					break;
-				case 2:  // H-Blank
-				case 3:  // V-Blank
-					break;
-			}
-			// 0 - OAM Search, find and select Sprites that should be visible in this line. oam.x != 0, LY + 16 >=oam.Y, LY + 16 < oam.y + h
-			// 1 - Push Pixels to Screen
-			// 2 - Remainder is H-Blank
-			
+		{			
 			ppuClock = (ppuClock + 1) % 114;
 			
 			if (ppuClock == 0)
-				scanLine = (byte)((scanLine + 1) % 154);
+				scanLine.Data = (byte)((scanLine.Data + 1) % 154);
 			else if (ppuClock == 20)
-				PPUState = 1;
+				ppuState = 1;
 			
-			if (scanLine >= 143) // V-Blank
-				PPUState = 3;
-		}		
+			if (scanLine.Data >= 143) // V-Blank
+				ppuState = 3;
+		}
+		
+		public void FIFO()
+		{
+			
+		}
+		
+		public void Fetch()
+		{
+			
+		}
 		
 		#region Data Access
 		public byte ReadVRAM(int index)
