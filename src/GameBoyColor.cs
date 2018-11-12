@@ -15,9 +15,7 @@ namespace Emulator
 		public GameBoyColor(string romPath)
 		{
 			// Base Derivation
-			interruptController = new InterruptController();
-			timer = new Timer(interruptController);
-			ppu = new PPU();
+			Setup();
 			cpu = new CPU(ppu);
 			memory = new Memory(romPath, cpu.registers, ppu);
 			cpu.AttachMemory(memory);
@@ -25,11 +23,17 @@ namespace Emulator
 		
 		public GameBoyColor(string romPath, string bootROMPath)
 		{
-			// Base Derivation
-			ppu = new PPU();
+			Setup();
 			cpu = new CPU(ppu);
 			memory = new Memory(romPath, bootROMPath, cpu.registers, ppu);
 			cpu.AttachMemory(memory);
+		}
+		
+		private void Setup()
+		{
+			interruptController = new InterruptController();
+			timer = new Timer(interruptController);
+			ppu = new PPU(interruptController);			
 		}
 		
 		public void Run()

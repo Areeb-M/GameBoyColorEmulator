@@ -6,23 +6,19 @@ namespace Emulator
 	{
 		Memory memory;
 		Registers reg;
-		PPU ppu;
+		InterruptController ic;
 
 		public Registers registers
 		{
 			get { return reg; }
 		}
 		
-		public CPU(PPU ppu)
-		{
-			reg	= new Registers();
-			this.ppu = ppu;
-		}		
-		
-		public void AttachMemory(Memory mem)
-		{
+		public CPU(InterruptController interruptController, Memory mem, Registers registers)
+		{			
 			memory = mem;
-		}
+			ic = interruptController;
+			reg	= registers;
+		}		
 		
 		public bool Tick()
 		{
