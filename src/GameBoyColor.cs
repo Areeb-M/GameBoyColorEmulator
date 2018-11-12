@@ -35,7 +35,7 @@ namespace Emulator
 			interruptController = new InterruptController();
 			timer = new Timer(interruptController);
 			ppu = new PPU(interruptController);
-			registers = new Registers();
+			registers = new Registers(timer.TimerRegisters, ppu.DisplayRegisters);
 		}
 		
 		public void Run()

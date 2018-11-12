@@ -425,32 +425,32 @@ namespace Emulator
 		{
 			// LCD Control
 			// Read/Write
-			get { return io[28]; }
-			set { io[28] = value;}				
+			get { return DISPLAY[0].Data; }
+			set { DISPLAY[0].Data = value;}				
 		}
 		
 		public byte STAT
 		{
 			// LCDC status
 			// Read/Write
-			get { return io[29]; }
-			set { io[29] = value;}				
+			get { DISPLAY[1]; }
+			set { DISPLAY[1].Data = value;}				
 		}		
 		
 		public byte SCY
 		{
 			// Scroll Y
 			// Read/Write
-			get { return io[30]; }
-			set { io[30] = value;}				
+			get { DISPLAY[2].Data; }
+			set { DISPLAY[2].Data = value;}				
 		}
 		
 		public byte SCX
 		{
 			// Scroll X
 			// Read/Write
-			get { return io[31]; }
-			set { io[31] = value;}				
+			get { return DISPLAY[3].Data; }
+			set { DISPLAY[3].Data = value;}				
 		}
 		
 		public byte LY
