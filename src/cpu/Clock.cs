@@ -4,6 +4,7 @@ namespace Emulator
 {
 	class Clock
 	{
+		Timer timer;
 		CPU cpu;
 		PPU ppu;
 		
@@ -15,11 +16,12 @@ namespace Emulator
 		}
 		public int C_Cycle
 		{
-			get { return machineCycle; }
+			get { return clockCycle; }
 		}
 		
-		public Clock(CPU cpu, PPU ppu)
+		public Clock(Timer timer, CPU cpu, PPU ppu)
 		{
+			this.timer = timer;
 			this.cpu = cpu;
 			this.ppu = ppu;
 			clockCycle = 0;
@@ -39,6 +41,9 @@ namespace Emulator
 				ppu.Tick();
 				machineCycle += 1;
 			}
+			
+			if (clockCycle % 256 == 0)
+				timer.Tick();
 			
 			clockCycle += 1;
 		}

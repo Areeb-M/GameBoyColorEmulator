@@ -6,6 +6,7 @@ namespace Emulator
 	
 	public class GameBoyColor
 	{
+		private Timer timer;
 		private CPU cpu;
 		private PPU ppu;
 		private Memory memory;
