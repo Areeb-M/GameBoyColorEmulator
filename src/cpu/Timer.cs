@@ -15,7 +15,7 @@ namespace Emulator
 			get { return dividerRegister; }
 		}
 		
-		public DataBus<int> TIMA
+		public DataBus<byte> TIMA
 		{
 			get { return timerCounter; }
 		}
@@ -29,6 +29,19 @@ namespace Emulator
 		{
 			get { return timerControl; }
 		}
+		
+		public DataBus<byte>[] TimerRegisters
+		{
+			get { return new DataBus<byte>[]
+					{
+						DIV,
+						TIMA, 
+						TMA,
+						TAC
+					};
+				}
+		}
+		
 		#endregion
 		
 		InterruptController ic;
@@ -36,7 +49,7 @@ namespace Emulator
 		public Timer(InterruptController interruptController)
 		{
 			dividerRegister = new DataBus<byte>((byte)0);
-			timerCounter = new DataBus<int>(0);
+			timerCounter = new DataBus<byte>((byte)0);
 			timerModulo = new DataBus<byte>((byte)0);
 			timerControl = new DataBus<byte>((byte)0);
 			
@@ -70,7 +83,7 @@ namespace Emulator
 						break;
 				}
 				
-				if (TIMA.Data == 256)
+				if (TIMA.Data == 0)
 				{
 					TIMA.Data = TMA.Data;
 					ic.GenerateTimerOverflowInterrupt();

@@ -18,7 +18,7 @@ namespace Emulator
 			memory = mem;
 			ic = interruptController;
 			reg	= registers;
-		}		
+		}
 		
 		public bool Tick()
 		{

@@ -13,16 +13,16 @@ namespace Emulator
 			return representation;
 		}
 	
-		public Registers(params DataBus<byte>[] busses)
+		public Registers(DataBus<byte>[] timerRegisters, DataBus<byte>[] displayRegisters)
 		{
-			// Timer Registers 0 - 3
-			// IO Registers 4
-			// Display Registers 5 - ?
-			
-			
+			// Timer Registers 4
+			// Display Registers 12
+			TIMER = timerRegisters;
+			DISPLAY = displayRegisters;
 		}
 	
-		
+		private DataBus<byte>[] TIMER;
+		private DataBus<byte>[] DISPLAY;
 	
 		#region PC & SP
 		int programCounter = 0x100;
@@ -214,32 +214,33 @@ namespace Emulator
 		{
 			// Divider Register
 			// Read/Write
-			get { return io[3]; }
-			set { io[3] = value;}
+			get { return TIMER[0].Data; }
+			set { TIMER[0].Data = 0; }
+			// Special Case: writing any value sets this to 0
 		}
 		
 		public byte TIMA
 		{
 			// Timer Counter
 			// Read/Write
-			get { return io[4]; }
-			set { io[4] = value;}
+			get { return TIMER[1].Data; }
+			set { TIMER[1].Data = value;}
 		}
 		
 		public byte TMA
 		{
 			// Timer Modulo
 			// Read/Write
-			get { return io[5]; }
-			set { io[5] = value;}
+			get { return TIMER[2].Data; }
+			set { TIMER[2].Data = value;}
 		}
 		
 		public byte TAC
 		{
 			// Timer Control
 			// Read/Write
-			get { return io[6]; }
-			set { io[6] = value;}
+			get { return TIMER[3].Data; }
+			set { TIMER[3].Data = value;}
 		}
 		
 		public byte IF
