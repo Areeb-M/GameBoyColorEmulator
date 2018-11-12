@@ -7,20 +7,28 @@ namespace Emulator
 		byte[] vram;
 		byte[] oam;
 		Color[] output;
+
+		DataBus<byte> lcdControl;
+		DataBus<byte> ldcStatus;
+		DataBus<byte> scrollY;
+		DataBus<byte> scrollX;
+		DataBus<byte> scanLine;
+		DataBus<byte> scanLineCompare;
+		DataBus<int> dmaTransferAddress;
+		DataBus<byte> bgPalette;
+		DataBus<byte> obj0Palette;
+		DataBus<byte> obj1Palette;
+		DataBus<byte> windowY;
+		DataBus<byte> windowX;
 		
-		DataBus<byte[]> VRAM;
-		DataBus<byte[]> OAM;
-		DataBus<Color[]> OUTPUT;
 		
-		int ppuClock;
 		
-		int PPUState;
 		// 0 - OAM Search
 		// 1 - Pixel Transfer
 		// 2 - H-Blank
 		// 3 - V-Blank
 		
-		public PPU()
+		public PPU(InterruptController interruptController)
 		{
 			vram = new byte[0x2000];
 			oam = new byte[40 * 4];
@@ -28,8 +36,6 @@ namespace Emulator
 			output = new Color[160*144];
 			// one color for each pixel
 			
-			VRAM = new DataBus<byte[]>(vram);
-			OAM = new DataBus<byte[]>(oam);
 			OUTPUT = new DataBus<Color[]>(output);
 			
 			PPUState = 0;
