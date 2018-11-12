@@ -65,67 +65,6 @@ namespace Emulator
 				PPUState = 3;
 		}		
 		
-		
-		#region Data Access
-		public byte ReadVRAM(int index)
-		{
-			switch(PPUState)
-			{
-				case 0:
-				case 2:
-				case 3:
-					return vram[index];
-				case 1:
-				default:
-					return 0xFF;
-			}
-		}	
-		
-		public byte ReadOAM(int index)
-		{
-			switch(PPUState)
-			{
-				case 2:
-				case 3:
-					return oam[index];
-				case 0:
-				case 1:
-				default:
-					return 0xFF;
-			}
-		}
-		
-		public void WriteVRAM(int index, byte val)
-		{
-			switch(PPUState)
-			{
-				case 0:
-				case 2:
-				case 3:
-					vram[index] = val;
-					break;
-				case 1:
-				default:
-					break;
-			}
-		}
-		
-		public void WriteOAM(int index, byte val)
-		{
-			switch(PPUState)
-			{
-				case 2:
-				case 3:
-					oam[index] = val;
-					break;
-				case 0:
-				case 1:
-				default:
-					break;
-			}
-		}
-		#endregion
-		
 		struct Color
 		{
 			public int r, g, b;
