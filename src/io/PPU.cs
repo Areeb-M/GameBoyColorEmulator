@@ -10,11 +10,10 @@ namespace Emulator
 		
 		DataBus<byte[]> VRAM;
 		DataBus<byte[]> OAM;
-		DataBus<byte[]> OUTPUT;
+		DataBus<Color[]> OUTPUT;
 		
 		int ppuClock;
 		
-		Registers reg;
 		int PPUState;
 		// 0 - OAM Search
 		// 1 - Pixel Transfer
@@ -31,13 +30,11 @@ namespace Emulator
 			
 			VRAM = new DataBus<byte[]>(vram);
 			OAM = new DataBus<byte[]>(oam);
-			OUTPUT = new DataBus<byte[]>(output);
+			OUTPUT = new DataBus<Color[]>(output);
 			
-			reg = registers;
 			PPUState = 0;
 			
 			ppuClock = 0;
-			reg.LY = 0;
 			
 		}
 		
