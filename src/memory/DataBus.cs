@@ -11,10 +11,14 @@ namespace Emulator
 			data = val;
 		}
 		
-		public virtual T Data
+		public virtual T Read()
 		{
-			get { return data; }
-			set { data = value;}
+			return data;
+		}
+		
+		public virtual void Write(T val)
+		{
+			data = val;
 		}
 	}
 }
