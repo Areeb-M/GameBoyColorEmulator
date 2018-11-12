@@ -8,6 +8,10 @@ namespace Emulator
 		byte[] oam;
 		Color[] output;
 		
+		DataBus<byte[]> VRAM;
+		DataBus<byte[]> OAM;
+		DataBus<byte[]> OUTPUT;
+		
 		int ppuClock;
 		
 		Registers reg;
@@ -17,13 +21,17 @@ namespace Emulator
 		// 2 - H-Blank
 		// 3 - V-Blank
 		
-		public PPU(Registers registers)
+		public PPU()
 		{
 			vram = new byte[0x2000];
 			oam = new byte[40 * 4];
 			// 4 bytes of data for each of 40 sprites
 			output = new Color[160*144];
 			// one color for each pixel
+			
+			VRAM = new DataBus<byte[]>(vram);
+			OAM = new DataBus<byte[]>(oam);
+			OUTPUT = new DataBus<byte[]>(output);
 			
 			reg = registers;
 			PPUState = 0;

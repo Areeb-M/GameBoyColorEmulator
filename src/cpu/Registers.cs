@@ -13,6 +13,17 @@ namespace Emulator
 			return representation;
 		}
 	
+		public Registers(params DataBus<byte>[] busses)
+		{
+			// Timer Registers 0 - 3
+			// IO Registers 4
+			// Display Registers 5 - ?
+			
+			
+		}
+	
+		
+	
 		#region PC & SP
 		int programCounter = 0x100;
 		int stackPointer = 0xFFFE;

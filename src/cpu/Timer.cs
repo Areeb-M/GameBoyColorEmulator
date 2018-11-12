@@ -31,45 +31,49 @@ namespace Emulator
 		}
 		#endregion
 		
-		DataBus<byte> interruptFlag;
+		InterruptController ic;
 		
-		public Timer(DataBus<byte> IF)
+		public Timer(InterruptController interruptController)
 		{
 			dividerRegister = new DataBus<byte>((byte)0);
 			timerCounter = new DataBus<int>(0);
 			timerModulo = new DataBus<byte>((byte)0);
 			timerControl = new DataBus<byte>((byte)0);
 			
-			interruptFlag = IF;
+			ic = interruptController;
 		}
 		
-		public void Tick()
+		public void Tick(int clockCycle)
 		{
-			DIV.Data += 1;
+			if (clockCycle % 256 == 0)
+				DIV.Data += 1;
 			
 			if ((TAC.Data & 4) == 4)
 			{
 				switch(TAC.Data & 3)
 				{
 					case 0: // 4.096 KHz
-						if (DIV.Data % 4 == 0)
+						if (clockCycle % 1024 == 0)
 							TIMA.Data += 1;
 						break;
 					case 1: // 262.144 KHz
-						TIMA.Data += 16;
+						if (clockCycle % 16 == 0)
+							TIMA.Data += 1;
 						break;
 					case 2: // 65.536 KHz
-						TIMA.Data += 4;
+						if (clockCycle % 64 == 0)
+							TIMA.Data += 1;
 						break;
 					case 3: // 16.384 KHz
-						TIMA.Data += 1;
+						if (clockCycle % 256 == 0)
+							TIMA.Data += 1;
 						break;
 				}
 				
-				if (TIMA.Data % 256 < TIMA.Data)
+				if (TIMA.Data == 256)
 				{
 					TIMA.Data = TMA.Data;
-					interruptFlag.Data |= (byte)(1 << 2);
+					ic.GenerateTimerOverflowInterrupt();
 				}
 			}
 		}

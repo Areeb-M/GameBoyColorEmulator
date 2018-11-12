@@ -6,6 +6,7 @@ namespace Emulator
 	
 	public class GameBoyColor
 	{
+		private InterruptController interruptController;
 		private Timer timer;
 		private CPU cpu;
 		private PPU ppu;
@@ -14,6 +15,8 @@ namespace Emulator
 		public GameBoyColor(string romPath)
 		{
 			// Base Derivation
+			interruptController = new InterruptController();
+			timer = new Timer(interruptController);
 			ppu = new PPU();
 			cpu = new CPU(ppu);
 			memory = new Memory(romPath, cpu.registers, ppu);
