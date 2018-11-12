@@ -433,7 +433,7 @@ namespace Emulator
 		{
 			// LCDC status
 			// Read/Write
-			get { DISPLAY[1]; }
+			get { return DISPLAY[1].Data; }
 			set { DISPLAY[1].Data = value;}				
 		}		
 		
@@ -441,7 +441,7 @@ namespace Emulator
 		{
 			// Scroll Y
 			// Read/Write
-			get { DISPLAY[2].Data; }
+			get { return DISPLAY[2].Data; }
 			set { DISPLAY[2].Data = value;}				
 		}
 		

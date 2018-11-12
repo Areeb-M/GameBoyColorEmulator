@@ -7,6 +7,9 @@ namespace Emulator
 		byte[] vram;
 		byte[] oam;
 		Color[] output;
+		
+		int ppuClock;
+		int ppuState;
 
 		DataBus<byte> lcdControl;
 		DataBus<byte> lcdStatus;
@@ -57,15 +60,14 @@ namespace Emulator
 			
 			OUTPUT = new DataBus<Color[]>(output);
 			
-			PPUState = 0;
-			
+			ppuState = 0;			
 			ppuClock = 0;
 			
 		}
 		
 		public void Tick()
 		{
-			switch(PPUState)
+			switch(ppuState)
 			{
 				case 0:  // OAM Search
 					break;
@@ -82,13 +84,73 @@ namespace Emulator
 			ppuClock = (ppuClock + 1) % 114;
 			
 			if (ppuClock == 0)
-				reg.LY = (byte)((reg.LY + 1) % 154);
+				scanLine = (byte)((scanLine + 1) % 154);
 			else if (ppuClock == 20)
 				PPUState = 1;
 			
-			if (reg.LY >= 143) // V-Blank
+			if (scanLine >= 143) // V-Blank
 				PPUState = 3;
 		}		
+		
+		#region Data Access
+		public byte ReadVRAM(int index)
+		{
+			switch(ppuState)
+			{
+				case 0:
+				case 2:
+				case 3:
+					return vram[index];
+				case 1:
+				default:
+					return 0xFF;
+			}
+		}	
+		
+		public byte ReadOAM(int index)
+		{
+			switch(ppuState)
+			{
+				case 2:
+				case 3:
+					return oam[index];
+				case 0:
+				case 1:
+				default:
+					return 0xFF;
+			}
+		}
+		
+		public void WriteVRAM(int index, byte val)
+		{
+			switch(ppuState)
+			{
+				case 0:
+				case 2:
+				case 3:
+					vram[index] = val;
+					break;
+				case 1:
+				default:
+					break;
+			}
+		}
+		
+		public void WriteOAM(int index, byte val)
+		{
+			switch(ppuState)
+			{
+				case 2:
+				case 3:
+					oam[index] = val;
+					break;
+				case 0:
+				case 1:
+				default:
+					break;
+			}
+		}
+		#endregion
 		
 		struct Color
 		{

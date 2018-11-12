@@ -6,7 +6,7 @@ namespace Emulator
 	{
 		#region Timer Registers
 		DataBus<byte> dividerRegister;
-		DataBus<int> timerCounter;
+		DataBus<byte> timerCounter;
 		DataBus<byte> timerModulo;
 		DataBus<byte> timerControl;
 		

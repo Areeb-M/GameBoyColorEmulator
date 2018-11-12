@@ -18,16 +18,15 @@ namespace Emulator
 		{
 			// Base Derivation
 			Setup();
-			cpu = new CPU(ppu);
 			memory = new Memory(romPath, registers, ppu);
+			cpu = new CPU(interruptController, memory, registers);
 		}
 		
 		public GameBoyColor(string romPath, string bootROMPath)
 		{
 			Setup();
-			cpu = new CPU(ppu);
-			memory = new Memory(romPath, bootROMPath, cpu.registers, ppu);
-			cpu.AttachMemory(memory);
+			memory = new Memory(romPath, bootROMPath, registers, ppu);
+			cpu = new CPU(interruptController, memory, registers);
 		}
 		
 		private void Setup()
