@@ -207,6 +207,15 @@ namespace Emulator
 					Debug.Log("LD HL, A");
 					yield return true;
 					break;
+				case 0xEA:
+					byte lower = mem[reg.PC + 1];
+					yield return true;
+					byte upper = mem[reg.PC + 2];
+					yield return true;
+					mem[(upper << 8) | lower] = reg.A;
+					Debug.Log("LD (d16), A");
+					reg.PC += 2;
+					break;
 			}
 			
 			reg.PC += 1;
@@ -228,16 +237,20 @@ namespace Emulator
 			yield break;
 		}
 		
-		public static IEnumerable<bool> LD_N_A(Memory mem, Registers reg)
+		public static IEnumerable<bool> LOAD_A_N(Memory mem, Registers reg)
 		{
 			switch(mem[reg.PC])
 			{
 				case 0x1A:
 					reg.A = mem[reg.DE];
 					Debug.Log("LD A, (DE)");
+					yield return true;
+					break;
+				case 0x7B:
+					reg.A = reg.E;
+					Debug.Log("LD A, E");
 					break;
 			}
-			yield return true;
 			
 			reg.PC += 1;
 			
@@ -353,6 +366,10 @@ namespace Emulator
 		{			
 			switch(mem[reg.PC])
 			{
+				case 0x13:
+					reg.DE += 1;
+					Debug.Log("INC DE");
+					break;
 				case 0x23:
 					reg.HL += 1;
 					Debug.Log("INC HL");
@@ -377,6 +394,33 @@ namespace Emulator
 			
 			yield break;
 		}
+		
+		public static IEnumerable<bool> COMPARE(Memory mem, Registers reg)
+		{
+			byte val = 0;
+			switch(mem[reg.PC])
+			{
+				case 0xFE:
+					val = mem[reg.PC + 1];
+					Debug.Log("CP d8");
+					yield return true;
+					break;
+			}
+			reg.fZ = reg.A == val;
+			reg.fN = true;
+			reg.fH = !ZMath.CheckHalfBorrow(reg.A, val);
+			reg.fC = reg.A < val;
+			
+			reg.PC += 2;
+			
+			yield break;
+		}
+		
+		/*
+		public static IEnumerable<bool> LOAD_R2_R1(Memory mem, Registers reg)
+		{
+			Implement Later
+		}*/
 	}
 	
 	static class PrefixCB
