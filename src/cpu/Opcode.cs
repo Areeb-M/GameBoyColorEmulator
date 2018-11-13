@@ -37,17 +37,24 @@ namespace Emulator
 			
 			switch(mem[reg.PC])
 			{
-				case 0x21:
-					reg.H = high;
+				case 0x11:
+					reg.E = low;
 					yield return true;
+					reg.D = high;
+					yield return true;
+					Debug.Log("LD DE, d16");
+					break;	
+				case 0x21:
 					reg.L = low;
+					yield return true;
+					reg.H = high;
 					yield return true;
 					Debug.Log("LD HL, d16");
 					break;					
 				case 0x31:
-					reg.S = high;
-					yield return true;
 					reg.P = low;
+					yield return true;
+					reg.S = high;
 					yield return true;
 					Debug.Log("LD SP, d16");
 					break;
@@ -181,6 +188,45 @@ namespace Emulator
 			reg.PC += 1;
 			
 			yield break;
+		}
+		
+		public static IEnumerable<bool> LOAD_N_A(Memory mem, Registers reg)
+		{
+			switch(mem[reg.PC])
+			{
+				case 0x77:
+					mem[reg.HL] = reg.A;
+					Debug.Log("LD HL, A");
+					break;
+			}
+			yield return true;
+			
+			reg.PC += 1;
+			
+			yield break;
+		}
+		
+		public static IEnumerable<bool> LD_FFNN_A(Memory mem, Registers reg)
+		{
+			byte n = mem[reg.PC + 1];
+			yield return true;
+			
+			mem[0xFF00 + n] = reg.A;
+			yield return true;
+			
+			Debug.Log("LD (&FF00 + n), A");
+			reg.PC += 2;
+			
+			yield break;
+		}
+		
+		public static IEnumerable<bool> LD_N_A(Memory mem, Registers reg)
+		{
+			switch(mem[reg.PC])
+			{
+				case 0x1A:
+					break;
+			}
 		}
 	}
 	
