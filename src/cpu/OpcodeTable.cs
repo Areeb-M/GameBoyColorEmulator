@@ -11,6 +11,7 @@ namespace Emulator
 		private static Dictionary<byte, OF> table = new Dictionary<byte, OF>() 
 		{
 			{0x00, (OF)Opcode.NOP},
+			{0x0C, (OF)Opcode.INCREMENT_REG},
 			{0x0E, (OF)Opcode.LOAD_N_D8},
 			{0x20, (OF)Opcode.JR_CC_N},
 			{0x21, (OF)Opcode.LOAD_N_D16},

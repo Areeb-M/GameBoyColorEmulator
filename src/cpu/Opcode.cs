@@ -160,6 +160,28 @@ namespace Emulator
 			
 			yield break;
 		}
+		
+		public static IEnumerable<bool> INCREMENT_REG(Memory mem, Registers reg)
+		{
+			byte val;
+			switch(mem[reg.PC])
+			{
+				case 0x0C:
+					val = reg.C;
+					reg.C += 1;
+					Debug.Log("INC C");
+					break;
+				default:
+					throw new InvalidOperationException("Increment instruction has not been implemented yet!");
+					
+			}
+			reg.fZ = (reg.C == 0) ? true : false;
+			reg.fN = false;
+			reg.fH = ZMath.CheckHalfCarry(val, 1);
+			reg.PC += 1;
+			
+			yield break;
+		}
 	}
 	
 	static class PrefixCB
