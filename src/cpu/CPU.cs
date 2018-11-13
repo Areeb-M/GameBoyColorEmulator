@@ -7,6 +7,12 @@ namespace Emulator
 		Memory memory;
 		Registers reg;
 		InterruptController ic;
+		
+		private bool alive;
+		public bool Alive
+		{
+			get { return alive; }
+		}
 
 		public Registers registers
 		{
@@ -18,19 +24,13 @@ namespace Emulator
 			memory = mem;
 			ic = interruptController;
 			reg	= registers;
+			
+			alive = true;
 		}
 		
-		public bool Tick()
+		public void Tick()
 		{
-			byte opcode = memory[reg.PC];
-			Debug.LogOpcode(reg.PC, opcode);
-			if (OpcodeTable.ContainsKey(opcode)){
-				OpcodeTable.Call(opcode, memory, reg);
-				return true;
-			} else {
-				Debug.Log("Unknown Opcode");
-				return false;
-			}
+			
 		}
 	}	
 }

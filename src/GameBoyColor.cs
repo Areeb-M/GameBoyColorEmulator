@@ -20,6 +20,7 @@ namespace Emulator
 			Setup();
 			memory = new Memory(romPath, registers, ppu);
 			cpu = new CPU(interruptController, memory, registers);
+			clock = new Clock(timer, cpu, ppu);
 		}
 		
 		public GameBoyColor(string romPath, string bootROMPath)
@@ -27,6 +28,7 @@ namespace Emulator
 			Setup();
 			memory = new Memory(romPath, bootROMPath, registers, ppu);
 			cpu = new CPU(interruptController, memory, registers);
+			clock = new Clock(timer, cpu, ppu);
 		}
 		
 		private void Setup()
@@ -40,11 +42,11 @@ namespace Emulator
 		public void Run()
 		{
 			Debug.Log("\n=====Beginning Emulation=====\n\n");
-			while(cpu.Tick())
+			while(cpu.Alive)
 			{
+				clock.Tick();
 				Debug.Log(" | {0}\n", cpu.registers);
 			}
-			Debug.Log(" | {0}\n", cpu.registers);
 			Console.ReadLine();
 		}
 		

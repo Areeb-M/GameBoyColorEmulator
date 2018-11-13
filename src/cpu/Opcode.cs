@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+
 
 namespace Emulator
 {	
@@ -18,10 +21,11 @@ namespace Emulator
 			
 		}		
 		
-		public static void NOP(Memory mem, Registers reg) // 0x00
+		public static IEnumerable<bool> NOP(Memory mem, Registers reg) // 0x00
 		{
 			// Does nothing - length 1
 			reg.PC += 1;
+			yield break;
 		}
 		
 		public static void LOAD_N_D16(Memory mem, Registers reg)

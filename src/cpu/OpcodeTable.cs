@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Emulator
 {
-	delegate void OF(Memory mem, Registers reg);
+	delegate IEnumerable<bool> OF(Memory mem, Registers reg);
 	// OF = OpcodeFunction
 	static class OpcodeTable
 	{
@@ -27,9 +27,9 @@ namespace Emulator
 			return table.ContainsKey(key);
 		}
 		
-		public static void Call(byte opcode, Memory mem, Registers reg)
+		public static IEnumerable<bool> Call(byte opcode, Memory mem, Registers reg)
 		{
-			table[opcode](mem, reg);
+			return table[opcode](mem, reg);
 		}
 	}
 }
