@@ -558,7 +558,7 @@ namespace Emulator
 					if (index < 0x4C)
 						return io[index];
 					else if (index >= 0x80)
-						return ram[index - 0x80 + 0x2000 * (ramBanks + 1)];
+						return hram[index - 0x80];
 					else
 						return (byte)0;
 			}

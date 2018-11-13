@@ -289,10 +289,12 @@ namespace Emulator
 			switch(mem[reg.PC])
 			{
 				case 0xC1:
-					reg.C = mem[reg.PC++];
+					reg.C = mem[reg.SP++];
 					yield return true;
-					reg.B = mem[reg.PC++];
+					reg.B = mem[reg.SP++];
 					yield return true;
+					Debug.Log("POP BC");
+					break;
 			}			
 			reg.PC += 1;
 			
@@ -313,6 +315,26 @@ namespace Emulator
 			reg.PC += 1;
 			
 			yield break;			
+		}
+		
+		public static IEnumerable<bool> DECREMENT_REG(Memory mem, Registers reg)
+		{
+			byte val = 0;
+			switch(mem[reg.PC])
+			{
+				case 0x05:
+					val = reg.B;
+					reg.B -= 1;
+					Debug.Log("DEC B");
+					break;
+			}
+			reg.fZ = (val - 1) == 0;
+			reg.fN = true;
+			reg.fH = ZMath.CheckHalfBorrow(val, -1);
+			
+			reg.PC += 1;
+			
+			yield break;
 		}
 	}
 	
