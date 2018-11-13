@@ -45,7 +45,6 @@ namespace Emulator
 			while(cpu.Alive)
 			{
 				clock.Tick();
-				Debug.Log(" | {0}\n", cpu.registers);
 			}
 			Console.ReadLine();
 		}

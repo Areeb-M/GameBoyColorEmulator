@@ -29,16 +29,32 @@ namespace Emulator
 			ic = interruptController;
 			reg	= registers;
 			
-			opcode = OpcodeTable.Call(memory[reg.PC], memory, reg);			
+			opcode = DefaultFunc().GetEnumerator();		
 			alive = true;
+		}
+		
+		private IEnumerable<bool> DefaultFunc()
+		{
+			// A Placeholder function to act as the default opcode
+			yield break;
 		}
 		
 		public void Tick()
 		{
 			if (!opcode.MoveNext())
 			{
-				opcode = OpcodeTable.Call(memory[reg.PC], memory, reg);
-				// Fetch takes 1 cycle
+				if (OpcodeTable.ContainsKey(memory[reg.PC]))
+				{
+					opcode = OpcodeTable.Call(memory[reg.PC], memory, reg);
+					// Fetch takes 1 cycle
+					Debug.Log("\n{0:X2} - ", reg);
+				}
+				else
+				{
+					Debug.Log("\nUnknown Opcode: {0:X2} at {1:X4}", memory[reg.PC], reg.PC);
+					alive = false;
+				}
+				
 			}
 		}
 	}	

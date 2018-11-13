@@ -38,6 +38,26 @@ namespace Emulator
 			get { return stackPointer; }
 			set { stackPointer = value;}
 		}
+		
+		public byte S
+		{
+			get { return (byte)(stackPointer & 0xFF00); }
+			set
+			{
+				stackPointer &= 255;
+				stackPointer |= value << 8;
+			}
+		}
+		
+		public byte P
+		{
+			get { return (byte)(stackPointer & 0x00FF); }
+			set
+			{
+				stackPointer &= 255 << 8;
+				stackPointer |= value;
+			}
+		}
 		#endregion
 
 		#region Registers

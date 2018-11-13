@@ -23,18 +23,17 @@ namespace Emulator
 		
 		public static IEnumerable<bool> NOP(Memory mem, Registers reg) // 0x00
 		{
-			// Does nothing - length 1
-			yield return true; // Fetch
-			
+			Debug.Log("NOP");
 			reg.PC += 1;
+			
 			yield break;
 		}
 		
 		public static IEnumerable<bool> LOAD_N_D16(Memory mem, Registers reg)
 		{						
 			// 16 bit load
-			int high = mem[reg.PC + 2] << 8;
-			int low = mem[reg.PC + 1];	
+			byte high = mem[reg.PC + 2];
+			byte low = mem[reg.PC + 1];	
 			
 			switch(mem[reg.PC])
 			{
@@ -72,7 +71,7 @@ namespace Emulator
 					break;
 				default:
 					Debug.Log("\n[Error]Unimplemented XOR opcode detected!");
-					break
+					yield break;
 			}
 			reg.A = (byte)(a ^ b);
 			reg.fZ = reg.A == 0;
@@ -96,29 +95,45 @@ namespace Emulator
 			yield break;
 		}
 		
-		public static void PREFIX_CB(Memory mem, Registers reg)
+		public static IEnumerable<bool> PREFIX_CB(Memory mem, Registers reg)
 		{
-			PrefixCB.HandleCB(mem, reg);
+			yield return true;
+			foreach(bool b in PrefixCB.HandleCB(mem, reg))
+			{
+				yield return b;
+			}
+			
 			reg.PC += 2;
+			
+			yield break;
 		}
 		
-		public static void JR_CC_N(Memory mem, Registers reg)
+		public static IEnumerable<bool> JR_CC_N(Memory mem, Registers reg)
 		{
 			int n = (sbyte)mem[reg.PC + 1];
+			yield return true;
+			
 			switch(mem[reg.PC])
 			{
 				case 0x20:
 					Debug.Log("JR NZ, r8");
 					if (!reg.fZ)
+					{
 						reg.PC += n;
+						yield return true;
+					}
 					break;
 			}
 			reg.PC += 2;
+			
+			yield break;
 		}
 		
-		public static void LOAD_N_D8(Memory mem, Registers reg)
+		public static IEnumerable<bool> LOAD_N_D8(Memory mem, Registers reg)
 		{
 			byte n = mem[reg.PC + 1];
+			yield return true;
+			
 			switch(mem[reg.PC])
 			{
 				case 0x0E:
@@ -131,30 +146,37 @@ namespace Emulator
 					break;
 			}
 			reg.PC += 2;
+			
+			yield break;
 		}
 		
-		public static void LOAD_0xFFCC_A(Memory mem, Registers reg)
+		public static IEnumerable<bool> LOAD_0xFFCC_A(Memory mem, Registers reg)
 		{
 			Debug.Log("LD ($FF00+C), A");
 			mem[0xFF00 + reg.C] = reg.A;
+			yield return true;
+			
 			reg.PC += 1;
+			
+			yield break;
 		}
 	}
 	
 	static class PrefixCB
 	{
-		public static void HandleCB(Memory mem, Registers reg)
+		public static IEnumerable<bool> HandleCB(Memory mem, Registers reg)
 		{
 			Debug.Log("CB-{0:X2}: ", mem[reg.PC+1]);
 			switch(mem[reg.PC+1])
 			{
 				case 0x7C:
-					BIT(mem, reg);
-					break;
+					return BIT(mem, reg);
+				default:
+					throw new InvalidOperationException("CB prefix instruction has not been implemented yet!");
 			}
 		}
 		
-		private static void BIT(Memory mem, Registers reg)
+		private static IEnumerable<bool> BIT(Memory mem, Registers reg)
 		{
 			Debug.Log("BIT ");
 			int t = 0;
@@ -168,6 +190,8 @@ namespace Emulator
 			reg.fZ = (t&0xFF) == 0;
 			reg.fN = false;
 			reg.fH = true;
+			
+			yield break;
 		}
 	}
 }
