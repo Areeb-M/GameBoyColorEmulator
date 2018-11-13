@@ -52,6 +52,7 @@ namespace Emulator
 				else
 				{
 					Debug.Log("\nUnknown Opcode: {0:X2} at {1:X4}", memory[reg.PC], reg.PC);
+					Debug.Log(" - {0}", reg);
 					alive = false;
 				}
 				

@@ -143,12 +143,16 @@ namespace Emulator
 			
 			switch(mem[reg.PC])
 			{
+				case 0x06:
+					Debug.Log("LD B, d8");
+					reg.B = n;
+					break;
 				case 0x0E:
-					Debug.Log("LD C, D8");
+					Debug.Log("LD C, d8");
 					reg.C = n;
 					break;
 				case 0x3E:
-					Debug.Log("LD A, D8");
+					Debug.Log("LD A, d8");
 					reg.A = n;
 					break;
 			}
@@ -194,12 +198,16 @@ namespace Emulator
 		{
 			switch(mem[reg.PC])
 			{
+				case 0x4F:
+					reg.C = reg.A;
+					Debug.Log("LD C, A");
+					break;
 				case 0x77:
 					mem[reg.HL] = reg.A;
 					Debug.Log("LD HL, A");
+					yield return true;
 					break;
 			}
-			yield return true;
 			
 			reg.PC += 1;
 			
@@ -253,7 +261,42 @@ namespace Emulator
 			mem[--reg.SP] = (byte)(reg.PC & 0xFF);
 			yield return true;
 			
+			Debug.Log("CALL d16");
 			reg.PC = (high << 8) | low;		
+			yield break;			
+		}
+		
+		public static IEnumerable<bool> PUSH(Memory mem, Registers reg)
+		{
+			yield return true;
+			switch(mem[reg.PC])
+			{
+				case 0xC5:
+					mem[--reg.SP] = reg.B;
+					yield return true;					
+					mem[--reg.SP] = reg.C;
+					yield return true;
+					Debug.Log("PUSH BC");
+					break;
+			}			
+			reg.PC += 1;
+			
+			yield break;
+		}
+		
+		public static IEnumerable<bool> RLA(Memory mem, Registers reg)
+		{
+			Debug.Log("RLA");
+			byte val = (byte)(reg.A << 1);
+			reg.A = val;
+			
+			reg.fZ = val == 0;
+			reg.fN = false;
+			reg.fH = false;
+			reg.fC = val < reg.A;
+			
+			reg.PC += 1;
+			
 			yield break;			
 		}
 	}
@@ -265,6 +308,8 @@ namespace Emulator
 			Debug.Log("CB-{0:X2}: ", mem[reg.PC+1]);
 			switch(mem[reg.PC+1])
 			{
+				case 0x11:
+					return RL(mem, reg);
 				case 0x7C:
 					return BIT(mem, reg);
 				default:
@@ -286,6 +331,27 @@ namespace Emulator
 			reg.fZ = (t&0xFF) == 0;
 			reg.fN = false;
 			reg.fH = true;
+			
+			yield break;
+		}
+		
+		private static IEnumerable<bool> RL (Memory mem, Registers reg) // Rotate Left, store bit 7 in fC
+		{
+			Debug.Log("RL ");
+			int val = 0;
+			switch(mem[reg.PC+1])
+			{
+				case 0x11:
+					val = reg.C;
+					reg.C <<= 1;
+					Debug.Log("C");
+					break;
+			}
+			val <<= 1;
+			reg.fZ = (val & 0xFF) == 0;
+			reg.fN = false;
+			reg.fH = false;
+			reg.fC = (val & (1 << 8)) == (1 << 8);
 			
 			yield break;
 		}

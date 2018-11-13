@@ -9,6 +9,7 @@ namespace Emulator
 		protected int ramBanks;
 		protected byte[] rom;
 		protected byte[] ram;
+		protected byte[] hram;
 		protected byte[] io;		
 		
 		// State Information
@@ -33,10 +34,12 @@ namespace Emulator
 			
 			rom = ROM;
 			io = new byte[0x4C];
-			ram = new byte[RAM_BANK_SIZE * (ramBanks + 1) + 0x0080]; 
+			ram = new byte[RAM_BANK_SIZE * (ramBanks + 1)];
+			hram = new byte[0x80];
 			// Plus 1 accounts for the internal RAM
 			// internal ram 0x2000
 			// ram banks 0x2000 * ram banks
+			// HRAM
 			// internal ram 0x80
 			// Plus 0x0080 accounts for the internal ram at the end of the memory range
 			
@@ -384,7 +387,7 @@ namespace Emulator
 		
 		protected virtual void WriteHRAM(int index, byte val)
 		{
-			ram[index - 0x80 + 0x2000 * (ramBanks + 1)] = val;
+			hram[index - 0xFF80] = val;
 		}
 		
 		protected virtual void WriteFBlock(int index, byte val)
