@@ -16,11 +16,11 @@ namespace Emulator
 			
 			public static bool CheckHalfBorrow(int a, int b) // (a) - (b)
 			{
-				return ((((a&0xF) + ((0-b)&0xF)) & 0x10) >> 4) == 1;
+				return (a & 0xF) < (b & 0xF);
 			}
 			
 		}		
-		
+	
 		public static IEnumerable<bool> NOP(Memory mem, Registers reg) // 0x00
 		{
 			Debug.Log("NOP");
@@ -254,11 +254,12 @@ namespace Emulator
 			
 			reg.SP -= 1;
 			yield return true; // There is no documentation on how this instruction works internally
-							   // So this is mostly the product of guesswork 			
-			mem[reg.SP] = (byte)((reg.PC & 0xFF00) >> 8);
+							   // So this is mostly the product of guesswork 	
+			int address = reg.PC + 3;		
+			mem[reg.SP] = (byte)((address & 0xFF00) >> 8);
 			yield return true;
 			
-			mem[--reg.SP] = (byte)(reg.PC & 0xFF);
+			mem[--reg.SP] = (byte)(address & 0xFF);
 			yield return true;
 			
 			Debug.Log("CALL d16");
@@ -333,6 +334,46 @@ namespace Emulator
 			reg.fH = ZMath.CheckHalfBorrow(val, -1);
 			
 			reg.PC += 1;
+			
+			yield break;
+		}
+		
+		public static IEnumerable<bool> LDI_HL_A(Memory mem, Registers reg)
+		{
+			mem[reg.HL++] = reg.A;
+			yield return true;
+		
+			Debug.Log("LDI (HL++), A");
+			reg.PC += 1;
+		
+			yield break;
+		}
+		
+		public static IEnumerable<bool> INCREMENT_16_REG(Memory mem, Registers reg)
+		{			
+			switch(mem[reg.PC])
+			{
+				case 0x23:
+					reg.HL += 1;
+					Debug.Log("INC HL");
+					break;
+			}
+			yield return true;
+			reg.PC += 1;
+			
+			yield break;
+		}
+		
+		public static IEnumerable<bool> RETURN(Memory mem, Registers reg)
+		{
+			byte lower = mem[reg.SP++];
+			yield return true;
+			byte upper = mem[reg.SP++];
+			yield return true;			
+			reg.PC = (upper << 8) | lower;
+			yield return true;
+			
+			Debug.Log("RET");
 			
 			yield break;
 		}
