@@ -24,30 +24,41 @@ namespace Emulator
 		public static IEnumerable<bool> NOP(Memory mem, Registers reg) // 0x00
 		{
 			// Does nothing - length 1
+			yield return true; // Fetch
+			
 			reg.PC += 1;
 			yield break;
 		}
 		
-		public static void LOAD_N_D16(Memory mem, Registers reg)
-		{
+		public static IEnumerable<bool> LOAD_N_D16(Memory mem, Registers reg)
+		{						
 			// 16 bit load
 			int high = mem[reg.PC + 2] << 8;
-			int low = mem[reg.PC + 1];
+			int low = mem[reg.PC + 1];	
+			
 			switch(mem[reg.PC])
 			{
 				case 0x21:
-					reg.HL = high | low;
+					reg.H = high;
+					yield return true;
+					reg.L = low;
+					yield return true;
 					Debug.Log("LD HL, d16");
-					break;
+					break;					
 				case 0x31:
-					reg.SP = high | low;
+					reg.S = high;
+					yield return true;
+					reg.P = low;
+					yield return true;
 					Debug.Log("LD SP, d16");
 					break;
-			}
+			}			
 			reg.PC += 3;
+			
+			yield break;
 		}
 		
-		public static void XOR(Memory mem, Registers reg)
+		public static IEnumerable<bool> XOR(Memory mem, Registers reg)
 		{
 			int a = reg.A;
 			int b;
@@ -61,7 +72,7 @@ namespace Emulator
 					break;
 				default:
 					Debug.Log("\n[Error]Unimplemented XOR opcode detected!");
-					return;
+					break
 			}
 			reg.A = (byte)(a ^ b);
 			reg.fZ = reg.A == 0;
@@ -69,14 +80,20 @@ namespace Emulator
 			reg.fH = false;
 			reg.fC = false;
 			reg.PC += 1;
+			
+			yield break;
 		}
 		
-		public static void LDD_HL_A(Memory mem, Registers reg) // LDD (HL), A
+		public static IEnumerable<bool> LDD_HL_A(Memory mem, Registers reg) // LDD (HL), A
 		{
 			mem[reg.HL] = reg.A;
+			yield return true;
+			
 			Debug.Log("LDD (HL), A");
 			reg.PC += 1;
 			reg.HL -= 1;
+			
+			yield break;
 		}
 		
 		public static void PREFIX_CB(Memory mem, Registers reg)

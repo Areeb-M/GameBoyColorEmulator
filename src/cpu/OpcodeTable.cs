@@ -27,9 +27,9 @@ namespace Emulator
 			return table.ContainsKey(key);
 		}
 		
-		public static IEnumerable<bool> Call(byte opcode, Memory mem, Registers reg)
+		public static IEnumerator<bool> Call(byte opcode, Memory mem, Registers reg)
 		{
-			return table[opcode](mem, reg);
+			return table[opcode](mem, reg).GetEnumerator();
 		}
 	}
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Emulator
 {
@@ -8,7 +10,9 @@ namespace Emulator
 		Registers reg;
 		InterruptController ic;
 		
+		private IEnumerator opcode;
 		private bool alive;
+		
 		public bool Alive
 		{
 			get { return alive; }
@@ -25,12 +29,17 @@ namespace Emulator
 			ic = interruptController;
 			reg	= registers;
 			
+			opcode = OpcodeTable.Call(memory[reg.PC], memory, reg);			
 			alive = true;
 		}
 		
 		public void Tick()
 		{
-			
+			if (!opcode.MoveNext())
+			{
+				opcode = OpcodeTable.Call(memory[reg.PC], memory, reg);
+				// Fetch takes 1 cycle
+			}
 		}
 	}	
 }
