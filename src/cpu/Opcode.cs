@@ -225,8 +225,36 @@ namespace Emulator
 			switch(mem[reg.PC])
 			{
 				case 0x1A:
+					reg.A = mem[reg.DE];
+					Debug.Log("LD A, (DE)");
 					break;
 			}
+			yield return true;
+			
+			reg.PC += 1;
+			
+			yield break;
+		}
+		
+		public static IEnumerable<bool> CALL_NN(Memory mem, Registers reg)
+		{
+			byte low = mem[reg.PC + 1];
+			yield return true;
+			
+			byte high = mem[reg.PC + 2];
+			yield return true;
+			
+			reg.SP -= 1;
+			yield return true; // There is no documentation on how this instruction works internally
+							   // So this is mostly the product of guesswork 			
+			mem[reg.SP] = (byte)((reg.PC & 0xFF00) >> 8);
+			yield return true;
+			
+			mem[--reg.SP] = (byte)(reg.PC & 0xFF);
+			yield return true;
+			
+			reg.PC = (high << 8) | low;		
+			yield break;			
 		}
 	}
 	

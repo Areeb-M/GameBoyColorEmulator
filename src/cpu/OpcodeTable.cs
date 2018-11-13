@@ -14,6 +14,7 @@ namespace Emulator
 			{0x0C, (OF)Opcode.INCREMENT_REG},
 			{0x0E, (OF)Opcode.LOAD_N_D8},
 			{0x11, (OF)Opcode.LOAD_N_D16},
+			{0x1A, (OF)Opcode.LD_N_A},
 			{0x20, (OF)Opcode.JR_CC_N},
 			{0x21, (OF)Opcode.LOAD_N_D16},
 			{0x31, (OF)Opcode.LOAD_N_D16},
@@ -22,6 +23,7 @@ namespace Emulator
 			{0x77, (OF)Opcode.LOAD_N_A},
 			{0xAF, (OF)Opcode.XOR},
 			{0xCB, (OF)Opcode.PREFIX_CB},
+			{0xCD, (OF)Opcode.CALL_NN},
 			{0xE0, (OF)Opcode.LD_FFNN_A},
 			{0xE2, (OF)Opcode.LOAD_0xFFCC_A}, 
 		};
