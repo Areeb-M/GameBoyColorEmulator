@@ -284,6 +284,21 @@ namespace Emulator
 			yield break;
 		}
 		
+		public static IEnumerable<bool> POP(Memory mem, Registers reg)
+		{
+			switch(mem[reg.PC])
+			{
+				case 0xC1:
+					reg.C = mem[reg.PC++];
+					yield return true;
+					reg.B = mem[reg.PC++];
+					yield return true;
+			}			
+			reg.PC += 1;
+			
+			yield break;
+		}
+		
 		public static IEnumerable<bool> RLA(Memory mem, Registers reg)
 		{
 			Debug.Log("RLA");
