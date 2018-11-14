@@ -16,7 +16,7 @@ namespace Emulator
 			
 			public static bool CheckHalfBorrow(int a, int b) // (a) - (b)
 			{
-				return (a & 0xF) < (b & 0xF);
+				return (a & 0xF) > (b & 0xF);
 			}
 			
 		}		
@@ -115,7 +115,7 @@ namespace Emulator
 			yield break;
 		}
 		
-		public static IEnumerable<bool> JR_CC_N(Memory mem, Registers reg)
+		public static IEnumerable<bool> JR_CC_R8(Memory mem, Registers reg)
 		{
 			int n = (sbyte)mem[reg.PC + 1];
 			yield return true;
@@ -125,6 +125,14 @@ namespace Emulator
 				case 0x20:
 					Debug.Log("JR NZ, r8");
 					if (!reg.fZ)
+					{
+						reg.PC += n;
+						yield return true;
+					}
+					break;
+				case 0x28:
+					Debug.Log("JR Z, r8");
+					if (reg.fZ)
 					{
 						reg.PC += n;
 						yield return true;
@@ -150,6 +158,14 @@ namespace Emulator
 				case 0x0E:
 					Debug.Log("LD C, d8");
 					reg.C = n;
+					break;
+				case 0x1E:
+					Debug.Log("LD E, d8");
+					reg.D = n;
+					break;
+				case 0x2E:
+					Debug.Log("LD L, d8");
+					reg.L = n;
 					break;
 				case 0x3E:
 					Debug.Log("LD A, d8");
@@ -177,10 +193,20 @@ namespace Emulator
 			byte val;
 			switch(mem[reg.PC])
 			{
+				case 0x04:
+					val = reg.B;
+					reg.B += 1;
+					Debug.Log("INC B");
+					break;
 				case 0x0C:
 					val = reg.C;
 					reg.C += 1;
 					Debug.Log("INC C");
+					break;
+				case 0x24:
+					val = reg.H;
+					reg.H += 1;
+					Debug.Log("INC H");
 					break;
 				default:
 					throw new InvalidOperationException("Increment instruction has not been implemented yet!");
@@ -201,6 +227,14 @@ namespace Emulator
 				case 0x4F:
 					reg.C = reg.A;
 					Debug.Log("LD C, A");
+					break;
+				case 0x57:
+					reg.D = reg.A;
+					Debug.Log("LD D, A");
+					break;
+				case 0x67:
+					reg.H = reg.A;
+					Debug.Log("LD H, A");
 					break;
 				case 0x77:
 					mem[reg.HL] = reg.A;
@@ -341,10 +375,25 @@ namespace Emulator
 					reg.B -= 1;
 					Debug.Log("DEC B");
 					break;
+				case 0x0D:
+					val = reg.C;
+					reg.C -= 1;
+					Debug.Log("DEC C");
+					break;
+				case 0x1D:
+					val = reg.E;
+					reg.E -= 1;
+					Debug.Log("DEC E");
+					break;
+				case 0x3D:
+					val = reg.A;
+					reg.A -= 1;
+					Debug.Log("DEC A");
+					break;
 			}
 			reg.fZ = (val - 1) == 0;
 			reg.fN = true;
-			reg.fH = ZMath.CheckHalfBorrow(val, -1);
+			reg.fH = ZMath.CheckHalfBorrow(val, 1);
 			
 			reg.PC += 1;
 			
@@ -414,6 +463,32 @@ namespace Emulator
 			reg.PC += 2;
 			
 			yield break;
+		}
+		
+		public static IEnumerable<bool> JR_R8(Memory mem, Registers reg)
+		{
+			int n = (sbyte)mem[reg.PC + 1];
+			yield return true;
+			
+			reg.PC += 2 + n; // Account for length of JR instruction
+			yield return true;
+			
+			Debug.Log("JR r8");
+			
+			yield break;
+		}
+		
+		public static IEnumerable<bool> LOAD_A_FFNN(Memory mem, Registers reg)
+		{
+			byte n = mem[reg.PC + 1];
+			yield return true;
+			reg.A = mem[0xFF00 + n];
+			yield return true;
+			
+			Debug.Log("LD A, (0xFF00 + d8)");
+			reg.PC += 2;
+			
+			yield break;			
 		}
 		
 		/*

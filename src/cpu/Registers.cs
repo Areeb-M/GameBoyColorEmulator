@@ -7,9 +7,9 @@ namespace Emulator
 	
 		public override string ToString()
 		{
-			string representation = "PC:[{0:X4}] SP:[{1:X4}] ";
+			string representation = "PC:[{0:X4}] SP:[{1:X4}] LY:[{10, 3}] ";
 			representation += "reg[A:{2:X2} B:{3:X2} C:{4:X2} D:{5:X2} E:{6:X2} F:{7:X2} H:{8:X2} L:{9:X2}]";
-			representation = String.Format(representation, PC, SP, A, B, C, D, E, F, H, L);
+			representation = String.Format(representation, PC, SP, A, B, C, D, E, F, H, L, LY);
 			return representation;
 		}
 	
@@ -477,64 +477,64 @@ namespace Emulator
 		{
 			// LCDC Y-Coordinate
 			// Read/Write
-			get { return io[32]; }
-			set { io[32] = value;}				
+			get { return DISPLAY[4].Data; }
+			set { DISPLAY[4].Data = value;}				
 		}
 		
 		public byte LYC
 		{
 			// LY Compare
 			// Read/Write
-			get { return io[33]; }
-			set { io[33] = value;}				
+			get { return DISPLAY[5].Data; }
+			set { DISPLAY[5].Data = value;}				
 		}
 		
 		public byte DMA
 		{
 			// DMA transfer and start address
 			// Read/Write
-			get { return io[34]; }
-			set { io[34] = value;}				
+			get { return DISPLAY[6].Data; }
+			set { DISPLAY[6].Data = value;}				
 		}
 		
 		public byte BGP
 		{
 			// BG and Window Palette Data
 			// Read/Write
-			get { return io[35]; }
-			set { io[35] = value;}				
+			get { return DISPLAY[7].Data; }
+			set { DISPLAY[7].Data = value;}					
 		}
 		
 		public byte OBP0
 		{
 			// Object Palette 0 Data
 			// Read/Write
-			get { return io[36]; }
-			set { io[36] = value;}				
+			get { return DISPLAY[8].Data; }
+			set { DISPLAY[8].Data = value;}					
 		}
 		
 		public byte OBP1
 		{
 			// Object Palette 1 data
 			// Read/Write
-			get { return io[37]; }
-			set { io[37] = value;}				
+			get { return DISPLAY[9].Data; }
+			set { DISPLAY[9].Data = value;}					
 		}
 		
 		public byte WY
 		{
 			// Window Y Position
 			// Read/Write
-			get { return io[38]; }
-			set { io[38] = value;}				
+			get { return DISPLAY[10].Data; }
+			set { DISPLAY[10].Data = value;}					
 		}
 		
 		public byte WX
 		{
 			// Window X Position
 			// Read/Write
-			get { return io[39]; }
-			set { io[39] = value;}				
+			get { return DISPLAY[11].Data; }
+			set { DISPLAY[11].Data = value;}		
 		}
 		
 		public byte IE
