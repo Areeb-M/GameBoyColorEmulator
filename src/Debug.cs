@@ -6,7 +6,7 @@ namespace Emulator
 	public enum OutputTarget {Console = 1, File = 2};
 	public static class Debug
 	{
-		private static byte target = 0; //(byte)OutputTarget.Console;
+		private static byte target = (byte)OutputTarget.Console;
 		// By default, route Debug messages to Console
 		
 		private static StreamWriter file;
@@ -61,7 +61,7 @@ namespace Emulator
 		
 		public static void Log(string message, params object[] args)
 		{
-			Write(message, args);
+			//Write(message, args);
 		}		
 		
 		public static void LogOpcode(int PC, byte opcode)

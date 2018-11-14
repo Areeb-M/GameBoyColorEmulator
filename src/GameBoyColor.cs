@@ -46,6 +46,7 @@ namespace Emulator
 			{
 				clock.Tick();
 			}
+			Console.WriteLine("\nClock Cycles: {0}", clock.C_Cycle);
 			Console.ReadLine();
 		}
 		

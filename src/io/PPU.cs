@@ -82,12 +82,24 @@ namespace Emulator
 			ppuClock = (ppuClock + 1) % 114;
 			
 			if (ppuClock == 0)
+			{
 				scanLine.Data = (byte)((scanLine.Data + 1) % 154);
+			}
 			else if (ppuClock == 20)
-				ppuState = 1;
+			{
+				ppuState = 1; // Pixel Transfer
+				ResetFIFO();
+			}
 			
 			if (scanLine.Data >= 143) // V-Blank
 				ppuState = 3;
+		}
+		
+		
+		
+		public void ResetFIFO()
+		{
+			
 		}
 		
 		public void FIFO()
@@ -170,5 +182,7 @@ namespace Emulator
 				this.b = b;
 			}
 		}
+	
+
 	}
 }

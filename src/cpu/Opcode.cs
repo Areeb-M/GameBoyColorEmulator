@@ -284,6 +284,10 @@ namespace Emulator
 					reg.A = reg.E;
 					Debug.Log("LD A, E");
 					break;
+				case 0x7C:
+					reg.A = reg.H;
+					Debug.Log("LD A, H");
+					break;
 			}
 			
 			reg.PC += 1;
@@ -489,6 +493,16 @@ namespace Emulator
 			reg.PC += 2;
 			
 			yield break;			
+		}
+		/*
+		public static IEnumerable<bool> SUB(Memory mem, Registers reg)
+		{
+			byte val = 0;
+			switch(mem[reg.PC])
+			{
+				case 0x90:
+					break;
+			}
 		}
 		
 		/*
