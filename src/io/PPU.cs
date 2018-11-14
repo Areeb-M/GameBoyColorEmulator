@@ -88,14 +88,15 @@ namespace Emulator
 			else if (ppuClock == 20)
 			{
 				ppuState = 1; // Pixel Transfer
-				ResetFIFO();
 			}
 			
 			if (scanLine.Data >= 143) // V-Blank
+			{
 				ppuState = 3;
+			}
 		}
 		
-		
+		int bgMapAddress = 0x9800;
 		
 		public void ResetFIFO()
 		{
@@ -104,12 +105,14 @@ namespace Emulator
 		
 		public void FIFO()
 		{
-			
+			if (ppuState == 3)
+				return;
 		}
 		
 		public void Fetch()
 		{
-			
+			if (ppuState == 3)
+				return;
 		}
 		
 		#region Data Access
