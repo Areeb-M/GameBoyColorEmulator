@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Emulator
 {
@@ -96,23 +97,37 @@ namespace Emulator
 			}
 		}
 		
-		int bgMapAddress = 0x9800;
+		int bgMapAddress = 0x1800;
+		Queue<byte> pixelQueue = new Queue<byte>();
+		
 		
 		public void ResetFIFO()
 		{
-			
+			bgMapAddress = 0x1800;
+			pixelQueue = new byte[16];
 		}
 		
 		public void FIFO()
 		{
 			if (ppuState == 3)
 				return;
+			else if (ppuState == 1)
+			{
+				if (pixelQueue.Count < 8)
+					return
+				else
+					Console.WriteLine();
+			}
 		}
 		
 		public void Fetch()
 		{
 			if (ppuState == 3)
 				return;
+			else if (ppuState == 1)
+			{
+				
+			}
 		}
 		
 		#region Data Access
