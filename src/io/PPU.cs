@@ -87,15 +87,15 @@ namespace Emulator
 			{
 				ppuState = 0; // OAM Search
 				scanLine.Data = (byte)((scanLine.Data + 1) % 154);
-			}/*
-			else if (ppuClock == 19)
+			}
+			else if (ppuClock == 20)
 			{
 				ppuState = 1; // Pixel Transfer
-			} else if (ppuClock == 20)
+			} else if (ppuClock == 30)
 			{
 				ppuState = 2; // HBlank
 			}
-			*/
+			
 			if (scanLine.Data >= 143) // V-Blank
 			{
 				ppuState = 3;
@@ -184,6 +184,11 @@ namespace Emulator
 				else
 					Console.WriteLine();
 			}
+		}
+		
+		public void DumpVRAM()
+		{
+			System.IO.File.WriteAllBytes("vram.dmp", vram);
 		}
 		
 		public void Fetch()

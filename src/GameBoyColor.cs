@@ -55,6 +55,7 @@ namespace Emulator
 			//for(int i = 0; i < 255; i++)
 				//ppu.PrintTile(i);
 			//ppu.PrintBGMap();
+			ppu.DumpVRAM();
 			Console.WriteLine("\nClock Cycles: {0}\nEmulation Speed: {1:F3}Mhz", clock.C_Cycle, (clock.C_Cycle / stopwatch.ElapsedMilliseconds / 1000.0));
 		}
 		
