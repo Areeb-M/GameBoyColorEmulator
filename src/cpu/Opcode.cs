@@ -361,7 +361,7 @@ namespace Emulator
 			reg.fZ = val == 0;
 			reg.fN = false;
 			reg.fH = false;
-			reg.fC = val > reg.A;
+			reg.fC = val > 0xFF;
 			
 			reg.A = (byte)val;
 			
@@ -564,7 +564,7 @@ namespace Emulator
 			reg.fZ = (val&0xFF) == 0;
 			reg.fN = false;
 			reg.fH = false;
-			reg.fC = val > reg.C;
+			reg.fC = val > 0xFF;
 			
 			
 			yield break;

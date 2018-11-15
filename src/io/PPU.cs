@@ -101,7 +101,7 @@ namespace Emulator
 		
 		int bgMapAddress = 0x1800;
 		Queue<byte> pixelQueue = new Queue<byte>();
-		string[] shades = new string[]{" ", "|", "=", "O"};
+		string[] shades = new string[]{"  ", "||", "==", "OO"};
 		
 		
 		public void ResetFIFO()
@@ -139,7 +139,7 @@ namespace Emulator
 		public void PrintTile(int i)
 		{
 			int index = i;
-			Console.WriteLine("--------");
+			Console.WriteLine("----------------");
 			for(int y = 0; y < 8; y++)
 			{
 				int tileAddress = 16 * i + 2*y;
@@ -153,7 +153,18 @@ namespace Emulator
 				}
 				Console.WriteLine();
 			}
-			Console.WriteLine("--------");
+		}
+		
+		public void PrintBGMap()
+		{
+			for(int y = 0; y < 32; y++)
+			{
+				for(int x = 0; x < 32; x++)
+				{
+					Console.Write("{0:X2},", vram[x+32*y]);
+				}
+				Console.WriteLine();
+			}
 		}
 		
 		public void FIFO()
