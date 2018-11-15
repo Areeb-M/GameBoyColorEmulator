@@ -359,12 +359,12 @@ namespace Emulator
 			Debug.Log("RLA");
 			int val = (reg.A << 1) + ((reg.fC) ? 1 : 0);
 			
-			reg.fZ = val == 0;
+			reg.fZ = ((byte)(val)) == 0;
 			reg.fN = false;
 			reg.fH = false;
 			reg.fC = val > 0xFF;
 			
-			//reg.A = (byte)val;
+			reg.A = (byte)val;
 			
 			//Console.WriteLine("{0} {1}", val, reg.A);
 			
