@@ -96,6 +96,7 @@ namespace Emulator
 			yield return true;
 			
 			Debug.Log("LDD (HL), A");
+			//Console.WriteLine("{0:X4}: {1:X2}", reg.HL, reg.A);
 			reg.PC += 1;
 			reg.HL -= 1;
 			
@@ -557,7 +558,7 @@ namespace Emulator
 			{
 				case 0x11:
 					val = (reg.C << 1) + ((reg.fC) ? 1 : 0);
-					//reg.C = (byte)val;
+					reg.C = (byte)val;
 					Debug.Log("C");
 					break;
 			}

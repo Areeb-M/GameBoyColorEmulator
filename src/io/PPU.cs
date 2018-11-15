@@ -91,6 +91,9 @@ namespace Emulator
 			else if (ppuClock == 20)
 			{
 				ppuState = 1; // Pixel Transfer
+			} else if (ppuClock == 63)
+			{
+				ppuState = 2; // HBlank
 			}
 			
 			if (scanLine.Data >= 143) // V-Blank
@@ -119,9 +122,12 @@ namespace Emulator
 			{
 				for(int ly = 0; ly < 8; ly++)
 				{
+					Console.WriteLine("+");
 					for(int x = 0; x < 32; x++)
 					{
 						tileAddress = 16 * vram[0x1800 + x + 32*y] + 2*ly;
+						//Console.WriteLine("{0:X4}: {1}", 0x8000 + 0x1800 + x + y*32, vram[0x1800 + x + 32*y]);
+						
 						for (int shift = 7; shift > 0; shift--)
 						{
 							int low = vram[tileAddress] >> shift;
@@ -130,8 +136,8 @@ namespace Emulator
 							high &= 0x1;
 							Console.Write(shades[(high << 1)|low]);
 						}
-					}			
-					Console.WriteLine("}");		
+					}					
+					//}
 				}
 			}
 		}
