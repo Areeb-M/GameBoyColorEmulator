@@ -51,6 +51,12 @@ namespace Emulator
 				clock.Tick();
 			}
 			stopwatch.Stop();
+			//ppu.DisplayFullBackground();
+			ppu.PrintTile(25);
+			ppu.PrintTile(14);
+			ppu.PrintTile(13);
+			ppu.PrintTile(2);
+			ppu.PrintTile(1);
 			Console.WriteLine("\nClock Cycles: {0}\nEmulation Speed: {1:F3}Mhz", clock.C_Cycle, (clock.C_Cycle / stopwatch.ElapsedMilliseconds / 1000.0));
 			Console.ReadLine();
 		}

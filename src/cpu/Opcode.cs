@@ -356,13 +356,16 @@ namespace Emulator
 		public static IEnumerable<bool> RLA(Memory mem, Registers reg)
 		{
 			Debug.Log("RLA");
-			byte val = (byte)(reg.A << 1);
-			reg.A = val;
+			int val = (reg.A << 1) + ((reg.fC) ? 1 : 0);
 			
 			reg.fZ = val == 0;
 			reg.fN = false;
 			reg.fH = false;
-			reg.fC = val < reg.A;
+			reg.fC = val > reg.A;
+			
+			reg.A = (byte)val;
+			
+			//Console.WriteLine("{0} {1}", val, reg.A);
 			
 			reg.PC += 1;
 			
@@ -553,16 +556,16 @@ namespace Emulator
 			switch(mem[reg.PC+1])
 			{
 				case 0x11:
-					val = reg.C;
-					reg.C <<= 1;
+					val = (reg.C << 1) + ((reg.fC) ? 1 : 0);
+					reg.C = (byte)val;
 					Debug.Log("C");
 					break;
 			}
-			val <<= 1;
-			reg.fZ = (val & 0xFF) == 0;
+			reg.fZ = (val&0xFF) == 0;
 			reg.fN = false;
 			reg.fH = false;
-			reg.fC = (val & (1 << 8)) == (1 << 8);
+			reg.fC = val > reg.C;
+			
 			
 			yield break;
 		}

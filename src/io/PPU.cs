@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Emulator
@@ -84,6 +85,7 @@ namespace Emulator
 			
 			if (ppuClock == 0)
 			{
+				ppuState = 0; // OAM Search
 				scanLine.Data = (byte)((scanLine.Data + 1) % 154);
 			}
 			else if (ppuClock == 20)
@@ -99,12 +101,59 @@ namespace Emulator
 		
 		int bgMapAddress = 0x1800;
 		Queue<byte> pixelQueue = new Queue<byte>();
+		string[] shades = new string[]{" ", "|", "=", "O"};
 		
 		
 		public void ResetFIFO()
 		{
 			bgMapAddress = 0x1800;
-			pixelQueue = new byte[16];
+			pixelQueue = new Queue<byte>();
+		}
+		
+		public void DisplayFullBackground()
+		{
+			//Console.WriteLine("[{0:X}]", string.Join(", ", vram));
+			
+			int tileAddress = 0;
+			for(int y = 0; y < 32; y++)
+			{
+				for(int ly = 0; ly < 8; ly++)
+				{
+					for(int x = 0; x < 32; x++)
+					{
+						tileAddress = 16 * vram[0x1800 + x + 32*y] + 2*ly;
+						for (int shift = 7; shift > 0; shift--)
+						{
+							int low = vram[tileAddress] >> shift;
+							low &= 0x1;
+							int high = vram[tileAddress+1] >> shift;
+							high &= 0x1;
+							Console.Write(shades[(high << 1)|low]);
+						}
+					}			
+					Console.WriteLine("}");		
+				}
+			}
+		}
+		
+		public void PrintTile(int i)
+		{
+			int index = i;
+			Console.WriteLine("--------");
+			for(int y = 0; y < 8; y++)
+			{
+				int tileAddress = 16 * i + 2*y;
+				for (int shift = 7; shift > 0; shift--)
+				{
+					int low = vram[tileAddress] >> shift;
+					low &= 0x1;
+					int high = vram[tileAddress+1] >> shift;
+					high &= 0x1;
+					Console.Write(shades[(high << 1)|low]);
+				}
+				Console.WriteLine();
+			}
+			Console.WriteLine("--------");
 		}
 		
 		public void FIFO()
@@ -114,7 +163,7 @@ namespace Emulator
 			else if (ppuState == 1)
 			{
 				if (pixelQueue.Count < 8)
-					return
+					return;
 				else
 					Console.WriteLine();
 			}

@@ -221,6 +221,7 @@ namespace Emulator
 		protected virtual void WriteVRAM(int index, byte val)
 		{
 			ppu.WriteVRAM(index - 0x8000, val);
+			//Console.WriteLine("{0:X4}: {1:X2}", index, val);
 		}
 		
 		protected virtual void WriteSwitchableRAM(int index, byte val)
