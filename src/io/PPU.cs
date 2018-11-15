@@ -87,15 +87,15 @@ namespace Emulator
 			{
 				ppuState = 0; // OAM Search
 				scanLine.Data = (byte)((scanLine.Data + 1) % 154);
-			}
-			else if (ppuClock == 20)
+			}/*
+			else if (ppuClock == 19)
 			{
 				ppuState = 1; // Pixel Transfer
-			} else if (ppuClock == 63)
+			} else if (ppuClock == 20)
 			{
 				ppuState = 2; // HBlank
 			}
-			
+			*/
 			if (scanLine.Data >= 143) // V-Blank
 			{
 				ppuState = 3;
