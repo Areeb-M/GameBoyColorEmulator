@@ -363,7 +363,7 @@ namespace Emulator
 			reg.fH = false;
 			reg.fC = val > 0xFF;
 			
-			reg.A = (byte)val;
+			//reg.A = (byte)val;
 			
 			//Console.WriteLine("{0} {1}", val, reg.A);
 			
@@ -557,7 +557,7 @@ namespace Emulator
 			{
 				case 0x11:
 					val = (reg.C << 1) + ((reg.fC) ? 1 : 0);
-					reg.C = (byte)val;
+					//reg.C = (byte)val;
 					Debug.Log("C");
 					break;
 			}
