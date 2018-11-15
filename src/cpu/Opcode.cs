@@ -359,7 +359,7 @@ namespace Emulator
 			Debug.Log("RLA");
 			int val = (reg.A << 1) + ((reg.fC) ? 1 : 0);
 			
-			reg.fZ = ((byte)(val)) == 0;
+			reg.fZ = false;
 			reg.fN = false;
 			reg.fH = false;
 			reg.fC = val > 0xFF;
@@ -565,8 +565,7 @@ namespace Emulator
 			reg.fZ = (val&0xFF) == 0;
 			reg.fN = false;
 			reg.fH = false;
-			reg.fC = val > 0xFF;
-			
+			reg.fC = val > 0xFF;			
 			
 			yield break;
 		}
