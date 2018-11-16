@@ -8,7 +8,7 @@ namespace Emulator
 	{
 		byte[] vram;
 		byte[] oam;
-		Color[] output;
+		byte[] output;
 		
 		int ppuClock;
 		int ppuState;
@@ -57,7 +57,7 @@ namespace Emulator
 			vram = new byte[0x2000];
 			oam = new byte[40 * 4];
 			// 4 bytes of data for each of 40 sprites
-			output = new Color[160*144];
+			output = new byte[256*256];
 			// one color for each pixel
 			
 			// Assign Default Values
@@ -80,7 +80,11 @@ namespace Emulator
 		}
 		
 		public void Tick()
-		{			
+		{					
+			if (((lcdControl.Data >> 7)&1) == 0)
+			{
+				return;
+			}
 			ppuClock = (ppuClock + 1) % 114;
 			
 			if (ppuClock == 0)
@@ -91,20 +95,22 @@ namespace Emulator
 			else if (ppuClock == 20)
 			{
 				ppuState = 1; // Pixel Transfer
-			} else if (ppuClock == 30)
+			} else if (ppuClock == 62)
 			{
 				ppuState = 2; // HBlank
 			}
 			
-			if (scanLine.Data >= 143) // V-Blank
+			if (scanLine.Data == 144) // V-Blank
 			{
 				ppuState = 3;
+				//RenderFullBackground();
+				//OutputScreen();
 			}
 		}
 		
 		int bgMapAddress = 0x1800;
 		Queue<byte> pixelQueue = new Queue<byte>();
-		string[] shades = new string[]{"  ", "||", "==", "OO"};
+		string[] shades = new string[]{" ", "|", "=", "O"};
 		
 		
 		public void ResetFIFO()
@@ -113,7 +119,30 @@ namespace Emulator
 			pixelQueue = new Queue<byte>();
 		}
 		
-		public void DisplayFullBackground()
+		public void OutputScreen()
+		{
+			int startX = 0;
+			int startY = 1;
+			
+			Console.WriteLine("---------------------");
+			
+			for(int y = startY; y < startY +  144; y++)
+			{
+				string line = "";
+				for(int x = startX; x < startX + 160; x++)
+				{
+					line += shades[GetPixel(x%256, y%256)];
+				}
+				Console.WriteLine(line);
+			}
+		}
+		
+		public byte GetPixel(int x, int y)
+		{
+			return output[x + 256*y];
+		}
+		
+		public void RenderFullBackground()
 		{
 			//Console.WriteLine("[{0:X}]", string.Join(", ", vram));
 			
@@ -122,19 +151,19 @@ namespace Emulator
 			{
 				for(int ly = 0; ly < 8; ly++)
 				{
-					Console.WriteLine("+");
 					for(int x = 0; x < 32; x++)
 					{
 						tileAddress = 16 * vram[0x1800 + x + 32*y] + 2*ly;
 						//Console.WriteLine("{0:X4}: {1}", 0x8000 + 0x1800 + x + y*32, vram[0x1800 + x + 32*y]);
 						
-						for (int shift = 7; shift > 0; shift--)
+						for (int shift = 7; shift >= 0; shift--)
 						{
 							int low = vram[tileAddress] >> shift;
 							low &= 0x1;
 							int high = vram[tileAddress+1] >> shift;
 							high &= 0x1;
-							Console.Write(shades[(high << 1)|low]);
+							output[32*8*y + 8*x + (7-shift)] = (byte)((high << 1) | low);
+							//Console.Write(shades[(high << 1)|low]);							
 						}
 					}					
 					//}

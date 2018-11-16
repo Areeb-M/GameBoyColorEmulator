@@ -51,7 +51,8 @@ namespace Emulator
 				clock.Tick();
 			}
 			stopwatch.Stop();
-			ppu.DisplayFullBackground();
+			ppu.RenderFullBackground();
+			ppu.OutputScreen();
 			//for(int i = 0; i < 255; i++)
 				//ppu.PrintTile(i);
 			//ppu.PrintBGMap();
