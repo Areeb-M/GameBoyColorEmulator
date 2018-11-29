@@ -41,6 +41,7 @@ namespace Emulator
 			{0x77, (OF)Opcode.LOAD_N_A},
 			{0x7B, (OF)Opcode.LOAD_A_N},
 			{0x7C, (OF)Opcode.LOAD_A_N},
+			{0x90, (OF)Opcode.SUB},
 			{0xAF, (OF)Opcode.XOR},
 			{0xC1, (OF)Opcode.POP},
 			{0xC5, (OF)Opcode.PUSH},

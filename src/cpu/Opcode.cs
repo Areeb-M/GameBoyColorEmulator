@@ -498,15 +498,27 @@ namespace Emulator
 			
 			yield break;			
 		}
-		/*
+		
 		public static IEnumerable<bool> SUB(Memory mem, Registers reg)
 		{
-			byte val = 0;
+			byte val = reg.A;
 			switch(mem[reg.PC])
 			{
 				case 0x90:
+					val = reg.B;
+					Debug.Log("SUB B");
 					break;
+				default:
+					throw new InvalidOperationException("Subtraction instruction has not been implemented yet!");
 			}
+			reg.fZ = reg.A - val == 0;
+			reg.fN = true;
+			reg.fH = ZMath.CheckHalfBorrow(reg.A, val);
+			reg.fC = reg.A < val;
+			reg.A -= val;
+			
+			reg.PC += 1;
+			yield break;
 		}
 		
 		/*
