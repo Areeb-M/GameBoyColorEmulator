@@ -383,6 +383,11 @@ namespace Emulator
 					reg.B -= 1;
 					Debug.Log("DEC B");
 					break;
+				case 0x15:
+					val = reg.D;
+					reg.D -= 1;
+					Debug.Log("DEC D");
+					break;
 				case 0x0D:
 					val = reg.C;
 					reg.C -= 1;
@@ -513,8 +518,8 @@ namespace Emulator
 			}
 			reg.fZ = reg.A - val == 0;
 			reg.fN = true;
-			reg.fH = ZMath.CheckHalfBorrow(reg.A, val);
-			reg.fC = reg.A < val;
+			reg.fH = !ZMath.CheckHalfBorrow(reg.A, val);
+			reg.fC = reg.A > val;
 			reg.A -= val;
 			
 			reg.PC += 1;
