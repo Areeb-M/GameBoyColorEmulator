@@ -121,10 +121,10 @@ namespace Emulator
 		
 		public void OutputScreen()
 		{
-			int startX = 0;
-			int startY = 1;
+			int startX = scrollX.Data;
+			int startY = scrollY.Data;
 			
-			Console.WriteLine("---------------------");
+			Console.Write("\n---------------------");
 			
 			for(int y = startY; y < startY +  144; y++)
 			{
@@ -162,11 +162,12 @@ namespace Emulator
 							low &= 0x1;
 							int high = vram[tileAddress+1] >> shift;
 							high &= 0x1;
-							output[32*8*y + 8*x + (7-shift)] = (byte)((high << 1) | low);
+							output[256*(8*y+ly) + 8*x + (7-shift)] = (byte)((high << 1) | low);
 							//Console.Write(shades[(high << 1)|low]);							
 						}
 					}					
 					//}
+					//Console.WriteLine();
 				}
 			}
 		}
