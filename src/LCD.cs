@@ -12,6 +12,11 @@ namespace Emulator
 			this.Bounds = new Rectangle(0, 0, x, y);
 			this.Show();
 		}
+		
+		public void Refresh(Bitmap image)
+		{
+			
+		}
 	}
 
 }

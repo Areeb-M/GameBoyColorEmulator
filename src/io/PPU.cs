@@ -10,6 +10,8 @@ namespace Emulator
 		byte[] oam;
 		byte[] output;
 		
+		LCD lcd;
+		
 		int ppuClock;
 		int ppuState;
 
@@ -52,13 +54,15 @@ namespace Emulator
 		// 2 - H-Blank
 		// 3 - V-Blank
 		
-		public PPU(InterruptController interruptController)
+		public PPU(InterruptController interruptController, LCD display)
 		{
 			vram = new byte[0x2000];
 			oam = new byte[40 * 4];
 			// 4 bytes of data for each of 40 sprites
 			output = new byte[256*256];
 			// one color for each pixel
+			
+			lcd = display;
 			
 			// Assign Default Values
 			lcdControl = new DataBus<byte>(0);
