@@ -12,6 +12,7 @@ namespace Emulator
 		private Memory memory;
 		private CPU cpu;
 		private Clock clock;
+		private LCD lcd;
 		
 		private Stopwatch stopwatch;
 		
@@ -37,7 +38,9 @@ namespace Emulator
 			interruptController = new InterruptController();
 			timer = new Timer(interruptController);
 			ppu = new PPU(interruptController);
-			registers = new Registers(timer.TimerRegisters, ppu.DisplayRegisters);
+			registers = new Registers(timer.TimerRegisters, ppu.DisplayRegisters);			
+			
+			LCD lcd = new LCD(400, 400);
 			
 			stopwatch = new Stopwatch();
 		}

@@ -5,13 +5,12 @@ using System.Windows.Forms;
 namespace Emulator
 {
 
-	class LCD
+	class LCD : Form
 	{
-		public LCD(int x, int y)
+		public LCD(int x, int y) : base()
 		{
-			Form test = new Form();
-			test.Bounds = new Rectangle(0, 0, x, y);
-			test.Show();
+			this.Bounds = new Rectangle(0, 0, x, y);
+			this.Show();
 		}
 	}
 
