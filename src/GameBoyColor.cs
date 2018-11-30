@@ -43,7 +43,7 @@ namespace Emulator
 			registers = new Registers(timer.TimerRegisters, ppu.DisplayRegisters);			
 			
 			stopwatch = new Stopwatch();
-			//lcd.Start();
+			lcd.Start();
 		}
 		
 		public void Run()
