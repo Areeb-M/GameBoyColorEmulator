@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Drawing;
 using System.Collections.Generic;
 
 namespace Emulator
@@ -107,7 +108,8 @@ namespace Emulator
 			if (scanLine.Data == 144) // V-Blank
 			{
 				ppuState = 3;
-				//RenderFullBackground();
+				RenderFullBackground();
+				RefreshLCD();
 				//OutputScreen();
 			}
 		}
@@ -174,6 +176,28 @@ namespace Emulator
 					//Console.WriteLine();
 				}
 			}
+		}
+		
+		public void RefreshLCD()
+		{
+			Bitmap image = new Bitmap(160, 144);
+			
+			int startX = scrollX.Data + 256; // Allows for backscroll without running into the negatives
+			int startY = scrollY.Data + 256;
+			
+			
+			for(int y = startY; y < startY + 144; y++)
+			{
+				for(int x = startX; x < startX + 160; x++)
+				{
+					if (GetPixel(x%256, y%256) != 0)
+						image.SetPixel(x-startX, y-startY, Color.Black);
+					else
+						image.SetPixel(x-startX, y-startY, Color.White);
+				}
+			}
+			
+			lcd.Refresh(image);			
 		}
 		
 		public void PrintTile(int i)
@@ -293,19 +317,7 @@ namespace Emulator
 					break;
 			}
 		}
-		#endregion
-		
-		struct Color
-		{
-			public int r, g, b;
-			public Color(int r, int g, int b)
-			{
-				this.r = r;
-				this.g = g;
-				this.b = b;
-			}
-		}
-	
+		#endregion	
 
 	}
 }

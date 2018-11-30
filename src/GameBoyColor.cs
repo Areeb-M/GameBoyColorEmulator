@@ -35,14 +35,15 @@ namespace Emulator
 		
 		private void Setup()
 		{
-			LCD lcd = new LCD(400, 400);
+			LCD lcd = new LCD(160, 144);
 			
 			interruptController = new InterruptController();
 			timer = new Timer(interruptController);
-			ppu = new PPU(interruptController);
+			ppu = new PPU(interruptController, lcd);
 			registers = new Registers(timer.TimerRegisters, ppu.DisplayRegisters);			
 			
 			stopwatch = new Stopwatch();
+			//lcd.Start();
 		}
 		
 		public void Run()
