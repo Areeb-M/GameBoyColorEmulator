@@ -6,13 +6,27 @@ using System.Windows.Forms;
 namespace Emulator
 {
 
-	class LCD : Form
+	class LCD
 	{
 		private Thread display;
+		private Form form;
 		
-		public LCD(int x, int y) : base()
+		private PictureBox bg;
+		int frame = 0;
+		
+		public LCD(int x, int y)
 		{
-			this.Bounds = new Rectangle(0, 0, x, y);
+			form = new Form();
+			
+			form.Bounds = new Rectangle(0, 0, x, y);
+			form.FormBorderStyle = FormBorderStyle.FixedSingle;
+			form.MaximizeBox = false;
+			form.MinimizeBox = false;
+			
+			bg = new PictureBox();
+			bg.Image = new Bitmap(160, 144);
+			form.Controls.Add(bg);
+			
 			display = new Thread(new ThreadStart(Run));
 		}
 		
@@ -23,7 +37,7 @@ namespace Emulator
 		
 		private void Run()
 		{
-			this.Show();
+			form.ShowDialog();
 			while(true)
 			{
 				Thread.Sleep(100);
@@ -34,7 +48,8 @@ namespace Emulator
 		{
 			lock (this)
 			{
-				BackgroundImage = image;
+				form.Text = "Frame: " + frame++;
+				bg.Image = image;
 			}
 		}
 	}

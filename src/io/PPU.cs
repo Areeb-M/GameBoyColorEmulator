@@ -190,14 +190,14 @@ namespace Emulator
 			{
 				for(int x = startX; x < startX + 160; x++)
 				{
-					if (GetPixel(x%256, y%256) == 0)
+					if (GetPixel(x%256, y%256) != 0)
 						image.SetPixel(x-startX, y-startY, Color.Black);
 					else
 						image.SetPixel(x-startX, y-startY, Color.White);
 				}
 			}
 			
-			lcd.Refresh(image);			
+			lcd.Refresh(image);
 		}
 		
 		public void PrintTile(int i)
