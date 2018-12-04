@@ -15,7 +15,6 @@ namespace Emulator
 		
 		int ppuClock;
 		int ppuState;
-		int frame;
 
 		DataBus<byte> lcdControl;
 		DataBus<byte> lcdStatus;
@@ -81,9 +80,7 @@ namespace Emulator
 			windowX = new DataBus<byte>(0);
 			
 			ppuState = 0;			
-			ppuClock = 0;
-			frame = 0;
-			
+			ppuClock = 0;			
 		}
 		
 		public void Tick()
@@ -133,7 +130,7 @@ namespace Emulator
 		public void OutputScreen()
 		{
 			int startX = scrollX.Data;
-			int startY = scrollY.Data;
+			int startY = 0;//scrollY.Data;
 			
 			Console.Write("\n---------------------");
 			
@@ -195,7 +192,7 @@ namespace Emulator
 			{
 				for(int x = startX; x < startX + 160; x++)
 				{
-					if (GetPixel(x%256, y%256) == 0)
+					if (GetPixel(x%256, y%256) == x%2)
 						image.SetPixel(x-startX, y-startY, Color.Black);
 					else
 						image.SetPixel(x-startX, y-startY, Color.White);

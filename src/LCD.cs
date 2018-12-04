@@ -50,6 +50,9 @@ namespace Emulator
 			{
 				form.Text = "Frame: " + frame++;
 				bg.Image = image;
+				bg.Refresh();
+				form.Refresh();
+				form.Invalidate();
 			}
 		}
 	}
