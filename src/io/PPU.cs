@@ -15,6 +15,7 @@ namespace Emulator
 		
 		int ppuClock;
 		int ppuState;
+		int frame;
 
 		DataBus<byte> lcdControl;
 		DataBus<byte> lcdStatus;
@@ -81,6 +82,7 @@ namespace Emulator
 			
 			ppuState = 0;			
 			ppuClock = 0;
+			frame = 0;
 			
 		}
 		
@@ -92,25 +94,28 @@ namespace Emulator
 			}
 			ppuClock = (ppuClock + 1) % 114;
 			
-			if (ppuClock == 0)
+			if (scanLine.Data >= 144)
+			{
+				if (ppuClock == 0)
+					scanLine.Data = (byte)((scanLine.Data + 1) % 154);
+			}
+			else if (ppuClock == 0)
 			{
 				ppuState = 0; // OAM Search
-				scanLine.Data = (byte)((scanLine.Data + 1) % 154);
+				scanLine.Data = (byte)((scanLine.Data + 1) % 154);		
+				if (scanLine.Data == 144)
+				{
+					RenderFullBackground();
+					RefreshLCD();
+				}
 			}
 			else if (ppuClock == 20)
 			{
 				ppuState = 1; // Pixel Transfer
-			} else if (ppuClock == 62)
+			} 
+			else if (ppuClock == 62)
 			{
 				ppuState = 2; // HBlank
-			}
-			
-			if (scanLine.Data == 144) // V-Blank
-			{
-				ppuState = 3;
-				RenderFullBackground();
-				RefreshLCD();
-				//OutputScreen();
 			}
 		}
 		
@@ -182,8 +187,8 @@ namespace Emulator
 		{
 			Bitmap image = new Bitmap(160, 144);
 			
-			int startX = scrollX.Data + 256; // Allows for backscroll without running into the negatives
-			int startY = scrollY.Data + 256;
+			int startX = scrollX.Data; // Allows for backscroll without running into the negatives
+			int startY = 0;//scrollY.Data + 256;
 			
 			
 			for(int y = startY; y < startY + 144; y++)
