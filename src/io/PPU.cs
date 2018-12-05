@@ -182,20 +182,26 @@ namespace Emulator
 		
 		public void RefreshLCD()
 		{
-			Bitmap image = new Bitmap(160, 144);
+			Bitmap image = new Bitmap(160*4, 144*4);
 			
 			int startX = scrollX.Data; // Allows for backscroll without running into the negatives
-			int startY = 0;//scrollY.Data + 256;
+			int startY = 0; //scrollY.Data + 256;
 			
+			Color c;
 			
 			for(int y = startY; y < startY + 144; y++)
 			{
 				for(int x = startX; x < startX + 160; x++)
 				{
-					if (GetPixel(x%256, y%256) == x%2)
-						image.SetPixel(x-startX, y-startY, Color.Black);
+					if (GetPixel(x%256, y%256) == (byte)1)
+						c = Color.Black;
 					else
-						image.SetPixel(x-startX, y-startY, Color.White);
+						c = Color.White;
+					
+					image.SetPixel(2*(x-startX), 2*(y-startY), c);
+					image.SetPixel(2*(x-startX)+1, 2*(y-startY), c);
+					image.SetPixel(2*(x-startX), 2*(y-startY)+1, c);
+					image.SetPixel(2*(x-startX)+1, 2*(y-startY)+1, c);
 				}
 			}
 			

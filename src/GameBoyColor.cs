@@ -35,7 +35,7 @@ namespace Emulator
 		
 		private void Setup()
 		{
-			LCD lcd = new LCD(160, 144);
+			LCD lcd = new LCD(160*4, 144*4);
 			
 			interruptController = new InterruptController();
 			timer = new Timer(interruptController);
@@ -55,8 +55,8 @@ namespace Emulator
 				clock.Tick();
 			}
 			stopwatch.Stop();
-			ppu.RenderFullBackground();
-			ppu.OutputScreen();
+			//ppu.RenderFullBackground();
+			//ppu.OutputScreen();
 			//for(int i = 0; i < 255; i++)
 				//ppu.PrintTile(i);
 			//ppu.PrintBGMap();

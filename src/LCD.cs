@@ -24,7 +24,9 @@ namespace Emulator
 			form.MinimizeBox = false;
 			
 			bg = new PictureBox();
-			bg.Image = new Bitmap(160, 144);
+			bg.SizeMode = PictureBoxSizeMode.Zoom;
+			bg.Bounds = form.Bounds;
+			bg.Image = new Bitmap(160*4, 144*4);
 			form.Controls.Add(bg);
 			
 			display = new Thread(new ThreadStart(Run));
@@ -50,9 +52,6 @@ namespace Emulator
 			{
 				form.Text = "Frame: " + frame++;
 				bg.Image = image;
-				bg.Refresh();
-				form.Refresh();
-				form.Invalidate();
 			}
 		}
 	}
