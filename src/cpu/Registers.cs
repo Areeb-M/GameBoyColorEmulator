@@ -462,7 +462,7 @@ namespace Emulator
 			// Scroll Y
 			// Read/Write
 			get { return DISPLAY[2].Data; }
-			set { DISPLAY[2].Data = value;}				
+			set { DISPLAY[2].Data = value; Console.WriteLine(value);}				
 		}
 		
 		public byte SCX

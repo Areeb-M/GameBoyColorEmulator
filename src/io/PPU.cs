@@ -102,8 +102,8 @@ namespace Emulator
 				scanLine.Data = (byte)((scanLine.Data + 1) % 154);		
 				if (scanLine.Data == 144)
 				{
-					RenderFullBackground();
-					RefreshLCD();
+					//RenderFullBackground();
+					//RefreshLCD();
 				}
 			}
 			else if (ppuClock == 20)
