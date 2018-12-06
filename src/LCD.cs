@@ -26,7 +26,7 @@ namespace Emulator
 			bg = new PictureBox();
 			bg.SizeMode = PictureBoxSizeMode.Zoom;
 			bg.Bounds = form.Bounds;
-			bg.Image = new Bitmap(160*4, 144*4);
+			bg.Image = new Bitmap(160, 144);
 			form.Controls.Add(bg);
 			
 			display = new Thread(new ThreadStart(Run));
@@ -42,7 +42,7 @@ namespace Emulator
 			form.ShowDialog();
 			while(true)
 			{
-				Thread.Sleep(100);
+				Thread.Sleep(1);
 			}
 		}
 		
@@ -50,7 +50,7 @@ namespace Emulator
 		{
 			lock (this)
 			{
-				form.Text = "Frame: " + frame++;
+				//form.Text = "Frame: " + frame++;
 				bg.Image = image;
 			}
 		}
