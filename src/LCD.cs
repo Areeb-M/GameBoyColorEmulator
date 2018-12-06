@@ -28,6 +28,7 @@ namespace Emulator
 			bg.Bounds = form.Bounds;
 			bg.Image = new Bitmap(160, 144);
 			form.Controls.Add(bg);
+			form.Text = "Gameboy Emulator";
 			
 			display = new Thread(new ThreadStart(Run));
 		}
@@ -51,7 +52,7 @@ namespace Emulator
 			lock (this)
 			{
 				//form.Text = "Frame: " + frame++;
-				bg.Image = image;
+				bg.Image = (Bitmap)image.Clone();
 			}
 		}
 	}

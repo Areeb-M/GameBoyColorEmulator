@@ -14,6 +14,7 @@ namespace Emulator
 		byte[] output;
 		
 		LCD lcd;
+		DirectBitmap finished;
 		
 		int ppuClock;
 		int ppuState;
@@ -67,6 +68,7 @@ namespace Emulator
 			// one color for each pixel
 			
 			lcd = display;
+			finished = new DirectBitmap(160, 144);
 			
 			// Assign Default Values
 			lcdControl = new DataBus<byte>(0);
@@ -192,9 +194,7 @@ namespace Emulator
 		}
 		
 		public void RefreshLCD()
-		{
-			DirectBitmap image = new DirectBitmap(160, 144);
-			
+		{			
 			int startX = scrollX.Data + 256; // Allows for backscroll without running into the negatives
 			int startY = scrollY.Data + 256;
 			
@@ -220,14 +220,14 @@ namespace Emulator
 							break;
 					}
 					
-					image.SetPixel(x, y, c);
+					finished.SetPixel(x, y, c);
 					//image.SetPixel(2*(x-startX)+1, 2*(y-startY), c);
 					//image.SetPixel(2*(x-startX), 2*(y-startY)+1, c);
 					//image.SetPixel(2*(x-startX)+1, 2*(y-startY)+1, c);
 				}
 			}
 			
-			lcd.Refresh(image.Bitmap);
+			lcd.Refresh(finished.Bitmap);
 		}
 		
 		public void PrintTile(int i)
