@@ -92,9 +92,11 @@ namespace Emulator
 				return;
 			} else 
 			{
-				if (!rendered)					
+				if (!rendered)			
+				{
 					RenderFullBackground();
-				rendered = true;
+					rendered = true;
+				}
 			}
 			ppuClock = (ppuClock + 1) % 114;
 			
@@ -109,7 +111,7 @@ namespace Emulator
 				scanLine.Data = (byte)((scanLine.Data + 1) % 154);		
 				if (scanLine.Data == 144)
 				{
-					RefreshLCD();
+					//RefreshLCD();
 					ppuState = 3;
 				}
 			}

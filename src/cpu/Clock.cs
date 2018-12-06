@@ -30,11 +30,11 @@ namespace Emulator
 		
 		public void Tick()
 		{
-			timer.Tick(clockCycle);
-			ppu.FIFO();
+			//timer.Tick(clockCycle);
+			//ppu.FIFO();
 			
-			if (clockCycle % 2 == 0)
-				ppu.Fetch();
+			//if (clockCycle % 2 == 0)
+			//	ppu.Fetch();
 			
 			if (clockCycle % 4 == 0)
 			{
