@@ -163,7 +163,6 @@ namespace Emulator
 				case 0x1E:
 					Debug.Log("LD E, d8");
 					reg.E = n;
-					Console.WriteLine("h" + reg.D);
 					break;
 				case 0x2E:
 					Debug.Log("LD L, d8");

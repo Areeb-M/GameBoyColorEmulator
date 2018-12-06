@@ -111,7 +111,7 @@ namespace Emulator
 				scanLine.Data = (byte)((scanLine.Data + 1) % 154);		
 				if (scanLine.Data == 144)
 				{
-					//RefreshLCD();
+					RefreshLCD();
 					ppuState = 3;
 				}
 			}
@@ -196,16 +196,27 @@ namespace Emulator
 			int startX = scrollX.Data + 256; // Allows for backscroll without running into the negatives
 			int startY = scrollY.Data + 256;
 			
-			Color c;
+			Color c = Color.White;
 			
 			for(int y = startY; y < startY + 144; y++)
 			{
 				for(int x = startX; x < startX + 160; x++)
 				{
-					if (GetPixel(x%256, y%256) == 1)
-						c = Color.Black;
-					else
-						c = Color.White;
+					switch(GetPixel(x%256, y%256))
+					{
+						case 0:
+							c = Color.White;
+							break;
+						case 1:
+							c = Color.Black;
+							break;
+						case 2:
+							c = Color.Gray;
+							break;
+						case 3:
+							c = Color.DarkGray;
+							break;
+					}
 					
 					image.SetPixel((x-startX), (y-startY), c);
 					//image.SetPixel(2*(x-startX)+1, 2*(y-startY), c);
