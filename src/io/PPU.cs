@@ -15,6 +15,7 @@ namespace Emulator
 		
 		int ppuClock;
 		int ppuState;
+		bool rendered;
 
 		DataBus<byte> lcdControl;
 		DataBus<byte> lcdStatus;
@@ -80,7 +81,8 @@ namespace Emulator
 			windowX = new DataBus<byte>(0);
 			
 			ppuState = 0;			
-			ppuClock = 0;			
+			ppuClock = 0;
+			rendered = false;
 		}
 		
 		public void Tick()
@@ -88,6 +90,11 @@ namespace Emulator
 			if (((lcdControl.Data >> 7)&1) == 0)
 			{
 				return;
+			} else 
+			{
+				if (!rendered)					
+					RenderFullBackground();
+				rendered = true;
 			}
 			ppuClock = (ppuClock + 1) % 114;
 			
@@ -102,8 +109,8 @@ namespace Emulator
 				scanLine.Data = (byte)((scanLine.Data + 1) % 154);		
 				if (scanLine.Data == 144)
 				{
-					//RenderFullBackground();
-					//RefreshLCD();
+					RefreshLCD();
+					ppuState = 3;
 				}
 			}
 			else if (ppuClock == 20)
@@ -182,10 +189,10 @@ namespace Emulator
 		
 		public void RefreshLCD()
 		{
-			Bitmap image = new Bitmap(160*4, 144*4);
+			Bitmap image = new Bitmap(160, 144);
 			
-			int startX = scrollX.Data; // Allows for backscroll without running into the negatives
-			int startY = 0; //scrollY.Data + 256;
+			int startX = scrollX.Data + 256; // Allows for backscroll without running into the negatives
+			int startY = scrollY.Data + 256;
 			
 			Color c;
 			
@@ -193,15 +200,15 @@ namespace Emulator
 			{
 				for(int x = startX; x < startX + 160; x++)
 				{
-					if (GetPixel(x%256, y%256) == (byte)1)
+					if (GetPixel(x%256, y%256) == 1)
 						c = Color.Black;
 					else
 						c = Color.White;
 					
-					image.SetPixel(2*(x-startX), 2*(y-startY), c);
-					image.SetPixel(2*(x-startX)+1, 2*(y-startY), c);
-					image.SetPixel(2*(x-startX), 2*(y-startY)+1, c);
-					image.SetPixel(2*(x-startX)+1, 2*(y-startY)+1, c);
+					image.SetPixel((x-startX), (y-startY), c);
+					//image.SetPixel(2*(x-startX)+1, 2*(y-startY), c);
+					//image.SetPixel(2*(x-startX), 2*(y-startY)+1, c);
+					//image.SetPixel(2*(x-startX)+1, 2*(y-startY)+1, c);
 				}
 			}
 			
