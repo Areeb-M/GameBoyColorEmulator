@@ -274,11 +274,6 @@ namespace Emulator
 			}
 		}
 		
-		public void DumpVRAM()
-		{
-			System.IO.File.WriteAllBytes("vram.dmp", vram);
-		}
-		
 		public void Fetch()
 		{
 			if (ppuState == 3)
@@ -287,6 +282,11 @@ namespace Emulator
 			{
 				
 			}
+		}
+		
+		public void DumpVRAM()
+		{
+			System.IO.File.WriteAllBytes("vram.dmp", vram);
 		}
 		
 		#region Data Access

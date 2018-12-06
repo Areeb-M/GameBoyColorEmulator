@@ -23,10 +23,12 @@ namespace Emulator
 			form.MaximizeBox = false;
 			form.MinimizeBox = false;
 			
+			
 			bg = new PictureBox();
 			bg.SizeMode = PictureBoxSizeMode.Zoom;
 			bg.Bounds = form.Bounds;
 			bg.Image = new Bitmap(160, 144);
+			
 			form.Controls.Add(bg);
 			form.Text = "Gameboy Emulator";
 			

@@ -30,7 +30,7 @@ namespace Emulator
 		
 		public void Tick()
 		{
-			//timer.Tick(clockCycle);
+			timer.Tick(clockCycle);
 			//ppu.FIFO();
 			
 			//if (clockCycle % 2 == 0)
