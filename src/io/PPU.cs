@@ -13,6 +13,9 @@ namespace Emulator
 		byte[] oam;
 		byte[] output;
 		
+		int[] spriteList;
+		bool[] spritePriority;
+		
 		LCD lcd;
 		DirectBitmap finished;
 		
@@ -117,6 +120,9 @@ namespace Emulator
 				{
 					RefreshLCD();
 					ppuState = 3;
+				} else 
+				{
+					OAMSearch();
 				}
 			}
 			else if (ppuClock == 20)
@@ -261,6 +267,25 @@ namespace Emulator
 			}
 		}
 		
+		
+		
+		public void OAMSearch()
+		{
+			bool finished = false;
+			spriteList = new int[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+			int index = 0;
+			int pointer = 0;
+			while (!finished)
+			{
+				if (pointer == 40 || index == 0)
+				{
+					finished = true;
+					continue;
+				}
+			}
+		}
+		
+		/*
 		public void FIFO()
 		{
 			if (ppuState == 3)
@@ -282,7 +307,7 @@ namespace Emulator
 			{
 				
 			}
-		}
+		}*/
 		
 		public void DumpVRAM()
 		{
